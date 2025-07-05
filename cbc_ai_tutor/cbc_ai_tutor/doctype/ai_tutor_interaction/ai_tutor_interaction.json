@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-03 09:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "student",
+  "date",
+  "topic",
+  "question",
+  "ai_response",
+  "feedback",
+  "linked_learning_outcome",
+  "session_duration"
+ ],
+ "fields": [
+  {
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "label": "Student",
+   "options": "Student",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Datetime",
+   "label": "Date",
+   "default": "Now"
+  },
+  {
+   "fieldname": "topic",
+   "fieldtype": "Data",
+   "label": "Topic"
+  },
+  {
+   "fieldname": "question",
+   "fieldtype": "Text Editor",
+   "label": "Question"
+  },
+  {
+   "fieldname": "ai_response",
+   "fieldtype": "Text Editor",
+   "label": "AI Response"
+  },
+  {
+   "fieldname": "feedback",
+   "fieldtype": "Text Editor",
+   "label": "Feedback (from student/teacher)"
+  },
+  {
+   "fieldname": "linked_learning_outcome",
+   "fieldtype": "Link",
+   "label": "Linked Learning Outcome",
+   "options": "Learning Outcome"
+  },
+  {
+   "fieldname": "session_duration",
+   "fieldtype": "Duration",
+   "label": "Session Duration (in minutes)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-03 09:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "AI Tutor Interaction",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

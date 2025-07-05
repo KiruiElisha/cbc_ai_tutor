@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-03 20:55:18.209376",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_k2eb"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_k2eb",
+   "fieldtype": "Section Break"
+  },
+  {
+      "fieldname": "assignment",
+      "label": "Assignment",
+      "fieldtype": "Link",
+      "options": "Assignment",
+      "reqd": 1
+    },
+    {
+      "fieldname": "student",
+      "label": "Student",
+      "fieldtype": "Link",
+      "options": "Student",
+      "reqd": 1
+    },
+    {
+      "fieldname": "submission_date",
+      "label": "Submission Date",
+      "fieldtype": "Datetime",
+      "default": "Now"
+    },
+    {
+      "fieldname": "attachment",
+      "label": "Submission File",
+      "fieldtype": "Attach",
+      "reqd": 1
+    },
+    {
+      "fieldname": "remarks",
+      "label": "Remarks",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "grade_given",
+      "label": "Grade Given",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Submitted\nReviewed\nReturned\nLate",
+      "default": "Submitted"
+    }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-03 20:55:18.209376",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "Assignment Submission",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

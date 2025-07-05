@@ -1,0 +1,142 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-04 10:16:42.667212",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_jhiu",
+  "school_name",
+  "school_code",
+  "education_level",
+  "ownership",
+  "head_of_school",
+  "email",
+  "admin_name",
+  "admin_email",
+  "column_break_coob",
+  "phone",
+  "county",
+  "sub_county",
+  "ward",
+  "location",
+  "is_active"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_jhiu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "school_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "School Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "school_code",
+   "fieldtype": "Data",
+   "label": "School Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "education_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Education Level",
+   "options": "Pre-Primary\nPrimary\nJunior Secondary\nSenior Secondary\nTVET\nSpecial Needs",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ownership",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Ownership",
+   "options": "Public\nPrivate\nCommunity\nFaith-Based",
+   "reqd": 1
+  },
+  {
+   "fieldname": "head_of_school",
+   "fieldtype": "Link",
+   "label": "Head of School",
+   "options": "User"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "School Email"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone Number"
+  },
+  {
+   "fieldname": "county",
+   "fieldtype": "Data",
+   "label": "County"
+  },
+  {
+   "fieldname": "sub_county",
+   "fieldtype": "Data",
+   "label": "Sub County"
+  },
+  {
+   "fieldname": "ward",
+   "fieldtype": "Data",
+   "label": "Ward"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "column_break_coob",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "admin_name",
+   "fieldtype": "Data",
+   "label": "Admin Name"
+  },
+  {
+   "fieldname": "admin_email",
+   "fieldtype": "Data",
+   "label": "Admin Email"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-04 10:30:21.623254",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "School",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

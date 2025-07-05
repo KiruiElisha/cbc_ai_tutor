@@ -1,0 +1,21 @@
+[
+ {
+  "allow_guest": 0,
+  "api_method": null,
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "After Save",
+  "enable_rate_limit": 0,
+  "event_frequency": "All",
+  "modified": "2025-07-05 18:32:25.059684",
+  "module": "CBC AI Tutor",
+  "name": "Student Enrollment",
+  "rate_limit_count": 5,
+  "rate_limit_seconds": 86400,
+  "reference_doctype": "Student",
+  "script": "\n\ndef create_program_enrollment(doc):\n    # Check if already enrolled\n    if frappe.db.exists(\"Program Enrollment\", {\"student\": doc.name}):\n        return\n\n    # Ensure grade exists\n    if not doc.custom_grade:\n        frappe.throw(\"No custom_grade specified for student.\")\n\n    # Create new enrollment\n    enrollment = frappe.new_doc(\"Program Enrollment\")\n    enrollment.student = doc.name\n    enrollment.student_name = doc.student_name or doc.first_name\n    enrollment.enrollment_date = doc.joining_date\n    enrollment.program = doc.custom_grade  # This should match your Program name (e.g., \"Grade 5\")\n    enrollment.academic_year =  frappe.utils.nowdate()[:4]\n    enrollment.boarding_student = 0\n    enrollment.save(ignore_permissions=True)\n    enrollment.submit()\n\n# Run after insert\ncreate_program_enrollment(doc)",
+  "script_type": "DocType Event"
+ }
+]

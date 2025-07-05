@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-04 09:39:55.496180",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_uerr",
+  "title",
+  "assignment_type",
+  "description",
+  "due_date",
+  "attachment",
+  "instructor",
+  "grade",
+  "strand",
+  "sub_strand",
+  "learning_outcome",
+  "performance_indicator",
+  "competency_type",
+  "status",
+  "is_active",
+  "published_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_uerr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Assignment Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "assignment_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Assignment Type",
+   "options": "Homework\nAssignment\nProject\nQuiz",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
+  },
+  {
+   "fieldname": "instructor",
+   "fieldtype": "Link",
+   "label": "Instructor",
+   "options": "Instructor"
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Program"
+  },
+  {
+   "fieldname": "strand",
+   "fieldtype": "Link",
+   "label": "Strand",
+   "options": "Strand"
+  },
+  {
+   "fieldname": "sub_strand",
+   "fieldtype": "Link",
+   "label": "Sub-strand",
+   "options": "Sub-strand"
+  },
+  {
+   "fieldname": "learning_outcome",
+   "fieldtype": "Link",
+   "label": "Learning Outcome",
+   "options": "Learning Outcome"
+  },
+  {
+   "fieldname": "performance_indicator",
+   "fieldtype": "Link",
+   "label": "Performance Indicator",
+   "options": "Performance Indicator"
+  },
+  {
+   "fieldname": "competency_type",
+   "fieldtype": "Select",
+   "label": "Competency Type",
+   "options": "Knowledge\nSkills\nValues & Attitudes"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nPublished\nClosed"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "default": "Now",
+   "fieldname": "published_on",
+   "fieldtype": "Datetime",
+   "label": "Published On"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-04 23:00:43.635061",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "Assignment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

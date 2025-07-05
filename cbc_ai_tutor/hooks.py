@@ -242,3 +242,16 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+# add fixtures , include all custom fields in Student doctype and instructor
+	
+
+# Fixtures configuration
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["dt", "in", ["Student", "Instructor"]]
+        ]
+    },
+    "Server Script"
+]
