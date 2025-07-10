@@ -1,0 +1,195 @@
+{
+    "name": "Quiz Submission",
+    "creation": "2025-07-09 10:28:43.000000",
+    "modified": "2025-07-09 10:28:43.000000",
+    "modified_by": "Administrator",
+    "owner": "Administrator",
+    "docstatus": 0,
+    "idx": 0,
+    "issingle": 0,
+    "is_tree": 0,
+    "istable": 0,
+    "editable_grid": 0,
+    "track_changes": 1,
+    "module": "Education",
+    "autoname": "format:QUIZ-SUB-{####}",
+    "naming_rule": "By fieldname",
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "read_only": 0,
+    "in_create": 0,
+    "allow_copy": 0,
+    "allow_rename": 1,
+    "allow_import": 1,
+    "hide_toolbar": 0,
+    "track_seen": 0,
+    "max_attachments": 0,
+    "engine": "InnoDB",
+    "is_submittable": 0,
+    "show_name_in_global_search": 1,
+    "custom": 0,
+    "beta": 0,
+    "has_web_view": 0,
+    "allow_guest_to_view": 0,
+    "email_append_to": 0,
+    "show_title_field_in_link": 1,
+    "quick_entry": 1,
+    "doctype": "DocType",
+    "permissions": [
+     {
+      "role": "Student",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 0,
+      "export": 0,
+      "print": 1,
+      "email": 0,
+      "report": 0,
+      "share": 0
+     },
+     {
+      "role": "Instructor",
+      "read": 1,
+      "write": 1,
+      "create": 0,
+      "delete": 1,
+      "export": 1,
+      "print": 1,
+      "email": 1,
+      "report": 1,
+      "share": 1
+     },
+     {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "export": 1,
+      "print": 1,
+      "email": 1,
+      "report": 1,
+      "share": 1
+     }
+    ],
+    "fields": [
+     {
+      "fieldname": "quiz",
+      "label": "Quiz",
+      "fieldtype": "Link",
+      "options": "Quiz",
+      "reqd": 1,
+      "in_list_view": 1,
+      "in_standard_filter": 1
+     },
+     {
+      "fieldname": "student",
+      "label": "Student",
+      "fieldtype": "Link",
+      "options": "Student",
+      "reqd": 1,
+      "in_list_view": 1,
+      "in_standard_filter": 1
+     },
+     {
+      "fieldname": "attempt_number",
+      "label": "Attempt Number",
+      "fieldtype": "Int",
+      "default": 1,
+      "read_only": 1,
+      "in_list_view": 1
+     },
+     {
+      "fieldname": "score",
+      "label": "Score",
+      "fieldtype": "Percent",
+      "read_only": 1,
+      "in_list_view": 1
+     },
+     {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "In Progress\nCompleted\nGraded\nFailed",
+      "default": "In Progress",
+      "read_only": 1,
+      "in_list_view": 1
+     },
+     {
+      "fieldname": "time_started",
+      "label": "Time Started",
+      "fieldtype": "Datetime",
+      "read_only": 1
+  
+     },
+     {
+      "fieldname": "time_completed",
+      "label": "Time Completed",
+      "fieldtype": "Datetime",
+      "read_only": 1
+     },
+     {
+      "fieldname": "time_taken",
+      "label": "Time Taken (seconds)",
+      "fieldtype": "Int",
+      "read_only": 1
+     },
+     {
+      "fieldname": "answers_section",
+      "label": "Answers",
+      "fieldtype": "Section Break",
+      "collapsible": 1,
+      "collapsed": 0
+     },
+     {
+      "fieldname": "answers",
+      "label": "Answers",
+      "fieldtype": "Table",
+      "options": "Quiz Answer",
+      "reqd": 1
+     },
+     {
+      "fieldname": "grading_section",
+      "label": "Grading",
+      "fieldtype": "Section Break",
+      "depends_on": "eval:doc.status === 'Graded'"
+     },
+     {
+      "fieldname": "grading_notes",
+      "label": "Grading Notes",
+      "fieldtype": "Small Text",
+      "depends_on": "eval:doc.status === 'Graded'"
+     },
+     {
+      "fieldname": "graded_by",
+      "label": "Graded By",
+      "fieldtype": "Link",
+      "options": "User",
+      "read_only": 1,
+      "depends_on": "eval:doc.status === 'Graded'"
+     },
+     {
+      "fieldname": "graded_on",
+      "label": "Graded On",
+      "fieldtype": "Datetime",
+      "read_only": 1,
+      "depends_on": "eval:doc.status === 'Graded'"
+     }
+    ],
+    "links": [
+     {
+      "link_doctype": "Student",
+      "link_fieldname": "name",
+      "parent_doctype": "Quiz Submission",
+      "parent_fieldname": "student"
+     },
+     {
+      "link_doctype": "Quiz",
+      "link_fieldname": "name",
+      "parent_doctype": "Quiz Submission",
+      "parent_fieldname": "quiz"
+     }
+    ]
+   }
+   
