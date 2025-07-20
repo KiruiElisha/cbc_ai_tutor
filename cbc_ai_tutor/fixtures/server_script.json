@@ -17,5 +17,24 @@
   "reference_doctype": "Student",
   "script": "\n\ndef create_program_enrollment(doc):\n    # Check if already enrolled\n    if frappe.db.exists(\"Program Enrollment\", {\"student\": doc.name}):\n        return\n\n    # Ensure grade exists\n    if not doc.custom_grade:\n        frappe.throw(\"No custom_grade specified for student.\")\n\n    # Create new enrollment\n    enrollment = frappe.new_doc(\"Program Enrollment\")\n    enrollment.student = doc.name\n    enrollment.student_name = doc.student_name or doc.first_name\n    enrollment.enrollment_date = doc.joining_date\n    enrollment.program = doc.custom_grade  # This should match your Program name (e.g., \"Grade 5\")\n    enrollment.academic_year =  frappe.utils.nowdate()[:4]\n    enrollment.boarding_student = 0\n    enrollment.save(ignore_permissions=True)\n    enrollment.submit()\n\n# Run after insert\ncreate_program_enrollment(doc)",
   "script_type": "DocType Event"
+ },
+ {
+  "allow_guest": 0,
+  "api_method": "/change-password",
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "Before Insert",
+  "enable_rate_limit": 0,
+  "event_frequency": "All",
+  "modified": "2025-07-18 17:07:06.314779",
+  "module": "CBC AI Tutor",
+  "name": "Change Password",
+  "rate_limit_count": 5,
+  "rate_limit_seconds": 86400,
+  "reference_doctype": null,
+  "script": "@frappe.whitelist(allow_guest=True)\ndef reset_and_email_password(user_email):\n    if not frappe.db.exists(\"User\", user_email):\n        frappe.throw(\"User does not exist\")\n\n    # Generate a random password using Frappe's frappe.generate_hash\n    new_password = frappe.generate_hash(length=10)\n\n    # Set new password using safe method\n    user = frappe.get_doc(\"User\", user_email)\n    user.set_new_password(new_password)\n\n    # Compose email\n    subject = \"Your Password Has Been Reset\"\n    message = f\"\"\"\n    Hello {user.first_name or user_email},<br><br>\n    Your password has been reset.<br><br>\n    <b>Email:</b> {user_email}<br>\n    <b>New Password:</b> {new_password}<br><br>\n    You can log in at <a href=\"{frappe.utils.get_url()}/login\">{frappe.utils.get_url()}/login</a><br><br>\n    If you did not request this, contact support immediately.<br><br>\n    Regards,<br>\n    Your Support Team\n    \"\"\"\n\n    # Send email using frappe.sendmail\n    frappe.sendmail(\n        recipients=user_email,\n        subject=subject,\n        message=message\n    )\n\n    return {\n        \"message\": \"Password has been reset and sent to the user's email.\",\n        \"email\": user_email\n    }",
+  "script_type": "API"
  }
 ]

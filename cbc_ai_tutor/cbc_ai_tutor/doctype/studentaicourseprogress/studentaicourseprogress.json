@@ -1,22 +1,27 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-07-05 09:12:26.837004",
+ "creation": "2025-07-18 22:14:48.163839",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "details_section",
   "student",
-  "questions",
-  "question_type",
-  "subject",
-  "grade_level",
+  "student_email",
+  "course",
   "topic",
-  "column_break_zdua",
-  "ai_feedback",
-  "student_answers",
-  "score"
+  "topic_index",
+  "understanding",
+  "activity",
+  "quiz",
+  "passed"
  ],
  "fields": [
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
   {
    "fieldname": "student",
    "fieldtype": "Link",
@@ -24,57 +29,55 @@
    "options": "Student"
   },
   {
-   "fieldname": "questions",
-   "fieldtype": "JSON",
-   "label": "Questions"
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "Course"
   },
   {
-   "fieldname": "score",
-   "fieldtype": "Data",
-   "label": "Score"
-  },
-  {
-   "fieldname": "student_answers",
+   "fieldname": "understanding",
    "fieldtype": "Text",
-   "label": "student_answers"
+   "label": "Understanding"
   },
   {
-   "fieldname": "ai_feedback",
+   "fieldname": "activity",
    "fieldtype": "Text",
-   "label": "ai_feedback"
+   "label": "Activity"
   },
   {
-   "fieldname": "question_type",
-   "fieldtype": "Data",
-   "label": "question_type"
+   "fieldname": "quiz",
+   "fieldtype": "Text",
+   "label": "Quiz"
   },
   {
-   "fieldname": "subject",
-   "fieldtype": "Data",
-   "label": "subject"
+   "default": "0",
+   "fieldname": "passed",
+   "fieldtype": "Check",
+   "label": "Passed"
   },
   {
-   "fieldname": "grade_level",
+   "fieldname": "student_email",
    "fieldtype": "Data",
-   "label": "grade_level"
+   "label": "Student Email"
   },
   {
    "fieldname": "topic",
    "fieldtype": "Data",
-   "label": "topic"
+   "label": "Topic"
   },
   {
-   "fieldname": "column_break_zdua",
-   "fieldtype": "Column Break"
+   "fieldname": "topic_index",
+   "fieldtype": "Int",
+   "label": "Topic index"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-15 12:45:38.919580",
+ "modified": "2025-07-20 13:24:59.147333",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
- "name": "Practice Questions",
+ "name": "StudentAICourseProgress",
  "owner": "Administrator",
  "permissions": [
   {
