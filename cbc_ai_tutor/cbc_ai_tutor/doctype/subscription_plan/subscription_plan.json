@@ -1,0 +1,150 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "plan_name",
+  "enabled",
+  "billing_period",
+  "duration_days",
+  "display_order",
+  "column_break_price",
+  "price_kes",
+  "price_paypal",
+  "max_learners",
+  "ai_messages_per_day",
+  "description_section",
+  "tagline",
+  "features"
+ ],
+ "fields": [
+  {
+   "fieldname": "plan_name",
+   "fieldtype": "Data",
+   "label": "Plan Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "billing_period",
+   "fieldtype": "Select",
+   "label": "Billing Period",
+   "options": "Monthly\nTermly\nYearly",
+   "default": "Monthly",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "duration_days",
+   "fieldtype": "Int",
+   "label": "Days of Access",
+   "reqd": 1,
+   "default": "30",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "display_order",
+   "fieldtype": "Int",
+   "label": "Display Order",
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_price",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "price_kes",
+   "fieldtype": "Currency",
+   "label": "Price (KES, M-Pesa)",
+   "options": "KES",
+   "reqd": 1,
+   "in_list_view": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "price_paypal",
+   "fieldtype": "Float",
+   "label": "Price (PayPal currency)",
+   "precision": "2",
+   "non_negative": 1,
+   "description": "Charged in the PayPal currency set on CBC Settings."
+  },
+  {
+   "fieldname": "max_learners",
+   "fieldtype": "Int",
+   "label": "Learners Covered",
+   "default": "1",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "ai_messages_per_day",
+   "fieldtype": "Int",
+   "label": "AI Messages per Learner per Day",
+   "default": "50",
+   "non_negative": 1,
+   "description": "Zero means no daily limit."
+  },
+  {
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "tagline",
+   "fieldtype": "Data",
+   "label": "Tagline"
+  },
+  {
+   "fieldname": "features",
+   "fieldtype": "Small Text",
+   "label": "Features",
+   "description": "One per line. Shown on the plan card."
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "Subscription Plan",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  },
+  {
+   "role": "Guardian",
+   "read": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "display_order",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 0,
+ "autoname": "field:plan_name",
+ "naming_rule": "By fieldname"
+}

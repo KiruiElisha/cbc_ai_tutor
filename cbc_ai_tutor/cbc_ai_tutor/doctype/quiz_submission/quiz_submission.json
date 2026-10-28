@@ -21,7 +21,10 @@
   "grading_section",
   "grading_notes",
   "graded_by",
-  "graded_on"
+  "graded_on",
+  "sync_section",
+  "lesson",
+  "client_uuid"
  ],
  "fields": [
   {
@@ -129,6 +132,28 @@
   {
    "fieldname": "column_break_zzdu",
    "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sync_section",
+   "fieldtype": "Section Break",
+   "label": "App"
+  },
+  {
+   "fieldname": "lesson",
+   "fieldtype": "Link",
+   "label": "Lesson",
+   "options": "Lesson",
+   "read_only": 1
+  },
+  {
+   "description": "Set by the app so an attempt taken offline is recorded once, however many times it is sent.",
+   "fieldname": "client_uuid",
+   "fieldtype": "Data",
+   "label": "Client Attempt ID",
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
   }
  ],
  "links": [
@@ -143,7 +168,7 @@
    "parent_doctype": "Quiz Submission"
   }
  ],
- "modified": "2025-07-10 19:41:39.646152",
+ "modified": "2026-10-28 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "Quiz Submission",

@@ -26,10 +26,11 @@
    "reqd": 1
   },
   {
+   "description": "The learning area. Strands hang off the same Course.",
    "fieldname": "subject",
    "fieldtype": "Link",
-   "label": "Subject",
-   "options": "Subject"
+   "label": "Learning Area",
+   "options": "Course"
   },
   {
    "fieldname": "strand",
@@ -85,7 +86,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-03 09:30:00.000000",
+ "modified": "2026-10-28 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "Continuous Assessment",

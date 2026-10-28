@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "CBC Tutor",
+  "version": "0.1.0",
+  "identifier": "ke.cbctutor.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "CBC Tutor",
+        "width": 1100,
+        "height": 760,
+        "minWidth": 360,
+        "minHeight": 560
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: blob: https: http:; media-src 'self' https: http: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' ipc: http://ipc.localhost; frame-src blob: https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com"
+    }
+  },
+  "plugins": {
+    "deep-link": {
+      "mobile": [{ "scheme": ["cbctutor"], "appLink": false }],
+      "desktop": { "schemes": ["cbctutor"] }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Education",
+    "shortDescription": "Kenyan CBC lessons with an AI tutor",
+    "longDescription": "Lessons, quizzes and assignments for every CBC grade from PP1 to Grade 12. Works offline, syncs when connected, and includes Mwalimu, an AI tutor. Parents follow progress and pay with M-Pesa or PayPal.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" }
+    },
+    "android": {
+      "minSdkVersion": 24
+    }
+  }
+}

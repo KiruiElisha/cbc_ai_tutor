@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "guardian",
+  "guardian_name",
+  "user",
+  "status",
+  "column_break_sub",
+  "plan",
+  "current_period_start",
+  "current_period_end",
+  "trial_ends_on",
+  "max_learners",
+  "ai_messages_per_day",
+  "history_section",
+  "last_payment",
+  "reminder_sent_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "guardian",
+   "fieldtype": "Link",
+   "label": "Parent",
+   "options": "Guardian",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "guardian_name",
+   "fieldtype": "Data",
+   "label": "Parent Name",
+   "read_only": 1,
+   "fetch_from": "guardian.guardian_name"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Trial\nActive\nExpired\nCancelled",
+   "default": "Trial",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_sub",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plan",
+   "fieldtype": "Link",
+   "label": "Plan",
+   "options": "Subscription Plan",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "current_period_start",
+   "fieldtype": "Datetime",
+   "label": "Access From"
+  },
+  {
+   "fieldname": "current_period_end",
+   "fieldtype": "Datetime",
+   "label": "Access Until",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "trial_ends_on",
+   "fieldtype": "Datetime",
+   "label": "Trial Ends"
+  },
+  {
+   "fieldname": "max_learners",
+   "fieldtype": "Int",
+   "label": "Learners Covered",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_messages_per_day",
+   "fieldtype": "Int",
+   "label": "AI Messages per Learner per Day",
+   "read_only": 1
+  },
+  {
+   "fieldname": "history_section",
+   "fieldtype": "Section Break",
+   "label": "Payments"
+  },
+  {
+   "fieldname": "last_payment",
+   "fieldtype": "Link",
+   "label": "Last Payment",
+   "options": "Payment Transaction",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reminder_sent_on",
+   "fieldtype": "Date",
+   "label": "Renewal Reminder Sent",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "Parent Subscription",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "hash",
+ "title_field": "guardian_name"
+}

@@ -1,0 +1,220 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "program",
+  "course",
+  "strand",
+  "sub_strand",
+  "learning_outcome",
+  "column_break_meta",
+  "published",
+  "is_free",
+  "lesson_order",
+  "estimated_minutes",
+  "quiz",
+  "content_section",
+  "summary",
+  "body",
+  "key_vocabulary",
+  "activities",
+  "reflection",
+  "media_section",
+  "image",
+  "video_url"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "program",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Program",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Learning Area",
+   "options": "Course",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "strand",
+   "fieldtype": "Link",
+   "label": "Strand",
+   "options": "Strand",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "sub_strand",
+   "fieldtype": "Link",
+   "label": "Sub-strand",
+   "options": "Sub-strand",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "learning_outcome",
+   "fieldtype": "Link",
+   "label": "Learning Outcome",
+   "options": "Learning Outcome"
+  },
+  {
+   "fieldname": "column_break_meta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "label": "Published",
+   "default": "0",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "is_free",
+   "fieldtype": "Check",
+   "label": "Free Preview",
+   "default": "0",
+   "description": "Free lessons stay open after a family's trial or subscription ends."
+  },
+  {
+   "fieldname": "lesson_order",
+   "fieldtype": "Int",
+   "label": "Order",
+   "default": "0"
+  },
+  {
+   "fieldname": "estimated_minutes",
+   "fieldtype": "Int",
+   "label": "Estimated Minutes",
+   "default": "20",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "quiz",
+   "fieldtype": "Link",
+   "label": "Quiz",
+   "options": "Quiz",
+   "description": "Taken at the end of the lesson. Works offline."
+  },
+  {
+   "fieldname": "content_section",
+   "fieldtype": "Section Break",
+   "label": "Content"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "body",
+   "fieldtype": "Text Editor",
+   "label": "Lesson"
+  },
+  {
+   "fieldname": "key_vocabulary",
+   "fieldtype": "Small Text",
+   "label": "Key Vocabulary",
+   "description": "One word or phrase per line."
+  },
+  {
+   "fieldname": "activities",
+   "fieldtype": "Text Editor",
+   "label": "Learning Activities"
+  },
+  {
+   "fieldname": "reflection",
+   "fieldtype": "Small Text",
+   "label": "Reflection Question"
+  },
+  {
+   "fieldname": "media_section",
+   "fieldtype": "Section Break",
+   "label": "Media"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Cover Image"
+  },
+  {
+   "fieldname": "video_url",
+   "fieldtype": "Data",
+   "label": "Video URL",
+   "options": "URL",
+   "description": "Streams when online. Downloaded lessons keep the text, activities and quiz."
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "Lesson",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Education Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1
+  },
+  {
+   "role": "Instructor",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Academics User",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "report": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "lesson_order",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "hash",
+ "title_field": "title",
+ "show_title_field_in_link": 1,
+ "search_fields": "program,course",
+ "allow_import": 1
+}

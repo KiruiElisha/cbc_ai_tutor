@@ -1,0 +1,137 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "student",
+  "lesson",
+  "status",
+  "progress",
+  "column_break_lp",
+  "time_spent",
+  "first_opened",
+  "last_opened",
+  "completed_on",
+  "program",
+  "course"
+ ],
+ "fields": [
+  {
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "label": "Student",
+   "options": "Student",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "lesson",
+   "fieldtype": "Link",
+   "label": "Lesson",
+   "options": "Lesson",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Started\nCompleted",
+   "default": "Started",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "progress",
+   "fieldtype": "Percent",
+   "label": "Progress"
+  },
+  {
+   "fieldname": "column_break_lp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "time_spent",
+   "fieldtype": "Int",
+   "label": "Time Spent (seconds)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "first_opened",
+   "fieldtype": "Datetime",
+   "label": "First Opened"
+  },
+  {
+   "fieldname": "last_opened",
+   "fieldtype": "Datetime",
+   "label": "Last Opened"
+  },
+  {
+   "fieldname": "completed_on",
+   "fieldtype": "Datetime",
+   "label": "Completed On"
+  },
+  {
+   "fieldname": "program",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Program",
+   "read_only": 1,
+   "fetch_from": "lesson.program"
+  },
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Learning Area",
+   "options": "Course",
+   "read_only": 1,
+   "fetch_from": "lesson.course"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "Lesson Progress",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Education Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1
+  },
+  {
+   "role": "Instructor",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "autoname": "hash"
+}

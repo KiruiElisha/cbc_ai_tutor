@@ -1,0 +1,312 @@
+{
+ "actions": [],
+ "creation": "2026-10-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_section",
+  "app_name",
+  "support_email",
+  "support_phone",
+  "column_break_general",
+  "trial_days",
+  "trial_max_learners",
+  "trial_ai_messages_per_day",
+  "session_days",
+  "learner_email_domain",
+  "ai_section",
+  "ai_enabled",
+  "ai_provider",
+  "ai_model",
+  "ai_base_url",
+  "ai_api_key",
+  "column_break_ai",
+  "ai_temperature",
+  "ai_max_output_tokens",
+  "ai_timeout_seconds",
+  "ai_extra_instructions",
+  "intasend_section",
+  "intasend_enabled",
+  "intasend_base_url",
+  "intasend_publishable_key",
+  "intasend_secret_key",
+  "column_break_intasend",
+  "intasend_webhook_challenge",
+  "intasend_webhook_url",
+  "paypal_section",
+  "paypal_enabled",
+  "paypal_environment",
+  "paypal_client_id",
+  "paypal_client_secret",
+  "column_break_paypal",
+  "paypal_webhook_id",
+  "paypal_currency",
+  "paypal_webhook_url",
+  "paypal_return_url"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "fieldname": "app_name",
+   "fieldtype": "Data",
+   "label": "App Name",
+   "default": "CBC AI Tutor"
+  },
+  {
+   "fieldname": "support_email",
+   "fieldtype": "Data",
+   "label": "Support Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "support_phone",
+   "fieldtype": "Data",
+   "label": "Support Phone"
+  },
+  {
+   "fieldname": "column_break_general",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "trial_days",
+   "fieldtype": "Int",
+   "label": "Free Trial (days)",
+   "default": "7",
+   "non_negative": 1,
+   "description": "New parent accounts get full access for this many days."
+  },
+  {
+   "fieldname": "trial_max_learners",
+   "fieldtype": "Int",
+   "label": "Learners Allowed on Trial",
+   "default": "3",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "trial_ai_messages_per_day",
+   "fieldtype": "Int",
+   "label": "AI Messages per Learner per Day on Trial",
+   "default": "20",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "session_days",
+   "fieldtype": "Int",
+   "label": "App Session Length (days)",
+   "default": "90",
+   "non_negative": 1,
+   "description": "How long a device stays signed in without being used."
+  },
+  {
+   "fieldname": "learner_email_domain",
+   "fieldtype": "Data",
+   "label": "Learner Login Domain",
+   "default": "learners.cbc.invalid",
+   "description": "Learners have no email of their own. Their sign-in is stored as learner-CODE@this-domain. Use a domain you control, or leave the .invalid default so nothing is ever sent."
+  },
+  {
+   "fieldname": "ai_section",
+   "fieldtype": "Section Break",
+   "label": "AI Tutor"
+  },
+  {
+   "fieldname": "ai_enabled",
+   "fieldtype": "Check",
+   "label": "AI Tutor Enabled",
+   "default": "1"
+  },
+  {
+   "fieldname": "ai_provider",
+   "fieldtype": "Select",
+   "label": "Provider",
+   "options": "OpenAI\nAnthropic\nGoogle Gemini\nOpenAI Compatible",
+   "default": "OpenAI"
+  },
+  {
+   "fieldname": "ai_model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "default": "gpt-4o-mini",
+   "description": "For example gpt-4o-mini, claude-3-5-haiku-latest, gemini-2.0-flash, or the model name your compatible server uses."
+  },
+  {
+   "fieldname": "ai_base_url",
+   "fieldtype": "Data",
+   "label": "Base URL",
+   "description": "Only for OpenAI Compatible (OpenRouter, Groq, Ollama, Azure-style gateways). Example: https://openrouter.ai/api/v1",
+   "depends_on": "eval:doc.ai_provider=='OpenAI Compatible'"
+  },
+  {
+   "fieldname": "ai_api_key",
+   "fieldtype": "Password",
+   "label": "API Key",
+   "length": 1000
+  },
+  {
+   "fieldname": "column_break_ai",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ai_temperature",
+   "fieldtype": "Float",
+   "label": "Temperature",
+   "default": "0.4",
+   "precision": "2"
+  },
+  {
+   "fieldname": "ai_max_output_tokens",
+   "fieldtype": "Int",
+   "label": "Max Output Tokens",
+   "default": "900",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "ai_timeout_seconds",
+   "fieldtype": "Int",
+   "label": "Request Timeout (seconds)",
+   "default": "60",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "ai_extra_instructions",
+   "fieldtype": "Small Text",
+   "label": "Extra Tutor Instructions",
+   "description": "Added to the tutor's instructions for every learner."
+  },
+  {
+   "fieldname": "intasend_section",
+   "fieldtype": "Section Break",
+   "label": "M-Pesa (IntaSend)"
+  },
+  {
+   "fieldname": "intasend_enabled",
+   "fieldtype": "Check",
+   "label": "M-Pesa Enabled",
+   "default": "0"
+  },
+  {
+   "fieldname": "intasend_base_url",
+   "fieldtype": "Data",
+   "label": "API Base URL",
+   "default": "https://api.intasend.com",
+   "description": "One host serves sandbox and live. A _test_ secret key runs in sandbox, a _live_ key in live."
+  },
+  {
+   "fieldname": "intasend_publishable_key",
+   "fieldtype": "Data",
+   "label": "Publishable Key"
+  },
+  {
+   "fieldname": "intasend_secret_key",
+   "fieldtype": "Password",
+   "label": "Secret Key",
+   "length": 1000
+  },
+  {
+   "fieldname": "column_break_intasend",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "intasend_webhook_challenge",
+   "fieldtype": "Password",
+   "label": "Webhook Challenge",
+   "length": 500,
+   "description": "The challenge string set on the IntaSend webhook. Webhooks without it are ignored."
+  },
+  {
+   "fieldname": "intasend_webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL",
+   "read_only": 1,
+   "description": "Set this as the collection_event webhook endpoint in IntaSend."
+  },
+  {
+   "fieldname": "paypal_section",
+   "fieldtype": "Section Break",
+   "label": "PayPal"
+  },
+  {
+   "fieldname": "paypal_enabled",
+   "fieldtype": "Check",
+   "label": "PayPal Enabled",
+   "default": "0"
+  },
+  {
+   "fieldname": "paypal_environment",
+   "fieldtype": "Select",
+   "label": "Environment",
+   "options": "Sandbox\nLive",
+   "default": "Sandbox"
+  },
+  {
+   "fieldname": "paypal_client_id",
+   "fieldtype": "Data",
+   "label": "Client ID"
+  },
+  {
+   "fieldname": "paypal_client_secret",
+   "fieldtype": "Password",
+   "label": "Client Secret",
+   "length": 1000
+  },
+  {
+   "fieldname": "column_break_paypal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "paypal_webhook_id",
+   "fieldtype": "Data",
+   "label": "Webhook ID",
+   "description": "From the PayPal app's webhook. Used to verify each webhook's signature."
+  },
+  {
+   "fieldname": "paypal_currency",
+   "fieldtype": "Data",
+   "label": "Currency",
+   "default": "USD",
+   "description": "PayPal does not settle in KES, so plans carry a separate PayPal price."
+  },
+  {
+   "fieldname": "paypal_webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "paypal_return_url",
+   "fieldtype": "Data",
+   "label": "Return URL",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CBC AI Tutor",
+ "name": "CBC Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "delete": 0,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "issingle": 1
+}
