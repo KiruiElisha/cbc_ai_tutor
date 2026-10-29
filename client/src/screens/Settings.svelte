@@ -113,13 +113,6 @@
 
   <div class="section"><h2>This device</h2></div>
   <div class="card flat">
-    <div class="row between"><span>Server</span><span class="small muted">{app.server || 'Not set'}</span></div>
-    {#if !app.session}<a class="btn sm ghost" style="margin-top: 8px" href="#/server">Change server</a>{/if}
-  </div>
-  <div class="card flat">
-    <div class="row between"><span>App version</span><span class="small muted">{app.version} · {app.platform}</span></div>
-  </div>
-  <div class="card flat">
     <div class="row between wrap">
       <div><b>Remove everything from this device</b><div class="small muted">For shared or sold devices.</div></div>
       <button class="btn sm ghost danger" onclick={wipe}>Remove</button>

@@ -12,6 +12,7 @@ class CBCSettings(Document):
 		self.intasend_webhook_url = f"{base}/api/method/cbc_ai_tutor.api.payments.intasend_webhook"
 		self.paypal_webhook_url = f"{base}/api/method/cbc_ai_tutor.api.payments.paypal_webhook"
 		self.paypal_return_url = f"{base}/api/method/cbc_ai_tutor.api.payments.paypal_return"
+		self.google_redirect_url = f"{base}/api/method/cbc_ai_tutor.api.signin.google_callback"
 		if (self.trial_days or 0) < 0:
 			self.trial_days = 0
 		if self.ai_provider == "OpenAI Compatible" and self.ai_enabled and not self.ai_base_url:

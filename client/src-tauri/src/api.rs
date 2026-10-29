@@ -37,7 +37,7 @@ impl Api {
         token: Option<&str>,
     ) -> AppResult<Value> {
         if server.is_empty() {
-            return Err(AppError::Invalid("Set the server address first.".into()));
+            return Err(AppError::Invalid("This build has no school address.".into()));
         }
         if !path.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '_') {
             return Err(AppError::Invalid("Bad API path.".into()));

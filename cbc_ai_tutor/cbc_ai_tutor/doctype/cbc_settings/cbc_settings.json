@@ -25,6 +25,12 @@
   "ai_max_output_tokens",
   "ai_timeout_seconds",
   "ai_extra_instructions",
+  "google_section",
+  "google_enabled",
+  "google_client_id",
+  "google_client_secret",
+  "column_break_google",
+  "google_redirect_url",
   "intasend_section",
   "intasend_enabled",
   "intasend_base_url",
@@ -176,6 +182,40 @@
    "fieldtype": "Small Text",
    "label": "Extra Tutor Instructions",
    "description": "Added to the tutor's instructions for every learner."
+  },
+  {
+   "fieldname": "google_section",
+   "fieldtype": "Section Break",
+   "label": "Google sign-in"
+  },
+  {
+   "fieldname": "google_enabled",
+   "fieldtype": "Check",
+   "label": "Google Enabled",
+   "default": "0"
+  },
+  {
+   "fieldname": "google_client_id",
+   "fieldtype": "Data",
+   "label": "Client ID",
+   "description": "From a Google Cloud OAuth client of type Web application."
+  },
+  {
+   "fieldname": "google_client_secret",
+   "fieldtype": "Password",
+   "label": "Client Secret",
+   "length": 1000
+  },
+  {
+   "fieldname": "column_break_google",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "google_redirect_url",
+   "fieldtype": "Data",
+   "label": "Redirect URL",
+   "read_only": 1,
+   "description": "Add this exact address as an authorised redirect URI on the Google client."
   },
   {
    "fieldname": "intasend_section",

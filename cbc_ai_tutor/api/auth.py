@@ -278,21 +278,23 @@ def signup_parent(
 	if strength and cint(strength.get("score")) < 2:
 		frappe.throw(_("That password is too easy to guess. Add more words or characters."))
 
-	if frappe.db.exists("User", email) or frappe.db.exists("User", {"email": email}):
-		frappe.throw(
-			_("An account already uses {0}. Sign in, or reset the password.").format(email),
-			frappe.DuplicateEntryError,
-		)
-	if frappe.db.exists("User", {"mobile_no": phone}):
-		frappe.throw(_("An account already uses that phone number."), frappe.DuplicateEntryError)
+	result = provision_parent(
+		full_name, email, phone, password, _device(device_name, platform, app_version), ignore_policy=False
+	)
+	frappe.db.commit()
+	return result
 
+
+def provision_parent(full_name: str, email: str, phone: str, password: str, device: dict, ignore_policy: bool = False) -> dict:
+	"""A new parent: User, Guardian, free trial and a device token. Caller commits."""
+	_reject_existing_parent(email, phone)
 	first, _sep, last = full_name.partition(" ")
 	user = frappe.get_doc(
 		{
 			"doctype": "User",
 			"email": email,
 			"first_name": first,
-			"last_name": last,
+			"last_name": last or None,
 			"mobile_no": phone,
 			"user_type": "Website User",
 			"send_welcome_email": 0,
@@ -300,11 +302,10 @@ def signup_parent(
 		}
 	)
 	user.flags.ignore_permissions = True
-	user.flags.ignore_password_policy = False
+	user.flags.ignore_password_policy = ignore_policy
 	user.new_password = password
 	user.insert()
 	user.add_roles("Guardian")
-
 	guardian = frappe.get_doc(
 		{
 			"doctype": "Guardian",
@@ -314,11 +315,28 @@ def signup_parent(
 			"user": user.name,
 		}
 	).insert(ignore_permissions=True)
-
 	common.start_trial(guardian.name, user.name)
-	token = _issue(user.name, common.PARENT, device=_device(device_name, platform, app_version))
-	frappe.db.commit()
+	token = _issue(user.name, common.PARENT, device=device)
 	return {"token": token, "role": common.PARENT, "profile": profile(user.name)}
+
+
+def _reject_existing_parent(email: str, phone: str):
+	if frappe.db.exists("User", email) or frappe.db.exists("User", {"email": email}):
+		frappe.throw(
+			_("An account already uses {0}. Sign in instead.").format(email),
+			frappe.DuplicateEntryError,
+		)
+	if frappe.db.exists("User", {"mobile_no": phone}):
+		frappe.throw(_("An account already uses that phone number."), frappe.DuplicateEntryError)
+
+
+def issue_for(user: str, role: str | None, device: dict | None = None) -> dict:
+	"""A device token for an account that is already a parent or a teacher."""
+	if not frappe.db.get_value("User", user, "enabled"):
+		raise frappe.AuthenticationError(_("This account has been switched off."))
+	role_type = _primary_role(user, role)
+	token = _issue(user, role_type, device=device or {})
+	return {"token": token, "role": role_type, "profile": profile(user)}
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])

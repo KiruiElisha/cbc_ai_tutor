@@ -11,9 +11,9 @@ Three kinds of users sign in to the app:
 
 | Role | Signs in with | Does |
 | --- | --- | --- |
-| Parent | email + password (signs up in the app) | adds children, follows progress, pays, messages the school |
+| Parent | email + password, a 6-digit email code, or Google (signs up in the app) | adds children, follows progress, pays, messages the school |
 | Learner | learner code + PIN (set by the parent) | lessons, quizzes, assignments and Mwalimu; works offline |
-| Teacher | email + password (an Instructor with a school) | assignments, reviews, CBC observations and assessments, replies to parents |
+| Teacher | email + password, a 6-digit email code, or Google (an Instructor with a school) | assignments, reviews, CBC observations and assessments, replies to parents |
 
 ### Server
 
@@ -45,6 +45,8 @@ Set the plan prices under **Subscription Plan** before going live; the seeded pr
 
 Payments are checked three ways: by the webhook, when the app polls, and by a job that runs every 10 minutes for payments still pending. Access is granted once per payment, and only when the amount and currency match the plan.
 
+**Sign-in.** Learners use their code and PIN. Parents and teachers can use a password, a 6-digit code emailed to them, or Google. Email codes need an outgoing Email Account. For Google, create a Web application OAuth client, paste its client ID and secret into **CBC Settings**, turn Google on, and add the **Redirect URL** shown there (it looks like `https://school.example.co.ke/api/method/cbc_ai_tutor.api.signin.google_callback`) as an authorised redirect URI.
+
 The site must be reachable over **HTTPS** from phones, because the app refuses plain HTTP except for `localhost`, `192.168.*` and `*.local` hosts, which are meant for testing. Email (password reset, renewal reminders, replies to parents) needs an outgoing Email Account on the site.
 
 Teachers are **Instructor** records linked to a user and a **School**. They see learners whose parent picked that school.
@@ -70,7 +72,7 @@ npm run tauri android build     # .apk / .aab (sign it before uploading to Play)
 npm run tauri ios init && npm run tauri ios build   # on macOS
 ```
 
-On first start the app asks for the server address. To build an app that is already pointed at your server, set the address at build time:
+The app is already pointed at its server. That address is not shown in the app. To build an app pointed at a different server, set the address at build time:
 
 ```bash
 CBC_SERVER_URL=https://tutor.example.co.ke npm run tauri build

@@ -89,7 +89,7 @@
 
     <div class="section"><h2>Choose a plan</h2></div>
     {#if !catalog.gateways.mpesa && !catalog.gateways.paypal}
-      <div class="banner warn">Payments are not set up on this server yet.</div>
+      <div class="banner warn">Payments are not set up yet.</div>
     {/if}
     <div class="grid">
       {#each catalog.plans as p}

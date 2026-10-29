@@ -18,7 +18,12 @@
     }
     busy = true
     try {
-      await call('signup_parent', form)
+      await call('signup_parent', {
+        fullName: form.full_name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+      })
       await refreshState()
       toast('Welcome! Your free trial has started.', 'ok')
       go('/child/new', { replace: true })

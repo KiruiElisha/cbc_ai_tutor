@@ -22,7 +22,7 @@
       </button>
     </div>
     <p class="center small" style="margin-top: 18px">
-      New parent? <a href="#/signup">Create a free account</a> · <a href="#/server">Server</a>
+      New parent? <a href="#/signup">Create a free account</a>
     </p>
   </div>
 </div>

@@ -15,7 +15,9 @@ export default defineConfig({
   },
   envPrefix: ['VITE_', 'TAURI_ENV_*'],
   build: {
-    target: process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari15',
+    // Chrome 80 covers the Nokia 7 Plus WebView (84). A newer target keeps
+    // logical assignment (??=), which that WebView rejects and shows as a blank screen.
+    target: 'chrome80',
     minify: !process.env.TAURI_ENV_DEBUG,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
   },

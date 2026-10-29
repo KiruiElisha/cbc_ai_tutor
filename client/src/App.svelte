@@ -2,7 +2,6 @@
   import { route } from './lib/router.svelte.js'
 
   route('/', 'home')
-  route('/server', 'server')
   route('/login/:role', 'login')
   route('/signup', 'signup')
   route('/learner-login', 'learner_login')
@@ -37,11 +36,11 @@
 <script>
   import { onMount } from 'svelte'
   import { onOpenUrl, getCurrent } from '@tauri-apps/plugin-deep-link'
-  import { app, toasts, refreshState, syncNow, startAutoSync, stopAutoSync } from './lib/app.svelte.js'
+  import { app, toasts, refreshState, syncNow, startAutoSync, stopAutoSync, toast } from './lib/app.svelte.js'
+  import { call, errorText } from './lib/tauri.js'
   import { router, go } from './lib/router.svelte.js'
   import Loading from './components/Loading.svelte'
 
-  import Server from './screens/auth/Server.svelte'
   import Welcome from './screens/auth/Welcome.svelte'
   import Login from './screens/auth/Login.svelte'
   import Signup from './screens/auth/Signup.svelte'
@@ -75,7 +74,7 @@
   import Inbox from './screens/teacher/Inbox.svelte'
 
   const screens = {
-    guest: { home: Welcome, server: Server, login: Login, signup: Signup, learner_login: LearnerLogin, settings: Settings },
+    guest: { home: Welcome, login: Login, signup: Signup, learner_login: LearnerLogin, settings: Settings },
     Learner: {
       home: LearnerHome, area: Area, lesson: Lesson, quiz: Quiz, tutor: Tutor, practice: Practice,
       work: Work, work_item: WorkItem, my_progress: MyProgress, sync: Sync, settings: Settings,
@@ -115,20 +114,35 @@
   }
 
   let roleKey = $derived(app.session?.role || 'guest')
-  let Screen = $derived.by(() => {
-    if (!app.server && roleKey === 'guest' && router.name !== 'settings') return Server
-    return screens[roleKey]?.[router.name] || screens[roleKey]?.home || Welcome
-  })
+  let Screen = $derived.by(() => screens[roleKey]?.[router.name] || screens[roleKey]?.home || Welcome)
   let nav = $derived(navs[roleKey] || null)
   let current = $derived('/' + (router.path.split('?')[0].split('/')[1] || ''))
 
-  function handleLinks(urls) {
+  const seenLinks = new Set()
+  let boot = Promise.resolve()
+
+  async function handleLinks(urls) {
+    await boot
     for (const raw of urls || []) {
+      let u
       try {
-        const u = new URL(raw)
-        const tx = u.searchParams.get('tx')
-        if ((u.host === 'payment' || u.pathname.includes('payment')) && tx) go('/payment/' + encodeURIComponent(tx))
-      } catch {}
+        u = new URL(raw)
+      } catch {
+        continue
+      }
+      const tx = u.searchParams.get('tx')
+      if ((u.host === 'payment' || u.pathname.includes('payment')) && tx) go('/payment/' + encodeURIComponent(tx))
+      const code = u.searchParams.get('code')
+      if (u.protocol !== 'cbctutor:' || u.host !== 'auth' || !code || seenLinks.has(code)) continue
+      seenLinks.add(code)
+      try {
+        await call('finish_signin', { code })
+        await refreshState()
+        go('/', { replace: true })
+      } catch (err) {
+        seenLinks.delete(code)
+        toast(errorText(err), 'error')
+      }
     }
   }
 
@@ -146,7 +160,7 @@
   })
 
   onMount(() => {
-    refreshState().catch(() => (app.ready = true))
+    boot = refreshState().catch(() => (app.ready = true))
     let unlisten
     onOpenUrl(handleLinks).then((u) => (unlisten = u)).catch(() => {})
     getCurrent().then(handleLinks).catch(() => {})

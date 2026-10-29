@@ -71,9 +71,12 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::app_state,
-            commands::set_server,
             commands::login,
             commands::learner_login,
+            commands::request_email_code,
+            commands::confirm_email_code,
+            commands::google_signin_url,
+            commands::finish_signin,
             commands::signup_parent,
             commands::open_learner,
             commands::back_to_parent,

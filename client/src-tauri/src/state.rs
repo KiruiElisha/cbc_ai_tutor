@@ -5,11 +5,11 @@ use crate::error::{AppError, AppResult};
 use crate::session::{self, Session};
 use crate::store::Store;
 
-/// The server the app talks to unless the user changes it (Settings → Server).
-/// Set at build time: `CBC_SERVER_URL=https://tutor.example.co.ke npm run tauri build`.
+/// The server this build talks to. It is fixed at build time and not shown in the app.
+/// Override with `CBC_SERVER_URL=https://tutor.example.co.ke` when building.
 pub const DEFAULT_SERVER: &str = match option_env!("CBC_SERVER_URL") {
     Some(url) => url,
-    None => "",
+    None => "https://school.nergaa.cloud",
 };
 
 pub struct AppState {
@@ -24,9 +24,9 @@ pub struct AppState {
 
 impl AppState {
     pub fn server(&self) -> AppResult<String> {
-        let url = self.store.kv_get("server")?.unwrap_or_else(|| DEFAULT_SERVER.to_string());
+        let url = DEFAULT_SERVER.trim().trim_end_matches('/').to_string();
         if url.is_empty() {
-            return Err(AppError::Invalid("Set the server address in Settings first.".into()));
+            return Err(AppError::Invalid("This build has no server address.".into()));
         }
         Ok(url)
     }

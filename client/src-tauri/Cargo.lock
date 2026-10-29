@@ -435,7 +435,6 @@ dependencies = [
  "tauri-plugin-single-instance",
  "thiserror 2.0.21",
  "tokio",
- "url",
  "uuid",
 ]
 

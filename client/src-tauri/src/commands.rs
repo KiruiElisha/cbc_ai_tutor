@@ -5,12 +5,19 @@ use tauri::State;
 
 use crate::error::{AppError, AppResult};
 use crate::session::{self, Session};
-use crate::state::{AppState, DEFAULT_SERVER};
+use crate::state::AppState;
 use crate::sync;
 
 /// Endpoints that hand out device tokens. Only the dedicated commands below call
 /// them, so tokens stay in Rust.
-const TOKEN_ENDPOINTS: &[&str] = &["auth.login", "auth.learner_login", "auth.signup_parent", "auth.open_learner"];
+const TOKEN_ENDPOINTS: &[&str] = &[
+    "auth.login",
+    "auth.learner_login",
+    "auth.signup_parent",
+    "auth.open_learner",
+    "signin.confirm_email_code",
+    "signin.exchange",
+];
 
 fn merge(mut args: Value, extra: Value) -> Value {
     if let (Value::Object(a), Value::Object(b)) = (&mut args, extra) {
@@ -34,7 +41,7 @@ pub fn app_state(state: State<'_, AppState>) -> AppResult<Value> {
         None => (0, None),
     };
     Ok(json!({
-        "server": state.store.kv_get("server")?.unwrap_or_else(|| DEFAULT_SERVER.to_string()),
+        "server": state.server()?,
         "session": public(&session),
         "parent_waiting": session::load(&state.store, session::PARENT)?.is_some(),
         "pending": pending,
@@ -42,23 +49,6 @@ pub fn app_state(state: State<'_, AppState>) -> AppResult<Value> {
         "version": state.version,
         "platform": state.platform,
     }))
-}
-
-#[tauri::command]
-pub async fn set_server(state: State<'_, AppState>, url: String) -> AppResult<Value> {
-    let url = url.trim().trim_end_matches('/').to_string();
-    let parsed = url::Url::parse(&url).map_err(|_| AppError::Invalid("Enter a full address, like https://tutor.example.co.ke".into()))?;
-    let local = matches!(parsed.host_str(), Some("localhost") | Some("127.0.0.1") | Some("10.0.2.2"))
-        || parsed.host_str().map(|h| h.starts_with("192.168.") || h.ends_with(".local")).unwrap_or(false);
-    if parsed.scheme() != "https" && !(parsed.scheme() == "http" && local) {
-        return Err(AppError::Invalid("Use an https:// address.".into()));
-    }
-    let grades = state.api.call(&url, "GET", "curriculum.grades", &json!({}), None).await?;
-    if !grades.is_array() {
-        return Err(AppError::Invalid("That server is not a CBC Tutor server.".into()));
-    }
-    state.store.kv_set("server", &url)?;
-    Ok(json!({"server": url, "grades": grades}))
 }
 
 async fn sign_in(state: &AppState, path: &str, args: Value) -> AppResult<Value> {
@@ -78,6 +68,75 @@ pub async fn login(state: State<'_, AppState>, login: String, password: String, 
 #[tauri::command]
 pub async fn learner_login(state: State<'_, AppState>, code: String, pin: String) -> AppResult<Value> {
     sign_in(&state, "auth.learner_login", json!({"code": code, "pin": pin})).await
+}
+
+fn signed_in_or_pending(state: &AppState, resp: &Value) -> AppResult<Value> {
+    if resp.get("needs_profile").and_then(|v| v.as_bool()).unwrap_or(false) {
+        return Ok(resp.clone());
+    }
+    let session = Session::from_login(resp)?;
+    session::clear(&state.store, session::PARENT)?;
+    state.set_active(Some(session.clone()))?;
+    Ok(public(&Some(session)))
+}
+
+/// Email a 6-digit code. No session yet.
+#[tauri::command]
+pub async fn request_email_code(state: State<'_, AppState>, email: String, role: String) -> AppResult<Value> {
+    let server = state.server()?;
+    state
+        .api
+        .call(&server, "POST", "signin.request_email_code", &json!({"email": email, "role": role}), None)
+        .await
+}
+
+/// Check the code. A new parent comes back with `needs_profile` until name and phone are sent.
+#[tauri::command]
+pub async fn confirm_email_code(
+    state: State<'_, AppState>,
+    email: String,
+    code: String,
+    role: String,
+    full_name: Option<String>,
+    phone: Option<String>,
+) -> AppResult<Value> {
+    let server = state.server()?;
+    let mut args = json!({"email": email, "code": code, "role": role});
+    if let Some(name) = full_name.filter(|s| !s.trim().is_empty()) {
+        args["full_name"] = json!(name);
+    }
+    if let Some(number) = phone.filter(|s| !s.trim().is_empty()) {
+        args["phone"] = json!(number);
+    }
+    let resp = state
+        .api
+        .call(&server, "POST", "signin.confirm_email_code", &merge(args, state.device_args()), None)
+        .await?;
+    signed_in_or_pending(&state, &resp)
+}
+
+/// The Google page to open in the browser. The app finishes when it receives cbctutor://auth?code=
+#[tauri::command]
+pub async fn google_signin_url(state: State<'_, AppState>, role: String) -> AppResult<Value> {
+    let server = state.server()?;
+    state
+        .api
+        .call(
+            &server,
+            "GET",
+            "signin.google_url",
+            &merge(json!({"role": role}), state.device_args()),
+            None,
+        )
+        .await
+}
+
+/// Turn the one-time code from the browser into a device session.
+#[tauri::command]
+pub async fn finish_signin(state: State<'_, AppState>, code: String) -> AppResult<Value> {
+    let server = state.server()?;
+    let resp = state.api.call(&server, "POST", "signin.exchange", &json!({"code": code}), None).await?;
+    signed_in_or_pending(&state, &resp)
 }
 
 #[tauri::command]
@@ -282,10 +341,6 @@ pub fn outbox_discard(state: State<'_, AppState>, uuid: String) -> AppResult<()>
 #[tauri::command]
 pub async fn wipe_device(state: State<'_, AppState>) -> AppResult<()> {
     let _ = logout(state.clone()).await;
-    let server = state.store.kv_get("server")?;
     state.store.wipe()?;
-    if let Some(s) = server {
-        state.store.kv_set("server", &s)?;
-    }
     Ok(())
 }
