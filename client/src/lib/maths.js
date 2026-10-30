@@ -49,14 +49,15 @@ export function expression(text) {
   for (const [re, to] of WORDS) s = s.replace(re, to)
   s = s.replace(/(\d),(\d{3})/g, '$1$2').trim()
   const percentOf = s.match(/^(\d+(?:\.\d+)?)\s*%\s*of\s*(\d+(?:\.\d+)?)$/)
-  if (percentOf) return `${percentOf[1]}/100*${percentOf[2]}`
+  if (percentOf) return `${percentOf[1]}/100*${percentOf[2]}`.replace(/\//g, '/ ')
   if (!/^[\d\s.+\-*/()]+$/.test(s) || !/\d/.test(s) || !/[+\-*/]/.test(s.replace(/^-/, ''))) return null
-  return s.replace(/\s+/g, '')
+  // "3/4" written without spaces is a fraction, not a division to show as a step.
+  return s.replace(/(\d+)\/(\d+)/g, '$1#$2').replace(/\s+/g, '')
 }
 
 function tokens(s) {
   const out = []
-  for (const m of s.matchAll(/\d+(?:\.\d+)?|[+\-*/()]/g)) out.push(m[0])
+  for (const m of s.matchAll(/\d+#\d+|\d+(?:\.\d+)?|[+\-*/()]/g)) out.push(m[0])
   return out
 }
 
@@ -82,6 +83,10 @@ function evaluate(expr) {
     }
     if (tok === '-') return mul(frac(-1), primary())
     if (tok === undefined || !/\d/.test(tok)) throw new Error('number')
+    if (tok.includes('#')) {
+      const [n, d] = tok.split('#').map(Number)
+      return frac(n, d)
+    }
     return decimalToFrac(tok)
   }
 

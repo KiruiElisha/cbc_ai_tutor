@@ -8,6 +8,8 @@ export function route(pattern, name) {
     '^' + pattern.replace(/:([a-z_]+)/g, (_, k) => (keys.push(k), '([^/]+)')) + '/?$',
   )
   routes.push({ re, keys, name })
+  // App.svelte registers routes after this module has read the address; read it again.
+  Object.assign(router, parse(location.hash))
 }
 
 function parse(hash) {

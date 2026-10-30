@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./jsconfig.json",
     "tauri": "tauri",
-    "test": "node --test src/lib/*.test.js"
+    "test": "node --test src/lib/*.test.js",
+    "preview:ui": "vite --mode preview"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

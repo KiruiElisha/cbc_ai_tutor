@@ -11,6 +11,8 @@ test('a plain arithmetic question is answered exactly, with its working', () => 
 test('fractions stay exact and are shown as mixed numbers', () => {
   assert.equal(solve('3/4 + 1/2').answer, '1 1/4')
   assert.equal(solve('3/4 + 1/2').decimal, '1.25')
+  assert.deepEqual(solve('3/4 + 1/2').steps, ['3/4 + 1/2 = 1 1/4'])
+  assert.deepEqual(solve('12 / 4').steps, ['12 ÷ 4 = 3'])
 })
 
 test('decimals, brackets, negatives and Kiswahili words are understood', () => {

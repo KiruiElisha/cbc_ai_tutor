@@ -5,6 +5,7 @@
   import { go, enc } from '../../lib/router.svelte.js'
   import { ago, markdown } from '../../lib/format.js'
   import * as L from '../../lib/learner.js'
+  import { solve } from '../../lib/maths.js'
   import TopBar from '../../components/TopBar.svelte'
   import Loading from '../../components/Loading.svelte'
   import ErrorBox from '../../components/ErrorBox.svelte'
@@ -60,6 +61,18 @@
     text = ''
     error = null
     messages.push({ me: true, text: message })
+    // Sums are worked out on the device: instant, offline, and no tutor question used.
+    const sum = solve(message)
+    if (sum) {
+      messages.push({ me: false, text: sum.markdown, local: true })
+      scroll()
+      return
+    }
+    if (!app.online) {
+      messages.push({ me: false, text: 'I need the internet to answer that. I can still work out sums offline, like **3/4 + 1/2** or **25% of 200**.', local: true })
+      scroll()
+      return
+    }
     busy = true
     scroll()
     try {
@@ -98,7 +111,7 @@
 
 <div class="page" style="display: flex; flex-direction: column; min-height: calc(100vh - 70px)">
   {#if !app.online}
-    <div class="banner info">📶 Mwalimu needs the internet. Your lessons and quizzes still work offline.</div>
+    <div class="banner info">📶 You are offline. Mwalimu can still work out sums; other questions need the internet.</div>
   {/if}
   {#if quota && quota.limit}
     <div class="small muted" style="margin-bottom: 8px">{quota.remaining ?? '∞'} of {quota.limit} questions left today</div>
@@ -128,6 +141,7 @@
       <div class="bubble {m.me ? 'me' : 'ai'}">
         {#if m.me}{m.text}{:else}
           <div class="prose">{@html markdown(m.text)}</div>
+          {#if m.local}<div class="small muted" style="margin-top: 4px">🧮 Worked out on your device</div>{/if}
           {#if m.interaction}
             <div class="row small" style="margin-top: 6px; gap: 4px">
               {#if m.feedback}<span class="muted">Thanks for the feedback</span>{:else}
@@ -153,8 +167,8 @@
   {/if}
 
   <div class="row" style="position: sticky; bottom: calc(76px + var(--safe-bottom)); background: var(--bg); padding: 8px 0">
-    <textarea rows="1" style="min-height: 46px; height: 46px" placeholder="Type your question…" bind:value={text} onkeydown={onkey} disabled={!app.online} maxlength="2000"></textarea>
-    <button class="btn" onclick={() => send()} disabled={busy || !text.trim() || !app.online}>Send</button>
+    <textarea rows="1" style="min-height: 46px; height: 46px" placeholder="Type your question…" bind:value={text} onkeydown={onkey} maxlength="2000"></textarea>
+    <button class="btn" onclick={() => send()} disabled={busy || !text.trim()}>Send</button>
   </div>
   <p class="small muted center">Mwalimu can make mistakes. Check with your teacher when unsure. Feeling unsafe? Call Childline Kenya on 116 (free).</p>
 </div>

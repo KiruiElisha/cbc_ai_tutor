@@ -7,6 +7,7 @@
   import * as L from '../../lib/learner.js'
   import Loading from '../../components/Loading.svelte'
   import Empty from '../../components/Empty.svelte'
+  import { subject } from '../../lib/subjects.js'
 
   let st = $state(null)
   let areas = $state([])
@@ -15,11 +16,13 @@
   let due = $state(0)
   let loading = $state(true)
   let firstSync = $state(false)
+  let act = $state({ streak: 0, today: 0, goal: 3 })
 
   const first = () => (app.session?.profile?.learner?.first_name || app.session?.profile?.learner?.name || '').split(' ')[0]
 
   async function load() {
     st = await L.status()
+    act = await L.activity()
     areas = await L.list('area')
     const done = await L.progressByLesson()
     const c = {}
@@ -64,27 +67,32 @@
     }
   }
 
-  const icons = { Mathematics: '➗', English: '📖', Kiswahili: '🗣️', Science: '🔬', Social: '🌍', Creative: '🎨', Religious: '🕊️', Agriculture: '🌱', Environmental: '🌳', Language: '🔤', Pre: '🛠️', Computer: '💻', Physics: '🧲', Chemistry: '⚗️', Biology: '🧬', Geography: '🗺️', History: '🏛️', Business: '💼', Physical: '⚽', Community: '🤝' }
-  const iconFor = (title) => Object.entries(icons).find(([k]) => title.includes(k))?.[1] || '📘'
 </script>
 
 <div class="page">
-  <div class="hero">
-    <div class="row between wrap">
+  <section class="hero home-hero">
+    <div class="row between wrap" style="align-items: flex-start">
       <div>
-        <h1 style="margin: 0">Habari, {first() || 'learner'}! 👋</h1>
-        <div class="muted">{st?.learner?.grade || app.session?.profile?.learner?.grade || ''}</div>
+        <div class="hello">Habari, {first() || 'learner'}! 👋</div>
+        <div class="muted">{st?.learner?.grade || app.session?.profile?.learner?.grade || ''} · Let's learn something new today</div>
       </div>
       {#if app.parentWaiting}
         <button class="btn sm sun" onclick={backToParent}>Back to parent</button>
       {/if}
     </div>
+    <div class="hero-stats">
+      <div class="chip-stat"><span class="big">🔥 {act.streak}</span><span>day{act.streak === 1 ? '' : 's'} in a row</span></div>
+      <div class="chip-stat">
+        <span class="ring" style="--p: {(100 * act.today) / act.goal}"><b>{act.today}/{act.goal}</b></span>
+        <span>today's goal</span>
+      </div>
+    </div>
     {#if st?.entitlement && !st.entitlement.active}
       <div class="banner" style="margin: 14px 0 0">🔒 Your family plan has ended. Free lessons still work. Ask a parent to renew.</div>
     {:else if st?.entitlement?.status === 'Trial'}
-      <div class="small muted" style="margin-top: 8px">Free trial until {date(st.entitlement.until)}</div>
+      <div class="small muted" style="margin-top: 10px">Free trial until {date(st.entitlement.until)}</div>
     {/if}
-  </div>
+  </section>
 
   {#if loading || firstSync}
     <Loading />
@@ -96,28 +104,33 @@
     </Empty>
   {:else}
     {#if resume}
-      <a class="card tap row" href={'#/lesson/' + enc(resume.l.name)}>
-        <span style="font-size: 1.8rem">▶️</span>
-        <div class="grow"><div class="small muted">Continue</div><b>{resume.l.title}</b></div>
-        <div class="bar" style="width: 80px"><i style="width: {resume.p.progress || 0}%"></i></div>
+      <a class="card tap continue" href={'#/lesson/' + enc(resume.l.name)}>
+        <span class="play">▶</span>
+        <div class="grow">
+          <div class="small muted">Continue where you stopped</div>
+          <b>{resume.l.title}</b>
+          <div class="bar" style="margin-top: 8px"><i style="width: {resume.p.progress || 0}%"></i></div>
+        </div>
       </a>
     {/if}
 
-    <div class="grid small" style="margin-top: 12px">
-      <a class="card tap" href="#/tutor"><div style="font-size: 1.6rem">💬</div><b>Ask Mwalimu</b><div class="small muted">Your AI tutor</div></a>
-      <a class="card tap" href="#/work"><div style="font-size: 1.6rem">📝</div><b>Assignments</b><div class="small muted">{due ? `${due} to do` : 'All done'}</div></a>
+    <div class="quick">
+      <a class="quick-item" href="#/tutor" style="--c: #0f766e"><span class="chip">💬</span><b>Ask Mwalimu</b><small>Your tutor</small></a>
+      <a class="quick-item" href="#/drill" style="--c: #2563eb"><span class="chip">🧮</span><b>Maths drills</b><small>Works offline</small></a>
+      <a class="quick-item" href="#/work" style="--c: #ea580c"><span class="chip">📝</span><b>Assignments</b><small>{due ? `${due} to do` : 'All done'}</small></a>
+      <a class="quick-item" href="#/progress" style="--c: #ca8a04"><span class="chip">⭐</span><b>My progress</b><small>Scores and badges</small></a>
     </div>
 
     <div class="section"><h2>Learning areas</h2></div>
-    <div class="grid">
+    <div class="subjects">
       {#each areas as a}
         {@const c = counts[a.name] || { total: 0, done: 0 }}
-        <a class="card tap" href={'#/area/' + enc(a.name)}>
-          <div class="row">
-            <span style="font-size: 1.8rem">{iconFor(a.title)}</span>
-            <div class="grow"><b>{a.title}</b><div class="small muted">{c.total ? `${c.done} of ${c.total} lessons` : 'Lessons coming soon'}</div></div>
-          </div>
-          {#if c.total}<div class="bar" style="margin-top: 10px"><i style="width: {(100 * c.done) / c.total}%"></i></div>{/if}
+        {@const t = subject(a.title)}
+        <a class="subject tap" href={'#/area/' + enc(a.name)} style={t.style}>
+          <span class="chip">{t.icon}</span>
+          <b>{a.title}</b>
+          <small>{c.total ? `${c.done} of ${c.total} lessons` : 'Coming soon'}</small>
+          <div class="bar"><i style="width: {c.total ? (100 * c.done) / c.total : 0}%"></i></div>
         </a>
       {/each}
     </div>
