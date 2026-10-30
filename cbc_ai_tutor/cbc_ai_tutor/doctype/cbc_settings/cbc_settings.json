@@ -27,6 +27,8 @@
   "ai_extra_instructions",
   "ai_reuse_answers",
   "ai_reuse_days",
+  "ai_lessons_per_day",
+  "ai_lessons_publish",
   "google_section",
   "google_enabled",
   "google_client_id",
@@ -338,10 +340,24 @@
    "default": "90",
    "depends_on": "ai_reuse_answers",
    "description": "Older answers are asked again, so a lesson that changed gets a fresh answer."
+  },
+  {
+   "fieldname": "ai_lessons_per_day",
+   "fieldtype": "Int",
+   "label": "Lessons written per day",
+   "default": "0",
+   "description": "Each day, write lessons and quizzes for this many sub-strands that have none. One AI call per lesson, then every learner reads it for free. 0 is off."
+  },
+  {
+   "fieldname": "ai_lessons_publish",
+   "fieldtype": "Check",
+   "label": "Publish written lessons straight away",
+   "default": "0",
+   "description": "Off: written lessons wait as drafts for a teacher to check and publish. On: learners see them at once."
   }
  ],
  "links": [],
- "modified": "2026-10-30 18:00:00.000000",
+ "modified": "2026-10-30 18:30:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "CBC Settings",

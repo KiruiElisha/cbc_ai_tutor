@@ -32,6 +32,7 @@ scheduler_events = {
 		"cbc_ai_tutor.tasks.send_renewal_reminders",
 		"cbc_ai_tutor.tasks.purge_device_sessions",
 		"cbc_ai_tutor.tasks.purge_sync_receipts",
+		"cbc_ai_tutor.ai.content.daily",
 	],
 }
 
