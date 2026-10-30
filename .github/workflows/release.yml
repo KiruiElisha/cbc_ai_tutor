@@ -51,7 +51,7 @@ jobs:
 
       - name: Build installers
         working-directory: client
-        run: npx tauri build -- --bundles nsis,msi
+        run: npx tauri build --bundles nsis,msi
 
       - uses: actions/upload-artifact@v4
         with:
@@ -91,7 +91,7 @@ jobs:
 
       - name: Build installer
         working-directory: client
-        run: npx tauri build -- --bundles deb
+        run: npx tauri build --bundles deb
 
       - uses: actions/upload-artifact@v4
         with:
