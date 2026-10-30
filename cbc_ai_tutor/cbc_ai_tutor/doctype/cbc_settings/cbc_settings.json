@@ -25,6 +25,8 @@
   "ai_max_output_tokens",
   "ai_timeout_seconds",
   "ai_extra_instructions",
+  "ai_reuse_answers",
+  "ai_reuse_days",
   "google_section",
   "google_enabled",
   "google_client_id",
@@ -321,10 +323,25 @@
    "fieldtype": "Data",
    "label": "Return URL",
    "read_only": 1
+  },
+  {
+   "fieldname": "ai_reuse_answers",
+   "fieldtype": "Check",
+   "label": "Reuse earlier answers",
+   "default": "1",
+   "description": "A first question already answered for the same grade and lesson gets that answer again, with no AI call and no use of the learner's daily limit. Practice questions are shared the same way."
+  },
+  {
+   "fieldname": "ai_reuse_days",
+   "fieldtype": "Int",
+   "label": "Reuse answers for (days)",
+   "default": "90",
+   "depends_on": "ai_reuse_answers",
+   "description": "Older answers are asked again, so a lesson that changed gets a fresh answer."
   }
  ],
  "links": [],
- "modified": "2026-10-28 12:00:00.000000",
+ "modified": "2026-10-30 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "CBC Settings",

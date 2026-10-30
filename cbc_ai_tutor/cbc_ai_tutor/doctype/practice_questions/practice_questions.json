@@ -11,6 +11,8 @@
   "subject",
   "grade_level",
   "topic",
+  "topic_key",
+  "source",
   "column_break_zdua",
   "ai_feedback",
   "student_answers",
@@ -66,12 +68,31 @@
   {
    "fieldname": "column_break_zdua",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "topic_key",
+   "fieldtype": "Data",
+   "label": "Topic Key",
+   "hidden": 1,
+   "search_index": 1,
+   "read_only": 1,
+   "description": "Grade and lesson or sub-strand; sets with the same key share their questions."
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Answered From",
+   "options": "AI\nCache",
+   "default": "AI",
+   "read_only": 1,
+   "in_list_view": 1,
+   "description": "Cache: drawn from questions written before for the same topic, so no AI was called."
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-15 12:45:38.919580",
+ "modified": "2026-10-30 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "Practice Questions",

@@ -18,6 +18,8 @@
   "usage_section",
   "provider",
   "model",
+  "question_key",
+  "source",
   "column_break_usage",
   "input_tokens",
   "output_tokens"
@@ -119,11 +121,30 @@
    "fieldtype": "Int",
    "label": "Output Tokens",
    "read_only": 1
+  },
+  {
+   "fieldname": "question_key",
+   "fieldtype": "Data",
+   "label": "Question Key",
+   "hidden": 1,
+   "search_index": 1,
+   "read_only": 1,
+   "description": "Grade, lesson and the question in a normal form; the same key means the same question."
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Answered From",
+   "options": "AI\nCache",
+   "default": "AI",
+   "read_only": 1,
+   "in_list_view": 1,
+   "description": "Cache: an earlier answer to the same question was reused, so no AI was called and the learner's daily limit was not used."
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-28 12:00:00.000000",
+ "modified": "2026-10-30 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "AI Tutor Interaction",

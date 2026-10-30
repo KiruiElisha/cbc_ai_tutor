@@ -10,7 +10,7 @@ from frappe import _
 from frappe.rate_limiter import rate_limit
 from frappe.utils import cint, cstr, md_to_html, now_datetime, strip_html
 
-from cbc_ai_tutor.ai import providers
+from cbc_ai_tutor.ai import providers, reuse
 from cbc_ai_tutor.api import common, sync
 
 MAX_MESSAGE = 2000
@@ -80,8 +80,6 @@ def _context(student: str, lesson: str | None, sub_strand: str | None, learning_
 def _system_prompt(ctx: frappe._dict) -> str:
 	lines = [TUTOR_RULES, "", "About this learner and lesson:"]
 	lines.append(f"- Grade: {ctx.grade}")
-	if ctx.first_name:
-		lines.append(f"- First name: {ctx.first_name}")
 	if ctx.course:
 		lines.append(f"- Learning area: {ctx.course}")
 	if ctx.get("strand_title"):
@@ -98,18 +96,24 @@ def _system_prompt(ctx: frappe._dict) -> str:
 	return "\n".join(lines)
 
 
-def _require_ai(student: str) -> frappe._dict:
+def _require_ai(student: str, quota: bool = True) -> frappe._dict:
 	if not cint(common.setting("ai_enabled", 1)):
 		raise providers.AIUnavailable(_("The AI tutor is switched off."))
 	ent = common.entitlement_for_student(student)
 	if not ent.active:
 		raise common.SubscriptionRequired(_("The AI tutor needs an active subscription. Ask a parent to renew."))
+	if quota:
+		_require_quota(student)
+	return ent
+
+
+def _require_quota(student: str) -> None:
+	"""Only answers that call the AI count; a shared, cached answer is free."""
 	quota = sync.ai_quota(student)
 	if quota["remaining"] is not None and quota["remaining"] <= 0:
 		raise common.QuotaExceeded(
 			_("You have used today's {0} tutor messages. They reset at midnight.").format(quota["limit"])
 		)
-	return ent
 
 
 def _history(student: str, conversation: str) -> list[dict]:
@@ -142,7 +146,7 @@ def ask(
 		frappe.throw(_("Type a question first."))
 	if len(message) > MAX_MESSAGE:
 		frappe.throw(_("Keep your question under {0} characters.").format(MAX_MESSAGE))
-	_require_ai(student)
+	_require_ai(student, quota=False)
 
 	if conversation:
 		conversation = cstr(conversation)[:40]
@@ -151,8 +155,16 @@ def ask(
 	conversation = conversation or secrets.token_hex(8)
 
 	ctx = _context(student, lesson, sub_strand, learning_outcome)
-	turns = _history(student, conversation) + [{"role": "user", "content": message}]
-	reply = providers.complete(_system_prompt(ctx), turns)
+	history = _history(student, conversation)
+	# Only a first question is shared: a follow-up depends on the conversation before it.
+	scope = ctx.lesson or (ctx.sub_strand or {}).get("name")
+	key = None if history else reuse.question_key(ctx.grade, scope, message)
+	cached = reuse.cached_answer(key)
+	if cached:
+		reply = {"text": _html_to_markdownish(cached), "provider": "cache", "model": "", "input_tokens": 0, "output_tokens": 0}
+	else:
+		_require_quota(student)
+		reply = providers.complete(_system_prompt(ctx), [*history, {"role": "user", "content": message}])
 
 	doc = frappe.get_doc(
 		{
@@ -162,9 +174,11 @@ def ask(
 			"topic": cstr(ctx.topic)[:140] or message[:140],
 			"conversation": conversation,
 			"question": frappe.utils.escape_html(message),
-			"ai_response": md_to_html(reply["text"]),
+			"ai_response": cached or md_to_html(reply["text"]),
 			"linked_learning_outcome": ctx.outcome.name if ctx.outcome else None,
 			"lesson": ctx.lesson,
+			"question_key": key,
+			"source": "Cache" if cached else "AI",
 			"provider": reply["provider"],
 			"model": reply["model"],
 			"input_tokens": reply["input_tokens"],
@@ -246,22 +260,8 @@ Reply with JSON only, in exactly this shape:
 "answer" is the index (0-3) of the correct option."""
 
 
-@frappe.whitelist(methods=["POST"])
-@rate_limit(limit=10, seconds=60)
-def practice(
-	lesson: str | None = None,
-	sub_strand: str | None = None,
-	learning_outcome: str | None = None,
-	count: int = 5,
-) -> dict:
-	"""AI-written practice questions. Counts as one tutor message."""
-	student = common.current_learner()
-	_require_ai(student)
-	if not (lesson or sub_strand or learning_outcome):
-		frappe.throw(_("Pick a lesson or topic to practise."))
-	count = max(3, min(cint(count) or 5, 10))
-	ctx = _context(student, lesson, sub_strand, learning_outcome)
-
+def _write_practice(ctx: frappe._dict, count: int) -> tuple[dict, dict, list[dict]]:
+	"""New questions from the AI, checked for shape. Shared afterwards through the topic pool."""
 	reply = providers.complete(
 		_system_prompt(ctx),
 		[{"role": "user", "content": PRACTICE_PROMPT.format(count=count)}],
@@ -285,6 +285,30 @@ def practice(
 			)
 	if len(questions) < 2:
 		raise providers.AIUnavailable(_("The tutor couldn't write good questions this time. Try again."))
+	return reply, data, questions
+
+
+@frappe.whitelist(methods=["POST"])
+@rate_limit(limit=10, seconds=60)
+def practice(
+	lesson: str | None = None,
+	sub_strand: str | None = None,
+	learning_outcome: str | None = None,
+	count: int = 5,
+) -> dict:
+	"""AI-written practice questions. Counts as one tutor message."""
+	student = common.current_learner()
+	_require_ai(student, quota=False)
+	if not (lesson or sub_strand or learning_outcome):
+		frappe.throw(_("Pick a lesson or topic to practise."))
+	count = max(3, min(cint(count) or 5, 10))
+	ctx = _context(student, lesson, sub_strand, learning_outcome)
+	key = reuse.topic_key(ctx.grade, ctx.lesson, (ctx.sub_strand or {}).get("name"), (ctx.outcome or {}).get("name"))
+	questions = reuse.pooled_practice(key, count, student)
+	reply, data = None, {}
+	if not questions:
+		_require_quota(student)
+		reply, data, questions = _write_practice(ctx, count)
 
 	grade = ctx.grade
 	doc = frappe.get_doc(
@@ -296,9 +320,13 @@ def practice(
 			"subject": cstr(ctx.course)[:140],
 			"grade_level": grade,
 			"topic": (cstr(data.get("title")) or cstr(ctx.topic))[:140],
+			"topic_key": key,
+			"source": "AI" if reply else "Cache",
 		}
 	)
 	doc.insert(ignore_permissions=True)
+	if not reply:
+		return {"practice": doc.name, "title": doc.topic, "questions": questions, "quota": sync.ai_quota(student)}
 
 	frappe.get_doc(
 		{

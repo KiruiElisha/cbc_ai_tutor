@@ -252,10 +252,12 @@ def visible_assignments(scope: frappe._dict, cutoff=None) -> list[dict]:
 def ai_quota(student: str) -> dict:
 	ent = common.entitlement_for_student(student)
 	limit = cint(ent.ai_messages_per_day)
-	used = frappe.db.count(
-		"AI Tutor Interaction",
-		{"student": student, "date": [">=", nowdate() + " 00:00:00"]},
-	)
+	# A cached answer was free, so only real AI calls count; rows from before the cache count as AI.
+	used = frappe.db.sql(
+		"""select count(*) from `tabAI Tutor Interaction`
+		where student = %s and date >= %s and ifnull(source, 'AI') = 'AI'""",
+		(student, nowdate() + " 00:00:00"),
+	)[0][0]
 	return {
 		"enabled": 1 if cint(common.setting("ai_enabled", 1)) and ent.active else 0,
 		"limit": limit,
