@@ -8,10 +8,12 @@
   import TopBar from '../../components/TopBar.svelte'
   import Loading from '../../components/Loading.svelte'
   import Empty from '../../components/Empty.svelte'
+  import { subject } from '../../lib/subjects.js'
 
   let { params } = $props()
   let lesson = $state(null)
   let outcome = $state(null)
+  let where = $state({ area: '', topic: '' })
   let progress = $state(null)
   let loading = $state(true)
   let started = Date.now()
@@ -40,6 +42,10 @@
   async function load() {
     lesson = await L.one('lesson', params.id)
     if (lesson?.learning_outcome) outcome = await L.one('outcome', lesson.learning_outcome)
+    if (lesson) {
+      const [area, sub] = await Promise.all([L.one('area', lesson.course), lesson.sub_strand ? L.one('sub_strand', lesson.sub_strand) : null])
+      where = { area: area?.title || '', topic: sub?.title || '' }
+    }
     progress = (await L.progressByLesson())[params.id] || null
     loading = false
     if (lesson && !lesson.locked && !progress) report(false, 10)
@@ -75,11 +81,15 @@
   {:else if !lesson}
     <Empty icon="🔍" title="Lesson not found"><p>It may have been removed. Sync to refresh your lessons.</p></Empty>
   {:else}
-    <h1>{lesson.title}</h1>
-    <div class="row wrap small muted" style="margin-bottom: 12px">
-      {#if lesson.estimated_minutes}<span>⏱ {lesson.estimated_minutes} min</span>{/if}
-      {#if progress?.status === 'Completed'}<span class="pill ok">Done</span>{/if}
-    </div>
+    {@const t = subject(where.area)}
+    <header class="lesson-head" style={t.style}>
+      <div class="crumb"><span class="chip">{t.icon}</span>{where.area}{#if where.topic}{' · '}{where.topic}{/if}</div>
+      <h1>{lesson.title}</h1>
+      <div class="row wrap small">
+        {#if lesson.estimated_minutes}<span class="pill">⏱ {lesson.estimated_minutes} min</span>{/if}
+        {#if progress?.status === 'Completed'}<span class="pill ok">✓ Done</span>{:else if progress}<span class="pill brand">{progress.progress || 0}% read</span>{/if}
+      </div>
+    </header>
 
     {#if outcome}
       <div class="banner info small"><div><b>You will learn to:</b> {@html safeHtml(outcome.description)}</div></div>
@@ -121,3 +131,14 @@
     {/if}
   {/if}
 </div>
+
+<style>
+  .lesson-head {
+    margin: -4px 0 16px; padding: 16px; border-radius: 18px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--c) 14%, white), white);
+    border: 1px solid color-mix(in srgb, var(--c) 22%, white);
+  }
+  .lesson-head h1 { margin: 6px 0 10px; font-size: 1.55rem; letter-spacing: -0.01em; }
+  .crumb { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--c); }
+  .crumb .chip { width: 30px; height: 30px; font-size: 1rem; margin: 0; }
+</style>
