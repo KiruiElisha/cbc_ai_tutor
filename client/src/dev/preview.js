@@ -65,6 +65,14 @@ const mine = {
 }
 
 const api = {
+  'parent.dashboard': {
+    subscription: { active: 1, status: 'Trial', plan: 'Free trial', until: '2026-11-13', max_learners: 3 },
+    children: [
+      { student: 'EDU-STU-0001', name: 'Amina Wanjiru', first_name: 'Amina', grade: 'Grade 4', learner_code: 'AMW-4821', enabled: 1, lessons_completed_this_week: 6, quiz_average_this_week: 78, last_active: '2026-10-30 08:12:00' },
+      { student: 'EDU-STU-0002', name: 'Brian Kamau', first_name: 'Brian', grade: 'Grade 7', learner_code: 'BKA-1934', enabled: 1, lessons_completed_this_week: 2, quiz_average_this_week: null, last_active: '2026-10-27 19:30:00' },
+    ],
+  },
+  'teacher.dashboard': { instructor_name: 'Peter Otieno', school: 'Kilimani Primary School', learners: 38, open_assignments: 3, to_review: 7, unanswered_feedback: 2, grades: [{ grade: 'Grade 4', learners: 21 }, { grade: 'Grade 5', learners: 17 }] },
   'tutor.conversations': [{ conversation: 'c1', topic: 'Fractions', messages: 4, last: '2026-10-29 18:02:00' }],
   'tutor.ask': (a) => ({ conversation: 'c2', interaction: 'i' + Date.now(), quota: { limit: 20, remaining: 17, used: 3 },
     answer: `Good question! Let us think about **${a.message.slice(0, 40)}** together.\n\n1. What do you already know?\n2. Try one small example.\n\nWhat do you get?` }),

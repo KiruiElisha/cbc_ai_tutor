@@ -258,3 +258,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid #99f6e4; border-c
 .option { transition: border-color 0.1s, background 0.1s, transform 0.08s; }
 .option:active { transform: scale(0.99); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* .card.tap is a block link; keep rows and grids laid out as written. */
+.card.tap.row { display: flex; }
+.grid > .card + .card, .row > .card + .card, .subjects > * + *, .quick > * + * { margin-top: 0; }

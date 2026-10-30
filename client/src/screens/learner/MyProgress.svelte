@@ -4,13 +4,16 @@
   import * as L from '../../lib/learner.js'
   import TopBar from '../../components/TopBar.svelte'
   import Loading from '../../components/Loading.svelte'
+  import { subject } from '../../lib/subjects.js'
 
   let areas = $state([])
   let competencies = $state([])
   let totals = $state({ lessons: 0, done: 0, time: 0, quizzes: 0 })
   let loading = $state(true)
+  let act = $state({ streak: 0 })
 
   onMount(async () => {
+    act = await L.activity()
     const done = await L.progressByLesson()
     const best = await L.bestScores()
     const attempts = await L.mine('quiz_attempt')
@@ -48,13 +51,15 @@
       <div class="card"><div class="stat">{totals.done}</div><div class="small muted">lessons done of {totals.lessons}</div></div>
       <div class="card"><div class="stat">{totals.quizzes}</div><div class="small muted">quizzes taken</div></div>
       <div class="card"><div class="stat">{minutes(totals.time)}</div><div class="small muted">spent learning</div></div>
+      <div class="card"><div class="stat">🔥 {act.streak}</div><div class="small muted">day{act.streak === 1 ? '' : 's'} in a row</div></div>
     </div>
 
     <div class="section"><h2>By learning area</h2></div>
     {#each areas.filter((a) => a.total) as a}
-      <div class="card">
-        <div class="row between"><b>{a.title}</b><span class="small muted">{a.finished}/{a.total}</span></div>
-        <div class="bar" style="margin: 8px 0"><i style="width: {(100 * a.finished) / a.total}%"></i></div>
+      {@const t = subject(a.title)}
+      <div class="card" style={t.style}>
+        <div class="row between"><span class="row"><span class="chip" style="width: 34px; height: 34px; font-size: 1.05rem; margin: 0">{t.icon}</span><b>{a.title}</b></span><span class="small muted">{a.finished}/{a.total}</span></div>
+        <div class="bar" style="margin: 10px 0 8px"><i style="width: {(100 * a.finished) / a.total}%; background: var(--c)"></i></div>
         <div class="small muted">
           {#if a.avg != null}Quiz average {Math.round(a.avg)}% · {level(a.avg)}{:else}No quizzes yet{/if}
         </div>
