@@ -262,3 +262,17 @@ input:focus, select:focus, textarea:focus { outline: 3px solid #99f6e4; border-c
 /* .card.tap is a block link; keep rows and grids laid out as written. */
 .card.tap.row { display: flex; }
 .grid > .card + .card, .row > .card + .card, .subjects > * + *, .quick > * + * { margin-top: 0; }
+
+/* Sign-in screens: one centred column, so extra options sit right under the form. */
+.auth-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.auth-wrap > .auth + .auth { margin-top: 14px; }
+.card.tap.role-btn { display: flex; padding: 16px; }
+.role-btn .emoji {
+  width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--brand-soft); font-size: 1.7rem;
+}
+.btn.ghost.danger { background: transparent; color: var(--bad); border-color: #fecaca; }
+.btn.ghost.danger:hover { background: var(--bad-soft); }
+.card + .tabs { margin-top: 14px; }
+.ribbon { display: inline-block; background: var(--sun); color: #1f1300; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; letter-spacing: 0.02em; }
+.card.best { border: 2px solid var(--sun); }

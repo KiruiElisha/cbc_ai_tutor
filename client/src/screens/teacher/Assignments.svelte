@@ -50,7 +50,7 @@
         </a>
         {#if a.status !== 'Draft'}
           <a class="btn sm ghost" href={'#/assignment/' + enc(a.name) + '/submissions'}>
-            {a.submitted} handed in{#if a.to_review} · <b style="color: var(--warn)">{a.to_review} new</b>{/if}
+            <span>{a.submitted} handed in</span>{#if a.to_review}<span class="pill warn">{a.to_review} new</span>{/if}
           </a>
         {/if}
       </div>

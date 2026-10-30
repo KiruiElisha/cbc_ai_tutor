@@ -64,6 +64,12 @@
   }
 
   const statusTone = (s) => ({ Completed: 'ok', Failed: 'bad', Cancelled: '' })[s] || 'warn'
+
+  // The plan that costs least per day, shown with its daily price so the saving is clear.
+  const perDay = (p) => Math.round((p.price_kes / (p.duration_days || 1)) * 10) / 10
+  let bestValue = $derived(
+    catalog?.plans?.length ? catalog.plans.reduce((a, b) => (perDay(b) < perDay(a) ? b : a)).name : null,
+  )
 </script>
 
 <TopBar title="Plan and payments" />
@@ -93,8 +99,9 @@
     {/if}
     <div class="grid">
       {#each catalog.plans as p}
-        <div class="card stack">
+        <div class="card stack" class:best={p.name === bestValue}>
           <div>
+            {#if p.name === bestValue && catalog.plans.length > 1}<span class="ribbon">BEST VALUE · KES {perDay(p)} a day</span>{/if}
             <h3 style="margin: 0">{p.plan_name}</h3>
             {#if p.tagline}<div class="small muted">{p.tagline}</div>{/if}
           </div>

@@ -18,6 +18,7 @@
   let result = $state(null)
   let error = $state('')
   let loading = $state(true)
+  let step = $state(0)
   const startedAt = nowString()
 
   onMount(async () => {
@@ -60,6 +61,7 @@
   function retry() {
     answers = {}
     result = null
+    step = 0
     attempts = [...attempts, {}]
     window.scrollTo(0, 0)
   }
@@ -96,13 +98,17 @@
         <a class="btn" href="#/">Back to lessons</a>
       </div>
     {:else}
+      <div class="dots" aria-label="Question {step + 1} of {questions.length}">
+        {#each questions as q, i}<button class:done={answers[q.name]?.size} class:now={i === step} onclick={() => (step = i)} aria-label="Question {i + 1}"></button>{/each}
+      </div>
       <div class="row between small muted" style="margin-bottom: 10px">
         <span>{answered} of {questions.length} answered</span>
         {#if left !== null}<span>{left} attempt{left === 1 ? '' : 's'} left</span>{/if}
       </div>
     {/if}
 
-    {#each questions as q, i}
+    {#each result ? questions : questions.slice(step, step + 1) as q, k (q.name)}
+      {@const i = result ? k : step}
       <div class="card">
         <div class="small muted">Question {i + 1}{q.question_type === 'Multiple Correct Answer' ? ' · pick all that are right' : ''}</div>
         <div class="prose" style="font-weight: 600; margin: 6px 0 12px">{@html safeHtml(q.question)}</div>
@@ -116,9 +122,23 @@
     {/each}
 
     {#if !result && questions.length}
-      <button class="btn block" style="margin-top: 16px" onclick={submit} disabled={answered < questions.length}>
-        {answered < questions.length ? `Answer all ${questions.length} questions` : 'Check my answers'}
-      </button>
+      <div class="row" style="margin-top: 16px">
+        {#if step > 0}<button class="btn ghost" onclick={() => step--}>Back</button>{/if}
+        {#if step < questions.length - 1}
+          <button class="btn grow" onclick={() => step++} disabled={!answers[questions[step].name]?.size}>Next question</button>
+        {:else}
+          <button class="btn grow" onclick={submit} disabled={answered < questions.length}>
+            {answered < questions.length ? `Answer all ${questions.length} questions` : 'Check my answers'}
+          </button>
+        {/if}
+      </div>
     {/if}
   {/if}
 </div>
+
+<style>
+  .dots { display: flex; gap: 6px; margin-bottom: 10px; }
+  .dots button { flex: 1; height: 8px; border: 0; padding: 0; border-radius: 99px; background: var(--line); cursor: pointer; }
+  .dots button.done { background: var(--brand); }
+  .dots button.now { background: var(--sun); }
+</style>

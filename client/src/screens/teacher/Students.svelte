@@ -59,8 +59,11 @@
           <div class="small muted">{s.grade} · {s.learner_code} · active {ago(s.last_active)}</div>
         </div>
         <div class="right small">
-          <div>{s.lessons_completed_this_week} lessons</div>
-          <div class="muted">{s.quiz_average_this_week != null ? Math.round(s.quiz_average_this_week) + '% quizzes' : ''}</div>
+          <div>{s.lessons_completed_this_week} lesson{s.lessons_completed_this_week === 1 ? '' : 's'} this week</div>
+          {#if s.quiz_average_this_week != null}
+            {@const avg = Math.round(s.quiz_average_this_week)}
+            <span class="pill {avg < 50 ? 'bad' : avg < 70 ? 'warn' : 'ok'}" style="margin-top: 4px">{avg}% quizzes</span>
+          {/if}
         </div>
       </a>
     {:else}
