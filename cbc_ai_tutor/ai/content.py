@@ -53,11 +53,12 @@ def _scope(sub_strand: str) -> frappe._dict:
 	grade = frappe.db.get_value("Program Course", {"course": strand.subject, "parenttype": "Program"}, "parent")
 	if not grade:
 		frappe.throw(_("Add {0} to a grade (Program) before writing its lessons.").format(strand.subject))
-	outcomes = frappe.get_all(
-		"Learning Outcome",
-		filters={"sub_strand": sub_strand},
-		fields=["name", "description"],
-		order_by="`order` asc",
+	# Sorted here: Frappe 16 refuses the reserved word `order` in order_by.
+	outcomes = sorted(
+		frappe.get_all(
+			"Learning Outcome", filters={"sub_strand": sub_strand}, fields=["name", "description", "order"]
+		),
+		key=lambda o: cint(o.order),
 	)
 	return frappe._dict(sub=sub, strand=strand, grade=grade, outcomes=outcomes)
 
