@@ -405,9 +405,9 @@ Grade 9,English,Reading,Reading Fluency,"Make predictions about the characters, 
 Grade 9,English,Reading,Reading Fluency,Skim a text to get the gist,
 Grade 9,English,Reading,Reading Fluency,Scan a text to obtain specific information,
 Grade 9,English,Reading,Reading Fluency,Advocate the role of reading fluency in communication,
-Grade 9,English,Grammar in Use,"Sentences- 15.3.1.1Imperative – commands, requests 15.3.1.2 Exclamatory",Identify instances where the two types of sentences are used correctly in printed handouts or online texts,
-Grade 9,English,Grammar in Use,"Sentences- 15.3.1.1Imperative – commands, requests 15.3.1.2 Exclamatory",Punctuate given texts by use of the appropriate punctuation marks,
-Grade 9,English,Grammar in Use,"Sentences- 15.3.1.1Imperative – commands, requests 15.3.1.2 Exclamatory",Appreciate the use of exclamatory and imperative sentences in spoken language,
+Grade 9,English,Grammar in Use,"Sentences: Imperative – commands, requests",Identify instances where the two types of sentences are used correctly in printed handouts or online texts,"Imperative – commands, requests; Exclamatory"
+Grade 9,English,Grammar in Use,"Sentences: Imperative – commands, requests",Punctuate given texts by use of the appropriate punctuation marks,"Imperative – commands, requests; Exclamatory"
+Grade 9,English,Grammar in Use,"Sentences: Imperative – commands, requests",Appreciate the use of exclamatory and imperative sentences in spoken language,"Imperative – commands, requests; Exclamatory"
 Grade 9,English,Reading,Intensive reading: Poems,Explain why it is important to relate ideas learnt in poems to real life,
 Grade 9,English,Reading,Intensive reading: Poems,Relate ideas in poems on tourist attraction sites to real life,
 Grade 9,English,Reading,Intensive reading: Poems,Acknowledge the need to relate ideas in poems to real life,
@@ -509,11 +509,25 @@ Grade 9,Mathematics,Measurements,Area,Calculate the area of a sector and segment
 Grade 9,Mathematics,Measurements,Area,Work out the surface area of a cone in real life situations,
 Grade 9,Mathematics,Measurements,Area,Calculate the surface area of a sphere in real life situations,
 Grade 9,Mathematics,Measurements,Area,Recognize the use of area in real life situations,
-Grade 9,Mathematics,Measurements,Volume of Solids,"Work out the volume of a triangular and rectangular based prisms. 3.3 Mass, Volume, Weight and Density (8 Lessons)","Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Work out the volume of a triangular and rectangular based prisms,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,"Calculate the volume of a triangular, rectangular and squares based pyramids","Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Work out the volume of a cone in real life situations,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Determine the volume of a frustum in real life situations,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Calculate the volume of a sphere in real life situations,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Promote use of volume and capacity of different containers in real life situations. By the end of the sub- strand the learner should be able to,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Convert units of mass from one form to another in different situations,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Relate mass and weight in real life situations,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,"Determine mass, volume and density in different situations","Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Apply density to real life situations,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
+Grade 9,Mathematics,Measurements,Volume of Solids,Recognize the use of density in daily life,"Critical thinking and problem solving - as learners identify and work out the volume of a frustum from a pyramid; Creativity and Imagination - as learners identify, discuss and work out volume of solids; Communication and collaboration - as learners discuss the relationship between mass and weight; Creativity and imagination - as learners determine the density of different materials or objects; Digital literacy - as learners use IT devices to determine the mass, volume and density of different objects"
 Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Work out speed in km/h and m/s in real life situations,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
 Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Work out average speed in real life situations,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
 Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Determine velocity in real life situations,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
 Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Work out acceleration in real life situations,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
+Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Identify the longitudes on the globe,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
+Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Relate longitudes to time on the globe,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
+Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Determine local time of places on the earth along different longitudes,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
+Grade 9,Mathematics,Measurements,"Time, Distance and Speed",Appreciate use of time and distance in real life situations,Self-efficacy - as learners participate in track events to measure speed; Digital literacy -as learners use IT devices to determine time in different zones in the world; Citizenship- global citizenship as learners determine local time in different parts of the world; Integrity- as learners correctly record individual running time during track events and other games; Respect - as learners adhere to their lanes on track events and other games; Safety - as learners observe safety measures and time during games and sports; Education for Sustainable Development (ESD) - as learners participate and choose careers in games and sporting
 Grade 9,Mathematics,Measurements,Money,Identify currencies that are used in different countries,"Global Citizenship - as learners of different currencies of the world; Digital Literacy - as learners use digital devices to learn on exchange rates for foreign currency; Integrity - as learners accurately work out currency, import and exchange rates; Social Cohesion - as learners work and appreciate exchange rates for other countries"
 Grade 9,Mathematics,Measurements,Money,Convert currency from one form to another in real life situations,"Global Citizenship - as learners of different currencies of the world; Digital Literacy - as learners use digital devices to learn on exchange rates for foreign currency; Integrity - as learners accurately work out currency, import and exchange rates; Social Cohesion - as learners work and appreciate exchange rates for other countries"
 Grade 9,Mathematics,Measurements,Money,Work out import and export duties charged on goods and services,"Global Citizenship - as learners of different currencies of the world; Digital Literacy - as learners use digital devices to learn on exchange rates for foreign currency; Integrity - as learners accurately work out currency, import and exchange rates; Social Cohesion - as learners work and appreciate exchange rates for other countries"
@@ -523,7 +537,13 @@ Grade 9,Mathematics,Measurements,Money,Appreciate use of money in day to day act
 Grade 9,Mathematics,Measurements,Approximations and Errors,Approximate quantities in measurements in different situations,Creativity and imagination - as learners carry out measurements of different quantities and discuss error; Digital literacy - as learners use IT devices as they compute errors; Integrity - as learners measure different quantities and minimize errors; Responsibility - as learners take care of tools for measuring different quantities
 Grade 9,Mathematics,Measurements,Approximations and Errors,Determine errors using estimations and actual measurements of quantities,Creativity and imagination - as learners carry out measurements of different quantities and discuss error; Digital literacy - as learners use IT devices as they compute errors; Integrity - as learners measure different quantities and minimize errors; Responsibility - as learners take care of tools for measuring different quantities
 Grade 9,Mathematics,Measurements,Approximations and Errors,Determine percentage errors using actual measurements of quantities,Creativity and imagination - as learners carry out measurements of different quantities and discuss error; Digital literacy - as learners use IT devices as they compute errors; Integrity - as learners measure different quantities and minimize errors; Responsibility - as learners take care of tools for measuring different quantities
-Grade 9,Mathematics,Geometry,Coordinates and Graphs,,Communication and collaboration -; Critical thinking and problem solving - as learners generate a table of values
+Grade 9,Mathematics,Measurements,Approximations and Errors,Appreciate approximations and errors in real life situations,Creativity and imagination - as learners carry out measurements of different quantities and discuss error; Digital literacy - as learners use IT devices as they compute errors; Integrity - as learners measure different quantities and minimize errors; Responsibility - as learners take care of tools for measuring different quantities
+Grade 9,Mathematics,Geometry,Coordinates and Graphs,Draw a straight line graph given an equation,Communication and collaboration -; Critical thinking and problem solving - as learners generate a table of values
+Grade 9,Mathematics,Geometry,Coordinates and Graphs,Draw parallel lines on the Cartesian plane,Communication and collaboration -; Critical thinking and problem solving - as learners generate a table of values
+Grade 9,Mathematics,Geometry,Coordinates and Graphs,Relate the gradients of parallel lines,Communication and collaboration -; Critical thinking and problem solving - as learners generate a table of values
+Grade 9,Mathematics,Geometry,Coordinates and Graphs,Draw perpendicular lines on the Cartesian plane,Communication and collaboration -; Critical thinking and problem solving - as learners generate a table of values
+Grade 9,Mathematics,Geometry,Coordinates and Graphs,Relate the gradients of perpendicular lines,Communication and collaboration -; Critical thinking and problem solving - as learners generate a table of values
+Grade 9,Mathematics,Geometry,Coordinates and Graphs,Apply graphs of straight line in real life situation,Communication and collaboration -; Critical thinking and problem solving - as learners generate a table of values
 Grade 9,Mathematics,Geometry,Scale Drawing,Identify compass and true bearings in real life situations,Creativity and imagination - as learners sketch and determine angles of elevation and depression; Citizenship - as learners use scale drawing in simple surveying; Unity - as learners sketch and agree on points in simple surveying; Social Cohesion - as learners observe maps and watch videos on land surveying
 Grade 9,Mathematics,Geometry,Scale Drawing,Determine the bearing of one point from another in real life situations,Creativity and imagination - as learners sketch and determine angles of elevation and depression; Citizenship - as learners use scale drawing in simple surveying; Unity - as learners sketch and agree on points in simple surveying; Social Cohesion - as learners observe maps and watch videos on land surveying
 Grade 9,Mathematics,Geometry,Scale Drawing,Locate a point using bearing and distance in real life situations,Creativity and imagination - as learners sketch and determine angles of elevation and depression; Citizenship - as learners use scale drawing in simple surveying; Unity - as learners sketch and agree on points in simple surveying; Social Cohesion - as learners observe maps and watch videos on land surveying
@@ -702,3 +722,323 @@ Grade 9,Social Studies,Political Developments and Governance,Cultural Globalizat
 Grade 9,Social Studies,Political Developments and Governance,Cultural Globalization,Explore ways of preserving cultural elements that promotes global citizenship,
 Grade 9,Social Studies,Political Developments and Governance,Cultural Globalization,Enumerate factors that promote healthy cultural relationships and global interconnectedness,
 Grade 9,Social Studies,Political Developments and Governance,Cultural Globalization,Appreciate values and cultural elements which promote responsible global citizenship,
+Grade 9,Islamic Religious Education,Qur’an,Ulum al- Qur’an,Describe the miraculous nature of the Qur’an to strengthen iman,Miraculuous nature of Qur’an; Language of the Qur’an; Styles of the Qur’an (7 Lessons)
+Grade 9,Islamic Religious Education,Qur’an,Ulum al- Qur’an,Explain the language of the Qur’an for better understanding,Miraculuous nature of Qur’an; Language of the Qur’an; Styles of the Qur’an (7 Lessons)
+Grade 9,Islamic Religious Education,Qur’an,Ulum al- Qur’an,Identify different styles of the Qur’an for better understanding,Miraculuous nature of Qur’an; Language of the Qur’an; Styles of the Qur’an (7 Lessons)
+Grade 9,Islamic Religious Education,Qur’an,Ulum al- Qur’an,Appreciate the miraculous nature of the Qur’an as a divine scripture,Miraculuous nature of Qur’an; Language of the Qur’an; Styles of the Qur’an (7 Lessons)
+Grade 9,Islamic Religious Education,Qur’an,Selected Chapter Surah Al- Hujurat (Q 49),Read Surah Al-Hujurat (Q 49) correctly for spiritual nourishment,
+Grade 9,Islamic Religious Education,Qur’an,Selected Chapter Surah Al- Hujurat (Q 49),Explain the meaning of the verses of Surah Al-Hujurat for better understanding,
+Grade 9,Islamic Religious Education,Qur’an,Selected Chapter Surah Al- Hujurat (Q 49),Deduce lessons of Surah Al-Hujurat for application in daily life,
+Grade 9,Islamic Religious Education,Qur’an,Selected Chapter Surah Al- Hujurat (Q 49),Apply the teachings of Surah Al- Hujurat in their daily life to earn rewards from Allah,
+Grade 9,Islamic Religious Education,Qur’an,Selected Chapter Surah Al- Hujurat (Q 49),Treasure the teachings from Surah Al-Hujurat as a guide in relationships,
+Grade 9,Islamic Religious Education,Hadith,Ulum al-Hadith,Identify the six authentic Books of Hadith as a source of guidance,Books of Hadith; Classification of Hadith; Collection and compilation of Hadith (Tabi'in and Tabi’i -Tabi’in) (10 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Ulum al-Hadith,"Describe the characteristics of different classes of Hadith (sahih, hasan and dhaif) to differentiate between authentic and unauthentic Hadith",Books of Hadith; Classification of Hadith; Collection and compilation of Hadith (Tabi'in and Tabi’i -Tabi’in) (10 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Ulum al-Hadith,Explain reasons for the classification of Hadith for authenticity,Books of Hadith; Classification of Hadith; Collection and compilation of Hadith (Tabi'in and Tabi’i -Tabi’in) (10 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Ulum al-Hadith,Explain factors that necessitated the collection and compilation of Hadith during the period of Tabi'in and Tabi’i -Tabi’in as a measure of preservation,Books of Hadith; Classification of Hadith; Collection and compilation of Hadith (Tabi'in and Tabi’i -Tabi’in) (10 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Ulum al-Hadith,Describe the process of collection and compilation of Hadith during the period of Tabi'in and Tabi’i - Tabi’in to authenticate Hadith,Books of Hadith; Classification of Hadith; Collection and compilation of Hadith (Tabi'in and Tabi’i -Tabi’in) (10 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Ulum al-Hadith,Appreciate the collection and compilation of Hadith as a source of Islamic Law,Books of Hadith; Classification of Hadith; Collection and compilation of Hadith (Tabi'in and Tabi’i -Tabi’in) (10 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Selected Hadith,Deduce lessons from the Hadith on unity and avoidance of ill motives among Muslims,Hadith on Unity; Hadith on Avoidance of ill motives (8 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Selected Hadith,Explain the relevance of the Hadith on unity and avoidance of ill motives in the life of a Muslim,Hadith on Unity; Hadith on Avoidance of ill motives (8 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Selected Hadith,Practise the teachings from the Hadith on unity and avoidance of ill motives in daily life,Hadith on Unity; Hadith on Avoidance of ill motives (8 Lessons)
+Grade 9,Islamic Religious Education,Hadith,Selected Hadith,Honour Hadith as the second source of law and spiritual guidance,Hadith on Unity; Hadith on Avoidance of ill motives (8 Lessons)
+Grade 9,Islamic Religious Education,Pillars of Iman,Belief in the Last Day (Day of Judgement),Describe the events of the Last Day for accountability,"Resurrection; Gathering; Record of deeds; Scale of deeds; Accounting; Intercession; Siraat; Paradise, and hellfire (5 Lessons)"
+Grade 9,Islamic Religious Education,Pillars of Iman,Belief in the Last Day (Day of Judgement),Explain the significance of believing in the Last Day for spiritual nourishment,"Resurrection; Gathering; Record of deeds; Scale of deeds; Accounting; Intercession; Siraat; Paradise, and hellfire (5 Lessons)"
+Grade 9,Islamic Religious Education,Pillars of Iman,Belief in the Last Day (Day of Judgement),Exercise righteousness in preparation for the Last Day,"Resurrection; Gathering; Record of deeds; Scale of deeds; Accounting; Intercession; Siraat; Paradise, and hellfire (5 Lessons)"
+Grade 9,Islamic Religious Education,Pillars of Iman,Belief in the Last Day (Day of Judgement),Desire to lead a righteous life to earn Allah (S.W.T.)’s blessings,"Resurrection; Gathering; Record of deeds; Scale of deeds; Accounting; Intercession; Siraat; Paradise, and hellfire (5 Lessons)"
+Grade 9,Islamic Religious Education,Pillars of Iman,Belief in Qadar,Describe the effects of believing in Qadar and Qadha as a pillar of Iman,
+Grade 9,Islamic Religious Education,Pillars of Iman,Belief in Qadar,Assess the significance of believing in Qadar and Qadha for spiritual nourishment,
+Grade 9,Islamic Religious Education,Pillars of Iman,Belief in Qadar,Appreciate belief in Qadar and Qadha to accept the Will of Allah,
+Grade 9,Islamic Religious Education,Devotional Acts,Shariah (Islamic law),Explain the purpose of Islamic Shariah (Maqasid al-Shariah) as a guide for Muslims,Protection of religion; Protection of intellect; Protection of life; Protection of property; Protection of dignity (6 lessons)
+Grade 9,Islamic Religious Education,Devotional Acts,Shariah (Islamic law),Discuss the relevance of Islamic Shariah in the contemporary world,Protection of religion; Protection of intellect; Protection of life; Protection of property; Protection of dignity (6 lessons)
+Grade 9,Islamic Religious Education,Devotional Acts,Shariah (Islamic law),Describe the categories of legal acts in Islamic Shariah as a means of upholding divine guidance,Protection of religion; Protection of intellect; Protection of life; Protection of property; Protection of dignity (6 lessons)
+Grade 9,Islamic Religious Education,Devotional Acts,Shariah (Islamic law),Apply Islamic Shariah in day-to-day life,Protection of religion; Protection of intellect; Protection of life; Protection of property; Protection of dignity (6 lessons)
+Grade 9,Islamic Religious Education,Devotional Acts,Shariah (Islamic law),Acknowledge Shariah as a source of divine guidance,Protection of religion; Protection of intellect; Protection of life; Protection of property; Protection of dignity (6 lessons)
+Grade 9,Islamic Religious Education,Devotional Acts,Tawbah (Repentance),State the conditions of tawbah as a basis for forgiveness from Allah (S.W.T.),
+Grade 9,Islamic Religious Education,Devotional Acts,Tawbah (Repentance),Assess the significance of tawbah in the life of a Muslim,
+Grade 9,Islamic Religious Education,Devotional Acts,Tawbah (Repentance),Practise actions that lead to tawbah as a way of purifying one from sins,
+Grade 9,Islamic Religious Education,Devotional Acts,Tawbah (Repentance),Appreciate the virtue of tawbah as a condition for success in this life and the Hereafter,
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Virtues in Islam,"Explain Islamic teachings on observing modesty, contentment and trustworthiness in fulfilment of Allah (subhanna wataala.)’s commandmen,t",Modesty; Contentment; trustworthiness (9 lessons)
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Virtues in Islam,"Describe ways in which Muslims can practise modesty, contentment and trustworthiness as part of faith",Modesty; Contentment; trustworthiness (9 lessons)
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Virtues in Islam,"Discuss the significance of observing modesty, contentment and trustworthiness in upholding Islamic morality in the society",Modesty; Contentment; trustworthiness (9 lessons)
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Virtues in Islam,"Practise modesty, contentment, and trustworthiness in day-to- day life to earn rewards from Allah (subhanna wataala.)",Modesty; Contentment; trustworthiness (9 lessons)
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Virtues in Islam,"Value modesty, contentment and trustworthiness for a morally upright society",Modesty; Contentment; trustworthiness (9 lessons)
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Significance of Islamic Morality,Examine the significance of Islamic morality in promoting righteousness,
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Significance of Islamic Morality,Practise Islamic morality to earn Allah’s rewards,
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Significance of Islamic Morality,Uphold Islamic morality as a way of promoting an upright society,
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Prohibitions in Islam Zina (fornication and adultery),Describe the effects of Zina on the community,
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Prohibitions in Islam Zina (fornication and adultery),Justify the reasons behind the prohibition of Zina for a morally upright society,
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Prohibitions in Islam Zina (fornication and adultery),Explain the Islamic measures of curbing Zina for a morally upright society,
+Grade 9,Islamic Religious Education,Akhlaq (Moral Values),Prohibitions in Islam Zina (fornication and adultery),Appreciate the prohibition of Zina for a healthy society,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Domestic violence,Explain the causes of domestic violence to settle family conflicts,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Domestic violence,Assess the effects of domestic violence on the family,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Domestic violence,Describe measures to curb domestic violence in the family,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Domestic violence,Embrace measures proposed by Islam to curb domestic violence,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Iddah,Describe the iddah for a divorcee and a widow in Islam to foster obedience to divine guidance,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Iddah,Explain the rationale for observing iddah as an act if ibadah,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Iddah,State the rules of iddah as a means of safeguarding its validity,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Iddah,Explain the importance of iddah to the divorced and widowed Muslim woman,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Iddah,Appreciate iddah as an act of ibadah,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Child custody,Identify the Islamic rules on child custody that safeguard the child’s rights,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Child custody,Assess the significance of Islamic rules on child custody,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Child custody,Appreciate Islamic teachings on child custody as a means of fostering family bond,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,Explain the reasons for polygamy in Islam for social stability,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,Justify the reasons for the Prophet’s multiple marriages,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,State the conditions for polygamy in Islam,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,Assess the significance of polygamy in Islam,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,"Appreciate the Islamic concept of polygamy as a social remedy to safeguard human dignity. By the end of the sub-strand, the learner should be able to:",
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,Explain the Islamic rules on borrowing and lending money,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,Practise Islamic teachings on borrowing and lending money to earn rewards from Allah (S.W.T.),
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,Describe the role of consumer protection agencies to enhance integrity,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Polygamy in Islam,Appreciate the Islamic concept of borrowing and lending money as a means of safeguarding equity in the society,
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Contemporary Issues,Identify the rules of Jihad in Islam for the correct interpretation,Jihad; Terrorism; Extremism (6 lessons)
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Contemporary Issues,Explain the causes of terrorism and extremism in the society,Jihad; Terrorism; Extremism (6 lessons)
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Contemporary Issues,Explain the effects of terrorism and extremism on the society,Jihad; Terrorism; Extremism (6 lessons)
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Contemporary Issues,Describes the measures to curb terrorism and extremism for peaceful co-existence,Jihad; Terrorism; Extremism (6 lessons)
+Grade 9,Islamic Religious Education,Muamalat (Social Relations),Contemporary Issues,Acknowledge Islamic teachings on Jihad as a guide to harmonious co- existence,Jihad; Terrorism; Extremism (6 lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Islam in Kenya,Describe the factors that facilitated the spread of Islam in Kenya,Coast; Western; Central; North Eastern Kenya (6 Lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Islam in Kenya,Explain the effects of the contact between the early Muslims and the natives as a factor of civilisation,Coast; Western; Central; North Eastern Kenya (6 Lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Islam in Kenya,Examine the challenges faced by the early Muslims in the propagation of Islam,Coast; Western; Central; North Eastern Kenya (6 Lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Islam in Kenya,Appreciate the contribution of Islam to the development of culture in Kenya,Coast; Western; Central; North Eastern Kenya (6 Lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Unity of Muslims,Explain the factors that would enhance unity of Muslims in Kenya,
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Unity of Muslims,Describe the challenges that undermine the unity of Muslims in Kenya,
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Unity of Muslims,Assess the significance of the unity of Muslims for harmonious co-existence,
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Unity of Muslims,Practise acts that foster unity among Muslims,
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Unity of Muslims,Appreciate the unity of Muslims to enhance brotherhood,
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Muslim Institutions,"Describe the role of mosques, madrasa and Muslim NGOs in the preservation of Islamic heritage",Mosques; Madrasa; Muslim NGOs (9 Lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Muslim Institutions,Examine the challenges facing the Muslim institutions,Mosques; Madrasa; Muslim NGOs (9 Lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Muslim Institutions,Propose possible solutions to the challenges facing Muslim institutions,Mosques; Madrasa; Muslim NGOs (9 Lessons)
+Grade 9,Islamic Religious Education,Islamic Heritage and Civilisation,Muslim Institutions,"Recognise the role played by mosques, madrasa and Muslim NGOs in preserving Islamic values",Mosques; Madrasa; Muslim NGOs (9 Lessons)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza na Kujibu Mjadala,Kutambua vipengele vya kuzingatia katika kusikiliza mjadala,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza na Kujibu Mjadala,Kutambua vipengele vya kuzingatia katika kuchangia mjadala,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza na Kujibu Mjadala,Kushiriki mjadala kwa kuzingatia vipengele vifaavyo katika kusikiliza na kuchangia mijadala,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza na Kujibu Mjadala,Kuchangamkia kushiriki katika mijadala ya miktadha mbalimbali,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Simulizi,Kudondoa habari mahususi katika kifungu cha simulizi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Simulizi,Kupanga matukio yanavyofuatana katika kifungu cha simulizi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Simulizi,Kufanya utabiri na ufasiri kutokana na kifungu cha simulizi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Simulizi,Kueleza maana ya msamiati kama ulivyotumiwa katika kifungu cha simulizi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Simulizi,Kuchangamkia kujibu maswali ya ufahamu ili kukuza uelewa wa habari,
+Grade 9,Kiswahili,Kuandika,Viakifishi,Kutambua alama ya koloni na semi koloni katika matini,Koloni; Semi koloni (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Viakifishi,Kueleza matumizi ya koloni na semi koloni katika matini,Koloni; Semi koloni (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Viakifishi,Kutumia alama ya koloni na semi koloni ipasavyo katika matini,Koloni; Semi koloni (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Viakifishi,Kufurahia matumizi yafaayo ya alama ya koloni na semi koloni katika matini mbalimbali,Koloni; Semi koloni (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kutambua vihusishi vya mahali na vya wakati katika matini,Vihusishi vya Mahali; Vihusishi vya Wakati (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kutumia vihusishi vya mahali na vya wakati ipasavyo katika matini,Vihusishi vya Mahali; Vihusishi vya Wakati (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kuchangamkia matumizi yafaayo ya vihusishi vya mahali na vya wakati katika matini mbalimbali,Vihusishi vya Mahali; Vihusishi vya Wakati (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /b/ na /mb/,Kutamka sauti /b/ na /mb/ ipasavyo ili kuzitofautisha kimatamshi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /b/ na /mb/,Kutamka vitanzandimi vyenye sauti /b/ na /mb/ ipasavyo,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /b/ na /mb/,Kuunda vitanzandimi vyepesi vyenye sauti /b/ na /mb/,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /b/ na /mb/,Kuchangamkia matamshi bora ya sauti /b/ na /mb/ katika mazungumzo ya kawaida,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Mapana Matini ya kujichagulia,Kufafanua ujumbe wa matini aliyosoma,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Mapana Matini ya kujichagulia,Kutambua msamiati uliotumiwa katika matini ya kujichagulia,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Mapana Matini ya kujichagulia,Kutumia ipasavyo msamiati unaotokana na matini aliyosoma,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Mapana Matini ya kujichagulia,Kujenga mazoea ya kusoma matini mbalimbali za kujichagulia,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Barua ya Kirafiki,Kutambua ujumbe unaoafiki katika kujibu barua ya kirafiki,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Barua ya Kirafiki,Kueleza lugha inayofaa katika kujibu barua ya kirafiki,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Barua ya Kirafiki,Kufafanua muundo unaofaa katika kujibu barua ya kirafiki,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Barua ya Kirafiki,"Kujibu barua ya kirafiki akizingatia ujumbe, lugha na muundo ufaao",
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Barua ya Kirafiki,Kujenga mazoea ya kujibu barua ya kirafiki katika maisha ya kila siku,
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kutambua vihusishi vya -a unganifu na vya sababu katika matini,Vihusishi vya -a Unganifu; Vihusishi vya Sababu (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kutumia vihusishi vya -a unganifu na vya sababu ipasavyo katika matini,Vihusishi vya -a Unganifu; Vihusishi vya Sababu (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kuchangamkia matumizi yafaayo ya vihusishi vya -a unganifu na vya sababu katika mawasiliano,Vihusishi vya -a Unganifu; Vihusishi vya Sababu (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,"Kueleza maana ya tashbihi, sitiari na methali ili kuzipambanua",Tashbihi; Sitiari; Methali (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,"Kutambua tashbihi, sitiari na methali katika matini ya fasihi simulizi",Tashbihi; Sitiari; Methali (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,"Kueleza matumizi ya tashbihi, sitiari na methali katika matini ya fasihi simulizi",Tashbihi; Sitiari; Methali (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,"Kutumia tashbihi, sitiari na methali katika uwasilishaji wa tungo za fasihi simulizi",Tashbihi; Sitiari; Methali (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,"Kuchangamkia matumizi ya tashbihi, sitiari na methali katika tungo za fasihi simulizi",Tashbihi; Sitiari; Methali (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kueleza maana ya shairi ili kulitofautisha na tungo nyingine,Sifa za ushairi (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kujadili sifa za ushairi kama utanzu wa fasihi andishi,Sifa za ushairi (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kueleza sifa za ushairi katika shairi,Sifa za ushairi (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kufurahia kuchambua ushairi kama utungo wa fasihi,Sifa za ushairi (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kutambua vipengele vya kufafanulia ujumbe wa insha ya masimulizi,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,"Kufafanua ujumbe wa insha ya masimulizi kupitia kwa utangulizi, kiini na hitimisho",
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kufafanua ujumbe wa insha ya masimulizi kupitia kwa wahusika,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kuandika insha ya masimulizi kwa kuzingatia ujumbe na muundo ufaao,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kufurahia kufafanua ujumbe wa insha ya kusimulia ili kufanikisha maelezo,
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kutambua vihusishi vilinganishi na kihusishi na katika matini,Vihusishi Vilinganishi; Kihusishi na (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kutumia vihusishi vilinganishi na kihusishi na ipasavyo katika matini,Vihusishi Vilinganishi; Kihusishi na (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vihusishi,Kuchangamkia kutumia vihusishi vilinganishi na kihusishi na katika mawasiliano ya kila siku,Vihusishi Vilinganishi; Kihusishi na (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,Kueleza maana ya vitendawili na nahau ili kuipambanua,Vitendawili; Nahau (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,Kutambua vitendawili na nahau katika matini,Vitendawili; Nahau (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,Kufafanua umuhimu wa vitendawili na nahau katika fasihi simulizi,Vitendawili; Nahau (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,Kutumia nahau ipasavyo katika mawasiliano,Vitendawili; Nahau (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,Kuwasilisha vitendawili kwa kuzingatia vipengele vya uwasilishaji wake,Vitendawili; Nahau (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Semi,Kuchangamkia matumizi ya nahau na uwasilishaji wa vitendawili katika tungo za fasihi,Vitendawili; Nahau (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,"Kueleza maana ya lugha ya kitamathali, matendo ya wahusika na mandhari ili kuibanisha",
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,"Kujadili lugha ya kitamathali, matendo ya wahusika na mandhari katika insha ya masimulizi",
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,"Kuandika insha ya masimulizi akizingatia lugha ya kitamathali, matendo ya wahusika na mandhari",
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,"Kufurahia kuandika insha za masimulizi akizingatia lugha ya kitamathali, matendo ya wahusika na uchoraji wa mandhari ufaao ili kufanikisha mawasiliano",
+Grade 9,Kiswahili,Sarufi,Nyakati na Hali,Kutambua -ki- ya masharti na -ka- ya kufuatana katika matini,-ki- ya masharti; -ka- ya kufuatana kwa vitendo (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Nyakati na Hali,Kutumia -ki- ya masharti na -ka- ya kufuatana ipasavyo katika matini,-ki- ya masharti; -ka- ya kufuatana kwa vitendo (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Nyakati na Hali,Kujenga mazoea ya kutumia ipasavyo -ki- ya masharti na -ka- ya kufuatana kwa vitendo ili kufanikisha mawasiliano,-ki- ya masharti; -ka- ya kufuatana kwa vitendo (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza,Kueleza maana ya ufahamu wa kusikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza,Kujadili kanuni za ufahamu wa kusikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza,Kujadili vipengele vya ufahamu wa kusikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza,Kushiriki katika ufahamu wa kusikiliza akizingatia vipengele vyake,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza,Kuchangamkia kushiriki katika kusikiliza kwa ufahamu ili kukuza stadi ya kusikiliza,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu,Kudondoa habari mahususi katika kifungu cha ufahamu,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu,Kufanya utabiri na ufasiri kutokana na kifungu cha ufahamu,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu,Kueleza maana ya msamiati kulingana na kifungu cha ufahamu,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu,Kuchangamkia kusoma kwa ufahamu ili kukuza uelewa wa habari,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kueleza maana ya shajara,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kujadili vipengele vya shajara,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kuandika shajara akizingatia vipengele vyake,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kuonea fahari matumizi ya shajara katika maisha ya kila siku,
+Grade 9,Kiswahili,Sarufi,Hali za Masharti,Kueleza maana ya hali ya masharti,Hali ya masharti -nge- -ngali- (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Hali za Masharti,Kutambua matumizi ya hali ya masharti ya -nge- na -ngali- katika matini,Hali ya masharti -nge- -ngali- (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Hali za Masharti,Kutumia hali ya masharti -nge- na -ngali- ipasavyo katika matini,Hali ya masharti -nge- -ngali- (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Hali za Masharti,Kuchangamkia matumizi yafaayo ya hali ya masharti -nge- na -ngali- ili kukuza ufasaha wa lugha,Hali ya masharti -nge- -ngali- (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kueleza maana ya kusikiliza kwa kufasiri ili kuibanisha,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kueleza msimamo na mielekeo kuhusu ujumbe wa matini ya kusikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kulinganisha misimamo na mielekeo ya ujumbe wa matini aliyosikiliza na ile ya jamii yake kuhusu suala husika,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kujenga mazoea ya kutambua msimamo na mielekeo katika matini mbalimbali ili kupata maana ya ujumbe,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kueleza maana ya maudhui na dhamira katika fasihi,Maudhui; Dhamira (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kujadili maudhui na dhamira katika shairi,Maudhui; Dhamira (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kuchambua shairi kwa kuzingatia maudhui na dhamira,Maudhui; Dhamira (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kuchangamkia usomaji wa kina wa mashairi ili kupata ujumbe wake,Maudhui; Dhamira (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Methali,Kueleza maana ya insha za methali ili kuipambanua,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Methali,Kujadili vipengele vya insha ya methali,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Methali,Kuandika insha ya methali kwa kuzingatia vipengele vya uandishi husika,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Methali,Kufurahia kufasiri methali na kuziandikia insha zinazoafiki ili kujenga ubunifu,
+Grade 9,Kiswahili,Sarufi,Vielezi,Kutambua vielezi vya namna na vya wakati katika matini,Vielezi vya Namna; Vielezi vya Wakati (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vielezi,Kutumia vielezi vya namna na vya wakati ipasavyo katika matini,Vielezi vya Namna; Vielezi vya Wakati (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vielezi,Kuchangamkia kutumia vielezi vya namna na vya wakati katika matini,Vielezi vya Namna; Vielezi vya Wakati (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kueleza maana ya kusikiliza kwa kutathmini ili kuibainisha,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kujadili vipengele vya kuzingatia katika kusikiliza kwa kutathmini,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kutathmini ujumbe wa mzungumzaji,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kutathmini mtazamo wa msemaji kuhusu anachokizungumzia,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kueleza maana ya msamiati kama ulivyotumiwa katika matini aliyosikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kuchangamkia kushiriki katika kusikiliza kwa kuchanganua ili kuboresha mawasiliano,
+Grade 9,Kiswahili,Kusoma,Ufupisho,Kueleza maana ya ufupisho ili kuupambanua,
+Grade 9,Kiswahili,Kusoma,Ufupisho,Kujadili vipengele vya ufupisho wa kifungu,
+Grade 9,Kiswahili,Kusoma,Ufupisho,Kufupisha kifungu akizingatia vipengele vya ufupisho,
+Grade 9,Kiswahili,Kusoma,Ufupisho,Kujenga mazoea ya kuwasiliana kwa maelezo mafupi,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kutambua lugha inayoathiri hisia mbalimbali katika insha ya maelezo,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kujadili umuhimu wa kutumia lugha inayoathiri hisia mbalimbali katika insha ya maelezo,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kutumia ipasavyo lugha inayoathiri hisia mbalimbali katika kuandika insha ya maelezo,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kufurahia kuandika insha yenye maelezo yanayojenga picha dhahiri,
+Grade 9,Kiswahili,Sarufi,Vielezi,Kutambua vielezi vya mahali na vya idadi katika matini,Vielezi vya Mahali; Vielezi vya Idadi (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vielezi,Kutumia vielezi vya mahali na vya idadi ipasavyo katika matini,Vielezi vya Mahali; Vielezi vya Idadi (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Vielezi,Kuchangamkia kutumia vielezi vya mahali na vya idadi katika sentensi na vifungu,Vielezi vya Mahali; Vielezi vya Idadi (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Kushawishi,Kueleza maana ya uzungumzaji wa kushawishi ili kuupambanua,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Kushawishi,Kubainisha miktadha ya uzungumzaji wa kushawishi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Kushawishi,Kujadili vipengele vya kuzingatia katika uzungumzaji wa kushawishi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Kushawishi,Kufanya mazungumzo ya kushawishi akizingatia vipengele vya uzungumzaji wa kushawishi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Kushawishi,Kujenga mazoea ya kuwasilisha hoja kwa mazungumzo yanayoshawishi hadhira,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kueleza maana ya mandhari katika fasihi,Mandhari; Muundo (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kutambua mandhari mbalimbali katika shairi,Mandhari; Muundo (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kueleza umuhimu wa mandhari katika shairi,Mandhari; Muundo (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kufafanua vipengele vya muundo katika shairi,Mandhari; Muundo (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kuchambua shairi kwa kuzingatia mandhari na muundo,Mandhari; Muundo (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kuchangamkia nafasi ya mandhari na muundo katika shairi,Mandhari; Muundo (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Viakifishi,Kutambua matumizi ya mabano na kistari kifupi katika matini,Mabano; Kistari Kifupi (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Viakifishi,Kutumia mabano na kistari kifupi ipasavyo katika matini,Mabano; Kistari Kifupi (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Viakifishi,Kujenga mazoea ya kutumia ipasavyo mabano na kistari kifupi katika matini ili kufanikisha mawasiliano,Mabano; Kistari Kifupi (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,Kutambua viambishi vya upatanisho wa kisarufi vya ngeli ya U-ZI na YA-YA katika sentensi,U-ZI; YA-YA (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,Kutambua nomino za ngeli ya U-ZI na YA-YA katika matini,U-ZI; YA-YA (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,Kutumia nomino za ngeli ya U-ZI na YA-YA katika matini kwa kuzingatia upatanisho ufaao wa kisarufi,U-ZI; YA-YA (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,Kuchangamkia upatanisho ufaao wa ngeli ya U-ZI na YA-YA ili kujenga ufasaha wa lugha,U-ZI; YA-YA (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /j/ na /nj/,Kutambua sauti /j/ na /nj/ katika maneno,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /j/ na /nj/,Kutamka maneno yenye sauti /j/ na /nj/ ipasavyo,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /j/ na /nj/,Kubuni vitanzandimi vinavyohusisha sauti /j /na /nj/,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kina Sauti /j/ na /nj/,Kuchangamkia matamshi bora ya sauti /j/ na /nj/ ili kufanikisha mawasiliano,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Kushawishi,Kudondoa habari mahususi katika kifungu cha kushawishi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Kushawishi,Kueleza maana za maneno kama yalivyotumiwa katika kifungu cha kushawishi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Kushawishi,Kuchangamkia usomaji wa kifungu cha kushawishi ili kukuza hamu ya ujifunzaji,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kutambua vipengele vya ukuzaji wa wazo baina ya aya za insha ya masimulizi,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kueleza ukuzaji wa wazo baina ya aya za insha ya masimulizi,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kuandika insha ya masimulizi inayozingatia ukuzaji wa wazo baina ya aya,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Masimulizi,Kufurahia kuandika insha za masimulizi zinazozingatia ukuzaji wa wazo baina ya aya ili kufanikisha mawasiliano,
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,"Kutambua viambishi vya upatanisho wa kisarufi vya ngeli ya LI, KU na PA- KU-MU katika sentensi",LI; KU; PA-KU-MU (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,"Kutambua nomino za ngeli ya LI, KU na PA- KU-MU katika matini",LI; KU; PA-KU-MU (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,"Kutumia nomino za ngeli ya LI, KU na PA-KU-MU katika matini kwa kuzingatia upatanisho ufaao wa kisarufi",LI; KU; PA-KU-MU (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi Ngeli ya,Kuchangamkia matumizi yafaayo ya upatanisho wa kisarufi wa ngeli ya PA- KU-MU katika mawasiliano ya kila siku,LI; KU; PA-KU-MU (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Malumbano ya Utani,Kueleza maana ya malumbano ya utani kama kipera cha mazungumzo,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Malumbano ya Utani,Kujadili sifa za malumbano ya utani,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Malumbano ya Utani,Kutambua vipengele vya uwasilishaji wa malumbano ya utani,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Malumbano ya Utani,Kuwasilisha malumbano ya utani kwa kuzingatia vipengele vifaavyo vya uwasilishaji,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Malumbano ya Utani,Kuchangamkia uwasilishaji wa malumbano ya utani kwa kuzingatia vipengele vya kimsingi katika uwasilishaji,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kueleza maana ya wahusika katika fasihi,Wahusika katika shairi (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kutambua wahusika katika shairi,Wahusika katika shairi (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kujadili sifa za wahusika katika shairi,Wahusika katika shairi (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kuchambua shairi kwa kuzingatia sifa za wahusika,Wahusika katika shairi (Vipindi 2)
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi,Kujenga mazoea ya kuchambua wahusika katika mashairi ili kuimarisha uwazaji wa kina,Wahusika katika shairi (Vipindi 2)
+Grade 9,Kiswahili,Kuandika,Barua ya Kuomba Kazi,Kueleza maana ya barua rasmi ya kuomba kazi,
+Grade 9,Kiswahili,Kuandika,Barua ya Kuomba Kazi,Kutambua vipengele vya barua rasmi ya kuomba kazi,
+Grade 9,Kiswahili,Kuandika,Barua ya Kuomba Kazi,Kuandika barua rasmi ya kuomba kazi akizingatia vipengele vyake,
+Grade 9,Kiswahili,Kuandika,Barua ya Kuomba Kazi,Kujenga mazoea ya kuandika barua rasmi ya kuomba kazi ipasavyo,
+Grade 9,Kiswahili,Sarufi,Vinyume vya Vihusishi,Kueleza maana ya vinyume vya vihusishi,
+Grade 9,Kiswahili,Sarufi,Vinyume vya Vihusishi,Kutambua vinyume vya vihusishi katika matini,
+Grade 9,Kiswahili,Sarufi,Vinyume vya Vihusishi,Kutumia vinyume vya vihusishi ipasavyo katika matini,
+Grade 9,Kiswahili,Sarufi,Vinyume vya Vihusishi,Kujenga mazoea ya kutumia ipasavyo vinyume vya vihusishi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji katika Sherehe,Kueleza maana ya uzungumzaji katika sherehe,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji katika Sherehe,Kutambua miktadha katika jamii ambapo uzungumzaji katika sherehe hufanywa,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji katika Sherehe,Kujadili ujumbe tofautitofauti unaoafiki uzungumzaji katika miktadha mbalimbali ya sherehe,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji katika Sherehe,Kujadili vipengele vya kuzingatia katika uzungumzaji katika muktadha wa sherehe,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji katika Sherehe,Kutoa mazungumzo katika muktadha wa sherehe kwa kutumia vipengele vifaavyo,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji katika Sherehe,Kuchangamkia mazungumzo yafaayo katika miktadha ya sherehe,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kujadili mitazamo katika insha za maelezo,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kuandika insha ya maelezo akizingatia mtazamo mahususi,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kufurahia kuandika insha za maelezo zinazoonyesha mitazamo mahususi,
+Grade 9,Kiswahili,Sarufi,Mnyambuliko wa Vitenzi Kauli ya,"Kutambua viambishi vya kauli ya kutendana, kutendeana na kutendesha katika vitenzi",Kutendana; Kutendeana; kutendesha (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Mnyambuliko wa Vitenzi Kauli ya,"Kutumia vitenzi katika kauli ya kutendana, kutendeana na kutendesha ipasavyo katika matini",Kutendana; Kutendeana; kutendesha (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Mnyambuliko wa Vitenzi Kauli ya,"Kuchangamkia kutumia vitenzi katika kauli ya kutendana, kutendeana na Kutendesha ipasavyo katika matini ili kufanikisha mawasiliano",Kutendana; Kutendeana; kutendesha (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza Matini ya kusikiliza,Kueleza habari katika matini ya kusikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza Matini ya kusikiliza,Kukadiria maana ya msamiati mahususi na vifungu katika matini ya kusikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza Matini ya kusikiliza,Kuchanganua mitazamo na maoni katika matini ya kusikiliza,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Ufahamu wa Kusikiliza Matini ya kusikiliza,Kufurahia kusikiliza matini za kusikiliza ili kupata habari mahususi,
+Grade 9,Kiswahili,Kuandika,Hotuba ya Kushawishi,Kueleza maana ya hotuba ya kushawishi ili kuitofautisha na aina nyingine za hotuba,
+Grade 9,Kiswahili,Kuandika,Hotuba ya Kushawishi,Kujadili vipengele vya kuzingatia katika uandishi wa hotuba ya kushawishi,
+Grade 9,Kiswahili,Kuandika,Hotuba ya Kushawishi,Kuandika hotuba ya kushawishi akizingatia vipengele vifaavyo,
+Grade 9,Kiswahili,Kuandika,Hotuba ya Kushawishi,Kuchangamkia kuandika ipasavyo hotuba ya kushawishi,
+Grade 9,Kiswahili,Sarufi,Aina za Sentensi Sentensi tata,Kueleza maana ya sentensi tata ili kuitofautisha na aina nyingine za sentensi,
+Grade 9,Kiswahili,Sarufi,Aina za Sentensi Sentensi tata,Kutambua sentensi tata katika matini,
+Grade 9,Kiswahili,Sarufi,Aina za Sentensi Sentensi tata,Kuchambua maana mbalimbali ya sentensi tata,
+Grade 9,Kiswahili,Sarufi,Aina za Sentensi Sentensi tata,Kujenga ujuzi wa kuchanganua maana mbalimbali katika sentensi tata ili kufasiri habari kikamilifu,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kueleza maana ya mawaidha ili kuipambanua,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kujadili ujumbe na sifa za mawaidha ya kifasihi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kueleza vipengele vya uwasilishaji wa mawaidha,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kutambua washiriki katika mawaidha ya fasihi simulizi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kuchambua sifa za washiriki katika mawaidha ya fasihi simulizi,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kuwasilisha mawaidha kwa kuzingatia vipengele vifaavyo vya uwasilishaji,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kufurahia kushiriki katika uchanganuzi wa wahusika katika tungo za fasihi simulizi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi Mbinu za lugha,Kutambua mbinu za lugha katika fasihi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi Mbinu za lugha,Kuchanganua matumizi ya lugha katika mashairi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi Mbinu za lugha,Kutumia mbinu mbalimbali za lugha katika mashairi,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi Mbinu za lugha,Kuchambua shairi kwa kuzingatia mbinu mbalimbali za lugha,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Kina Ushairi Mbinu za lugha,Kuchangamkia matumizi ya lugha katika ushairi,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kueleza maana ya insha ya maelezo kuhusu hali,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kutambua vipengele vya insha ya maelezo kuhusu hali,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kuandika insha ya maelezo kuhusu hali akizingatia vipengele vyake,
+Grade 9,Kiswahili,Kuandika,Insha za Kubuni Maelezo,Kufurahia kutunga insha za maelezo kuhusu hali,
+Grade 9,Kiswahili,Sarufi,Ukanushaji Hali ya masharti,"Kutambua ukanushaji wa hali ya masharti - nge-, -ngali-, na -ki- katika matini",-nge-; -ngali-; -ki- (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ukanushaji Hali ya masharti,"Kutumia hali ya ukanushaji wa hali ya masharti ya -nge, -ngali- na -ki- ipasavyo katika matini",-nge-; -ngali-; -ki- (Vipindi 2)
+Grade 9,Kiswahili,Sarufi,Ukanushaji Hali ya masharti,"Kuchangamkia matumizi sahihi ya ukanushaji wa hali ya masharti ya -nge, - ngali- na -ki- katika maisha ya kila siku",-nge-; -ngali-; -ki- (Vipindi 2)
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kutambua vipengele vya lugha vinavyotumika katika mawaidha,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kujadili umuhimu wa vipengele vya lugha vinavyotumika katika mawaidha,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kujadili ishara zifaazo katika kutoa mawaidha,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kutoa mawaidha kwa kuzingatia vipengele mbalimbali vya lugha ya mawaidha na ishara zifaazo,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Mazungumzo Mawaidha,Kuonea fahari utoaji wa mawaidha katika maisha ya kila siku,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Mjadala,Kudondoa habari mahususi katika kifungu cha mjadala,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Mjadala,Kueleza maana ya msamiati na vifungu kama vilivyotumiwa katika kifungu cha mjadala,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Mjadala,Kuchanganua mitazamo katika kifungu cha mjadala,
+Grade 9,Kiswahili,Kusoma,Kusoma kwa Ufahamu Kifungu cha Mjadala,Kufurahia kusoma kwa ufahamu ili kukuza uelewa wa habari,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kujadili umuhimu wa shajara,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kueleza aina za shajara ili kuzibainisha,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kuandika aina za shajara akizingatia vipengele vyake,
+Grade 9,Kiswahili,Kuandika,Insha za Kiuamilifu Shajara,Kuonea fahari matumizi ya shajara katika maisha ya kila siku,
+Grade 9,Kiswahili,Sarufi,Udogo na Ukubwa wa Nomino,Kutambua hali ya udogo na ukubwa katika nomino,
+Grade 9,Kiswahili,Sarufi,Udogo na Ukubwa wa Nomino,Kutumia nomino katika hali ya udogo na ukubwa ipasavyo katika matini,
+Grade 9,Kiswahili,Sarufi,Udogo na Ukubwa wa Nomino,Kuchangamkia kutumia kwa ufasaha nomino katika hali ya udogo na ukubwa ili kufanikisha mawasiliano,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kueleza maana ya kusikiliza kwa kutathmini,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kujadili vipengele vya kuzingatia katika kutathmini mazungumzo,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kusikiliza mazungumzo na kuyatathmini kwa kuzingatia vipengele vifaavyo,
+Grade 9,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kutathmini,Kuchangamkia kutathmini mazungumzo ili kuimarisha mawasiliano,
+Grade 9,Kiswahili,Kusoma,Ufupisho,Kujadili vipengele vya kuzingatia katika ufupisho wa habari katika matini,
+Grade 9,Kiswahili,Kusoma,Ufupisho,Kuandika ufupisho wa habari kwa kuzingatia vipengele vifaavyo,
+Grade 9,Kiswahili,Kusoma,Ufupisho,Kufurahia kufupisha habari kwa usahihi katika miktadha mbalimbali,
+Grade 9,Kiswahili,Kuandika,Kujibu Baruapepe,Kujadili vipengele vya kuzingatia katika kujibu baruapepe,
+Grade 9,Kiswahili,Kuandika,Kujibu Baruapepe,Kujibu baruapepe kwa kuzingatia vipengele vifaavyo,
+Grade 9,Kiswahili,Kuandika,Kujibu Baruapepe,Kujenga mazoea ya kujibu baruapepe ipasavyo,
+Grade 9,Kiswahili,Sarufi,Usemi Halisi na Usemi wa Taarifa,Kujadili kanuni za kubadilisha usemi halisi kuwa usemi wa taarifa,
+Grade 9,Kiswahili,Sarufi,Usemi Halisi na Usemi wa Taarifa,Kutumia usemi halisi na usemi wa taarifa ipasavyo katika matini,
+Grade 9,Kiswahili,Sarufi,Usemi Halisi na Usemi wa Taarifa,Kuchangamkia matumizi ya usemi halisi na usemi wa taarifa katika mawasiliano ya kila siku,
