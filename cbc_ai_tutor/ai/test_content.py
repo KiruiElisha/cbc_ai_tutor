@@ -78,3 +78,8 @@ class TestWriteLesson(unittest.TestCase):
 
 		with self.assertRaises(AIUnavailable):
 			self._write({**REPLY, "body": "Too short."})
+
+	def test_writing_one_grade_only_picks_that_grades_sub_strands(self):
+		self.assertIn(self.sub.name, content.without_lessons(1000, "CONTENTTEST Grade 4"))
+		frappe.get_doc({"doctype": "Program", "program_name": "CONTENTTEST Grade 5", "program_abbreviation": "CT5"}).insert()
+		self.assertNotIn(self.sub.name, content.without_lessons(1000, "CONTENTTEST Grade 5"))

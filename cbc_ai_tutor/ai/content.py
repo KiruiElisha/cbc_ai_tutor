@@ -21,6 +21,8 @@ LESSON_PROMPT = """Write one lesson for Kenyan learners in {grade}, {area}, foll
 
 Strand: {strand}
 Sub-strand: {sub_strand}
+Topics to cover:
+{scope}
 Specific learning outcomes:
 {outcomes}
 
@@ -46,7 +48,9 @@ def _words(grade: str) -> int:
 
 
 def _scope(sub_strand: str) -> frappe._dict:
-	sub = frappe.db.get_value("Sub-strand", sub_strand, ["name", "name1", "strand", "order"], as_dict=True)
+	sub = frappe.db.get_value(
+		"Sub-strand", sub_strand, ["name", "name1", "strand", "order", "description"], as_dict=True
+	)
 	if not sub:
 		frappe.throw(_("Sub-strand {0} not found.").format(sub_strand))
 	strand = frappe.db.get_value("Strand", sub.strand, ["name", "strand_name", "subject"], as_dict=True)
@@ -71,6 +75,7 @@ def _prompt(s: frappe._dict) -> str:
 		area=area,
 		strand=s.strand.strand_name,
 		sub_strand=s.sub.name1,
+		scope=strip_html(cstr(s.sub.description).replace("</li>", "\n")).strip() or "(as in the outcomes)",
 		outcomes=outcomes,
 		words=_words(s.grade),
 	)
@@ -163,27 +168,52 @@ def write_for(sub_strand: str) -> dict:
 	return {"lesson": write_lesson(sub_strand)}
 
 
-def without_lessons(limit: int) -> list[str]:
-	"""Active sub-strands that have no lesson yet, in curriculum order."""
+def without_lessons(limit: int, grade: str | None = None) -> list[str]:
+	"""Active sub-strands that have no lesson yet, in curriculum order, optionally for one grade."""
+	in_grade = (
+		"and st.subject in (select course from `tabProgram Course` where parent = %(grade)s)" if grade else ""
+	)
 	return frappe.db.sql_list(
-		"""select ss.name from `tabSub-strand` ss
-		where ifnull(ss.active, 1) = 1
+		f"""select ss.name from `tabSub-strand` ss
+		join `tabStrand` st on st.name = ss.strand
+		where ifnull(ss.active, 1) = 1 {in_grade}
 			and not exists (select 1 from `tabLesson` l where l.sub_strand = ss.name)
-		order by ss.strand, ss.`order`
-		limit %s""",
-		(limit,),
+		order by st.subject, st.`order`, ss.`order`
+		limit %(limit)s""",
+		{"limit": limit, "grade": grade},
 	)
 
 
-def daily() -> None:
-	"""Scheduled: write lessons for sub-strands that have none, a few a day."""
-	per_day = cint(common.setting("ai_lessons_per_day", 0))
-	if not per_day or not cint(common.setting("ai_enabled", 1)):
-		return
-	for name in without_lessons(per_day):
+def write_many(names: list[str]) -> None:
+	"""Writes each lesson in its own transaction, so one failure does not undo the rest."""
+	for name in names:
 		try:
 			write_lesson(name)
 			frappe.db.commit()
 		except Exception:
 			frappe.db.rollback()
 			frappe.log_error(title=f"CBC lesson for {name}")
+
+
+@frappe.whitelist(methods=["POST"])
+def write_grade(grade: str) -> dict:
+	"""Desk button on a grade (Program): write every missing lesson there in the background."""
+	frappe.only_for(("System Manager", "Academics User"))
+	names = without_lessons(1000, grade)
+	if names:
+		frappe.enqueue(
+			"cbc_ai_tutor.ai.content.write_many",
+			names=names,
+			queue="long",
+			timeout=60 * 60 * 6,
+			job_id=f"cbc-lessons-{grade}",
+			deduplicate=True,
+		)
+	return {"queued": len(names)}
+
+
+def daily() -> None:
+	"""Scheduled: write lessons for sub-strands that have none, a few a day."""
+	per_day = cint(common.setting("ai_lessons_per_day", 0))
+	if per_day and cint(common.setting("ai_enabled", 1)):
+		write_many(without_lessons(per_day))

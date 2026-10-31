@@ -23,6 +23,8 @@ doc_events = {
 	},
 }
 
+doctype_js = {"Program": "public/js/program.js"}
+
 scheduler_events = {
 	"cron": {
 		"*/10 * * * *": ["cbc_ai_tutor.tasks.reconcile_pending_payments"],

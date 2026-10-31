@@ -8,6 +8,8 @@ Run it again on an existing site with:
 
 import frappe
 
+from cbc_ai_tutor.setup.curriculum import import_bundled
+
 ROLES = ("Student", "Guardian", "Instructor")
 
 GRADES = ["PP1", "PP2"] + [f"Grade {n}" for n in range(1, 13)]
@@ -117,12 +119,15 @@ def after_install():
 def after_migrate():
 	ensure_roles()
 	ensure_settings()
+	seed_grades()
+	import_bundled()
 
 
 def seed():
 	ensure_roles()
 	ensure_settings()
 	seed_grades()
+	import_bundled()
 	seed_plans()
 	frappe.db.commit()
 

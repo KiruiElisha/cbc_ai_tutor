@@ -1,6 +1,7 @@
 """Curriculum import from a CSV: one row per learning outcome, as in the KICD designs.
 
-Columns: grade, learning_area, strand, sub_strand, outcome (competency is optional).
+Columns: grade, learning_area, strand, sub_strand, outcome. Optional: competency, and scope
+(the topics KICD lists for the sub-strand, separated by semicolons).
 Importing the same file again adds nothing, so a school can extend a file and re-import it.
 A template is in cbc_ai_tutor/setup/curriculum_template.csv.
 """
@@ -8,13 +9,16 @@ A template is in cbc_ai_tutor/setup/curriculum_template.csv.
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
+from pathlib import Path
 
 import frappe
 from frappe import _
-from frappe.utils import cstr
+from frappe.utils import cstr, escape_html
 
 REQUIRED = ("grade", "learning_area", "strand", "sub_strand")
+BUNDLED = Path(__file__).parent / "curriculum"
 
 
 class Importer:
@@ -34,8 +38,8 @@ class Importer:
 
 	def add(self, row: dict) -> None:
 		course = self.course(row["grade"], row["learning_area"])
-		strand = self.strand(course, row["strand"])
-		sub = self.sub_strand(strand, row["sub_strand"])
+		strand = self.strand(course, row["strand"][:140])
+		sub = self.sub_strand(strand, row["sub_strand"][:140], row.get("scope"))
 		if row.get("outcome"):
 			self.outcome(sub, row["outcome"], row.get("competency"))
 
@@ -70,13 +74,15 @@ class Importer:
 		self.created["Strand"] += 1
 		return self.insert("Strand", strand_name=title, subject=course, order=order, active=1)
 
-	def sub_strand(self, strand: str, title: str) -> str:
+	def sub_strand(self, strand: str, title: str, scope: str | None) -> str:
 		order = self.position(strand, title)
 		name = frappe.db.get_value("Sub-strand", {"strand": strand, "name1": title})
 		if name:
 			return name
 		self.created["Sub-strand"] += 1
-		return self.insert("Sub-strand", name1=title, strand=strand, order=order, active=1)
+		return self.insert(
+			"Sub-strand", name1=title, strand=strand, order=order, active=1, description=scope_html(scope)
+		)
 
 	def outcome(self, sub: str, text: str, competency: str | None) -> None:
 		order = self.next_order(sub)
@@ -92,6 +98,13 @@ class Importer:
 		return frappe.get_doc({"doctype": doctype, **fields}).insert(ignore_permissions=True).name
 
 
+def scope_html(scope: str | None) -> str | None:
+	topics = [t.strip() for t in cstr(scope).split(";") if t.strip()]
+	if not topics:
+		return None
+	return "<ul>" + "".join(f"<li>{escape_html(t)}</li>" for t in topics) + "</ul>"
+
+
 def import_text(text: str) -> dict:
 	return Importer().run(list(csv.DictReader(io.StringIO(text.lstrip("﻿")))))
 
@@ -103,3 +116,14 @@ def import_file(file_url: str) -> dict:
 	file = frappe.get_doc("File", {"file_url": file_url})
 	content = file.get_content()
 	return import_text(content.decode("utf-8") if isinstance(content, bytes) else content)
+
+
+def import_bundled() -> None:
+	"""The KICD designs shipped with the app, imported again only when the files change."""
+	files = sorted(BUNDLED.glob("*.csv"))
+	version = hashlib.sha1(b"".join(f.read_bytes() for f in files)).hexdigest()
+	if frappe.db.get_default("cbc_curriculum_version") == version:
+		return
+	for file in files:
+		import_text(file.read_text(encoding="utf-8"))
+	frappe.db.set_default("cbc_curriculum_version", version)

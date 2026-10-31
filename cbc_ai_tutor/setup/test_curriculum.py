@@ -7,8 +7,8 @@ import frappe
 from cbc_ai_tutor.setup.curriculum import import_text
 
 GRADE = "CURRTEST 4"
-CSV = f"""grade,learning_area,strand,sub_strand,outcome,competency
-{GRADE},Mathematics,Numbers,Whole Numbers,read numbers up to 10000,Critical thinking
+CSV = f"""grade,learning_area,strand,sub_strand,outcome,competency,scope
+{GRADE},Mathematics,Numbers,Whole Numbers,read numbers up to 10000,Critical thinking,Place value; Rounding off
 {GRADE},Mathematics,Numbers,Whole Numbers,identify place value,
 {GRADE},Mathematics,Numbers,Fractions,identify fractions as part of a whole,
 {GRADE},Mathematics,Measurement,Length,,
@@ -45,6 +45,14 @@ class TestCurriculumImport(unittest.TestCase):
 		numbers = frappe.db.get_value("Strand", {"subject": f"{GRADE} Mathematics", "strand_name": "Numbers"})
 		fractions = frappe.db.get_value("Sub-strand", {"strand": numbers, "name1": "Fractions"}, "order")
 		self.assertEqual(fractions, 2)
+
+	def test_the_scope_column_becomes_the_sub_strands_topic_list(self):
+		import_text(CSV)
+		numbers = frappe.db.get_value("Strand", {"subject": f"{GRADE} Mathematics", "strand_name": "Numbers"})
+		description = frappe.db.get_value(
+			"Sub-strand", {"strand": numbers, "name1": "Whole Numbers"}, "description"
+		)
+		self.assertEqual(description, "<ul><li>Place value</li><li>Rounding off</li></ul>")
 
 	def test_a_row_for_a_grade_that_does_not_exist_is_refused_with_its_name(self):
 		with self.assertRaisesRegex(frappe.ValidationError, "Grade 99 does not exist"):
