@@ -807,9 +807,9 @@ Grade 8,Kiswahili,Kuandika,Barua ya Kirafiki Barua ya kirafiki ya kutoa shukrani
 Grade 8,Kiswahili,Kuandika,Barua ya Kirafiki Barua ya kirafiki ya kutoa shukrani,Kutambua vipengele vya kimuundo vya barua ya kirafiki ya kutoa shukrani,
 Grade 8,Kiswahili,Kuandika,Barua ya Kirafiki Barua ya kirafiki ya kutoa shukrani,"Kuandika barua ya kirafiki ya kutoa shukrani kwa kuzingatia ujumbe, lugha na muundo ipasavyo",
 Grade 8,Kiswahili,Kuandika,Barua ya Kirafiki Barua ya kirafiki ya kutoa shukrani,Kukuza mazoea ya kuandika barua ya kirafiki ya kutoa shukrani katika maisha ya kila siku,
-Grade 8,Kiswahili,Sarufi,Viwakilishi,"Kutambua viwakilishi vya sifa, vya pekee na viulizi katika matini",Viwalikishi vya Sifa; Viwalikishi vya Pekee; Viwalikishi Viulizi (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Viwakilishi,"Kutumia viwakilishi vya sifa, vya pekee na viulizi ifaavyo katika matini",Viwalikishi vya Sifa; Viwalikishi vya Pekee; Viwalikishi Viulizi (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Viwakilishi,"Kuchangamkia kutumia viwakilishi vya sifa, vya pekee na viulizi katika mawasiliano",Viwalikishi vya Sifa; Viwalikishi vya Pekee; Viwalikishi Viulizi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Viwakilishi: Viwalikishi vya Sifa,"Kutambua viwakilishi vya sifa, vya pekee na viulizi katika matini",Viwalikishi vya Sifa; Viwalikishi vya Pekee; Viwalikishi Viulizi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Viwakilishi: Viwalikishi vya Sifa,"Kutumia viwakilishi vya sifa, vya pekee na viulizi ifaavyo katika matini",Viwalikishi vya Sifa; Viwalikishi vya Pekee; Viwalikishi Viulizi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Viwakilishi: Viwalikishi vya Sifa,"Kuchangamkia kutumia viwakilishi vya sifa, vya pekee na viulizi katika mawasiliano",Viwalikishi vya Sifa; Viwalikishi vya Pekee; Viwalikishi Viulizi (Vipindi 2)
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Hadithi Mighani,Kueleza dhana ya mighani ili kuipambanua,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Hadithi Mighani,Kujadili vipengele vya kuzingatia katika uwasilishaji wa mighani,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Hadithi Mighani,Kujadili ujumbe na lugha katika mighani,
@@ -821,9 +821,9 @@ Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kuchangamkia usomaji wa tamth
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya masimulizi,Kubaini wazo moja kuu la insha ya masimulizi atakayoandika,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya masimulizi,Kuandika insha ya masimulizi inayoendeleza wazo moja kuu katika kila aya,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya masimulizi,Kufurahia kuandika insha za masimulizi katika maisha ya kila siku akizingatia ujumbe uliotegemezwa kwenye wazo moja kuu,
-Grade 8,Kiswahili,Sarufi,Viwakilishi,Kutambua viwakilishi vimilikishi na visisitizi katika matini,Viwakilishi Vimilikishi; Viwakilishi Visisitizi (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Viwakilishi,Kutumia viwakilishi vimilikishi na visisitizi ipasavyo katika matini,Viwakilishi Vimilikishi; Viwakilishi Visisitizi (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Viwakilishi,Kuchangamkia kutumia viwakilishi vimilikishi na visisitizi katika sentensi na vifungu,Viwakilishi Vimilikishi; Viwakilishi Visisitizi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Viwakilishi: Viwakilishi Vimilikishi,Kutambua viwakilishi vimilikishi na visisitizi katika matini,Viwakilishi Vimilikishi; Viwakilishi Visisitizi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Viwakilishi: Viwakilishi Vimilikishi,Kutumia viwakilishi vimilikishi na visisitizi ipasavyo katika matini,Viwakilishi Vimilikishi; Viwakilishi Visisitizi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Viwakilishi: Viwakilishi Vimilikishi,Kuchangamkia kutumia viwakilishi vimilikishi na visisitizi katika sentensi na vifungu,Viwakilishi Vimilikishi; Viwakilishi Visisitizi (Vipindi 2)
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Hadithi Visasili,Kueleza dhana ya visasili ili kuibanisha,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Hadithi Visasili,Kujadili vipengele vya kimsingi katika uwasilishaji wa visasili,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Hadithi Visasili,Kuwasilisha visasili kwa kuzingatia uwasilishaji ufaao,
@@ -855,18 +855,18 @@ Grade 8,Kiswahili,Kuandika,Insha ya Maelekezo,Kutambua insha ya maelekezo katika
 Grade 8,Kiswahili,Kuandika,Insha ya Maelekezo,Kujadili sifa za insha ya maelekezo,
 Grade 8,Kiswahili,Kuandika,Insha ya Maelekezo,Kuandika insha ya maelekezo akizingatia anwani na mpangilio ufaao,
 Grade 8,Kiswahili,Kuandika,Insha ya Maelekezo,Kufurahia kuandika insha za maelekezo maishani,
-Grade 8,Kiswahili,Sarufi,Nyakati na Hali,Kueleza maana ya wakati uliopita hali timilifu na wakati ujao hali timilifu ili kuzipambanua,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Nyakati na Hali,Kutambua viambishi vya wakati uliopita hali timilifu na wakati ujao hali timilifu katika matini,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Nyakati na Hali,Kutumia wakati uliopita hali timilifu na wakati ujao hali timilifu ipasavyo katika matini,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Nyakati na Hali,Kuchangamkia kutumia wakati uliopita hali timilifu na wakati ujao hali timilifu ipasavyo ili kufanikisha mawasiliano,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Nyakati na Hali: Wakati uliopita hali timilifu,Kueleza maana ya wakati uliopita hali timilifu na wakati ujao hali timilifu ili kuzipambanua,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Nyakati na Hali: Wakati uliopita hali timilifu,Kutambua viambishi vya wakati uliopita hali timilifu na wakati ujao hali timilifu katika matini,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Nyakati na Hali: Wakati uliopita hali timilifu,Kutumia wakati uliopita hali timilifu na wakati ujao hali timilifu ipasavyo katika matini,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Nyakati na Hali: Wakati uliopita hali timilifu,Kuchangamkia kutumia wakati uliopita hali timilifu na wakati ujao hali timilifu ipasavyo ili kufanikisha mawasiliano,Wakati uliopita hali timilifu; Wakati ujao hali timilifu (Vipindi 2)
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kutambua ujumbe katika matini ya kusikiliza,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kueleza uhusiano kati ya ujumbe wa matini na maisha ya kila siku,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kujadili mafunzo yanayotokana na ujumbe wa matini,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Kusikiliza kwa Kufasiri,Kujenga mazoea ya kuhusisha ujumbe katika matini na hali ya maisha ya kila siku,
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kueleza maana ya maudhui na dhamira katika fasihi ili kuipambanua,Maudhui; Dhamira (Vipindi 2)
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kutambua maudhui na dhamira katika tamthilia,Maudhui; Dhamira (Vipindi 2)
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kujadili maudhui na dhamira katika tamthilia,Maudhui; Dhamira (Vipindi 2)
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kujenga mazoea ya usomaji wa kazi za kifasihi ili kujenga misingi ya uchambuzi,Maudhui; Dhamira (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Maudhui,Kueleza maana ya maudhui na dhamira katika fasihi ili kuipambanua,Maudhui; Dhamira (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Maudhui,Kutambua maudhui na dhamira katika tamthilia,Maudhui; Dhamira (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Maudhui,Kujadili maudhui na dhamira katika tamthilia,Maudhui; Dhamira (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Maudhui,Kujenga mazoea ya usomaji wa kazi za kifasihi ili kujenga misingi ya uchambuzi,Maudhui; Dhamira (Vipindi 2)
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya mdokezo,Kueleza maana ya insha ya mdokezo ili kuipambanua,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya mdokezo,Kubainisha aina za insha ya mdokezo,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya mdokezo,Kujadili vipengele vya insha ya mdokezo,
@@ -887,20 +887,20 @@ Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya maelezo,Kutambua tamathali m
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya maelezo,Kueleza jinsi tamathali mbalimbali za lugha zinavyochangia kujenga picha dhahiri katika insha ya maelezo,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya maelezo,Kuandika insha ya maelezo akitumia tamathali mbalimbali za lugha ili kujenga picha dhahiri,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya maelezo,Kufurahia kuandika insha za maelezo akitumia tamathali mbalimbali za lugha ili kujenga picha dhahiri,
-Grade 8,Kiswahili,Sarufi,Vivumishi,Kutambua vivumishi vimilikishi na vya idadi katika matini,Vivumishi Vimilikishi; Vivumishi vya Idadi (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Vivumishi,Kutumia vivumishi vimilikishi na vya idadi ipasavyo katika matini,Vivumishi Vimilikishi; Vivumishi vya Idadi (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Vivumishi,Kuchangamkia matumizi ya vivumishi vimilikishi na vya idadi katika mawasiliano,Vivumishi Vimilikishi; Vivumishi vya Idadi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Vivumishi: Vivumishi Vimilikishi,Kutambua vivumishi vimilikishi na vya idadi katika matini,Vivumishi Vimilikishi; Vivumishi vya Idadi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Vivumishi: Vivumishi Vimilikishi,Kutumia vivumishi vimilikishi na vya idadi ipasavyo katika matini,Vivumishi Vimilikishi; Vivumishi vya Idadi (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Vivumishi: Vivumishi Vimilikishi,Kuchangamkia matumizi ya vivumishi vimilikishi na vya idadi katika mawasiliano,Vivumishi Vimilikishi; Vivumishi vya Idadi (Vipindi 2)
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Papo kwa Hapo,Kueleza maana ya uzungumzaji wa papo kwa hapo ili kuupambanua,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Papo kwa Hapo,Kutambua vipengele vya kuzingatia katika uzungumzaji wa papo kwa hapo,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Papo kwa Hapo,Kutoa uzungumzaji wa papo kwa hapo kwa kuzingatia vipengele vifaavyo vya uzungumzaji,
 Grade 8,Kiswahili,Kusikiliza na Kuzungumza,Uzungumzaji wa Papo kwa Hapo,Kuchangamkia kutoa uzungumzaji wa papo kwa hapo ili kufanikisha mawasiliano,
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kutambua mandhari na ploti katika tamthilia,Mandhari; Ploti (Vipindi 2)
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kueleza umuhimu wa mandhari na ploti ili kuubanisha,Mandhari; Ploti (Vipindi 2)
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kujadili mandhari na ploti ya tamthilia aliyosoma,Mandhari; Ploti (Vipindi 2)
-Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia,Kuchangamkia nafasi ya mandhari na ploti katika tamthilia,Mandhari; Ploti (Vipindi 2)
-Grade 8,Kiswahili,Kuandika,Viakifishi,Kutambua matumizi ya alama za mtajo na mshazari katika matini,Alama za Mtajo; mshazari (Vipindi 2)
-Grade 8,Kiswahili,Kuandika,Viakifishi,Kutumia alama za mtajo na mshazari ipasavyo katika matini,Alama za Mtajo; mshazari (Vipindi 2)
-Grade 8,Kiswahili,Kuandika,Viakifishi,Kufurahia matumizi yafaayo ya alama za mtajo na mshazari katika matini,Alama za Mtajo; mshazari (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Mandhari,Kutambua mandhari na ploti katika tamthilia,Mandhari; Ploti (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Mandhari,Kueleza umuhimu wa mandhari na ploti ili kuubanisha,Mandhari; Ploti (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Mandhari,Kujadili mandhari na ploti ya tamthilia aliyosoma,Mandhari; Ploti (Vipindi 2)
+Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Tamthilia: Mandhari,Kuchangamkia nafasi ya mandhari na ploti katika tamthilia,Mandhari; Ploti (Vipindi 2)
+Grade 8,Kiswahili,Kuandika,Viakifishi: Alama za Mtajo,Kutambua matumizi ya alama za mtajo na mshazari katika matini,Alama za Mtajo; mshazari (Vipindi 2)
+Grade 8,Kiswahili,Kuandika,Viakifishi: Alama za Mtajo,Kutumia alama za mtajo na mshazari ipasavyo katika matini,Alama za Mtajo; mshazari (Vipindi 2)
+Grade 8,Kiswahili,Kuandika,Viakifishi: Alama za Mtajo,Kufurahia matumizi yafaayo ya alama za mtajo na mshazari katika matini,Alama za Mtajo; mshazari (Vipindi 2)
 Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi,Kutambua viambishi vya upatanisho wa kisarufi vya ngeli I-ZI na I-I katika sentensi,Ngeli ya I-ZI; Ngeli ya I-I (Vipindi 2)
 Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi,Kutambua nomino za ngeli ya I-ZI na I-I katika matini,Ngeli ya I-ZI; Ngeli ya I-I (Vipindi 2)
 Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi,Kutumia nomino za ngeli I-ZI na I-I katika matini kwa kuzingatia upatanisho ufaao wa kisarufi,Ngeli ya I-ZI; Ngeli ya I-I (Vipindi 2)
@@ -918,10 +918,10 @@ Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya masimulizi,Kutambua vipengel
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya masimulizi,Kujadili vipengele vinavyojenga wazo katika aya kuhusu insha ya masimulizi,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya masimulizi,Kuandika insha ya masimulizi akikuza wazo katika aya ipasavyo,
 Grade 8,Kiswahili,Kuandika,Insha za Kubuni Insha ya masimulizi,Kufurahia utunzi wa insha za masimulizi zenye mpangilio mzuri wa wazo,
-Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi,Kutambua viambishi vya upatanisho wa kisarufi wa ngeli ya U-U na U-YA katika sentensi,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi,Kutambua nomino za ngeli ya ya U-U na U-YA katika matini,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi,Kutumia nomino za ngeli ya U-U na U-YA katika matini kwa kuzingatia upatanisho ufaao wa kisarufi,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
-Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi,Kuchangamkia kutumia nomino katika ngeli ya U-U na U-YA ipasavyo ili kuimarisha umilisi wa lugha,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi: Ngeli ya U-U,Kutambua viambishi vya upatanisho wa kisarufi wa ngeli ya U-U na U-YA katika sentensi,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi: Ngeli ya U-U,Kutambua nomino za ngeli ya ya U-U na U-YA katika matini,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi: Ngeli ya U-U,Kutumia nomino za ngeli ya U-U na U-YA katika matini kwa kuzingatia upatanisho ufaao wa kisarufi,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
+Grade 8,Kiswahili,Sarufi,Ngeli na Upatanisho wa Kisarufi: Ngeli ya U-U,Kuchangamkia kutumia nomino katika ngeli ya U-U na U-YA ipasavyo ili kuimarisha umilisi wa lugha,Ngeli ya U-U; Ngeli ya U-YA (Vipindi 2)
 Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Wahusika katika tamthilia,Kutambua wahusika katika tamthilia aliyosoma,
 Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Wahusika katika tamthilia,Kujadili sifa za wahusika katika tamthilia,
 Grade 8,Kiswahili,Kusoma,Kusoma kwa Kina Wahusika katika tamthilia,Kujadili mafunzo yanayotokana na wahusika katika tamthilia,
