@@ -1,0 +1,308 @@
+[
+ {
+  "learning_area": "Agriculture and Nutrition",
+  "strand": "Conservation of Resources",
+  "sub_strand": "Controlling Soil Erosion",
+  "title": "Controlling soil erosion",
+  "minutes": 30,
+  "summary": "Soil erosion is the washing or blowing away of top soil. Simple measures like cover crops and terraces stop it.",
+  "body": "## What is soil erosion?\n\n**Soil erosion** is when the fertile **top soil** is carried away by **water** or **wind**. Top soil is the best soil for crops, and it takes hundreds of years to form.\n\n## Types of soil erosion by water\n\n| Type | What happens |\n|---|---|\n| **Splash erosion** | Raindrops hit bare soil and splash it loose |\n| **Sheet erosion** | A thin layer of soil is washed off a wide area |\n| **Rill erosion** | Water makes small channels in the soil |\n| **Gully erosion** | Channels grow into deep, wide ditches |\n\n## Controlling erosion\n\n- **Cover crops** like sweet potatoes and beans cover the ground.\n- **Mulching** — dry grass protects soil from raindrops.\n- **Planting trees and grass strips** — roots hold soil together.\n- **Terraces** on slopes slow down running water.\n- **Contour farming** — dig and plant across the slope, not up and down.\n- **Avoid overgrazing** and burning bushes.",
+  "key_vocabulary": [
+   "erosion",
+   "top soil",
+   "gully",
+   "terrace",
+   "contour",
+   "cover crop",
+   "mulch"
+  ],
+  "activities": "1. Walk around your school after rain. Find signs of erosion and name the type.\n2. Fill two trays with soil, cover one with grass or leaves, and pour water on both. Which loses more soil?\n3. Plant grass or a tree where you see soil being washed away.",
+  "reflection": "Why is losing top soil a danger to the food we eat?",
+  "quiz": [
+   {
+    "question": "Which crop helps cover the ground against erosion?",
+    "options": [
+     "No crops",
+     "Sweet potatoes",
+     "Maize alone on bare soil",
+     "Burnt grass"
+    ],
+    "answer": 1
+   },
+   {
+    "question": "Deep, wide ditches made by running water are...",
+    "options": [
+     "Splash erosion",
+     "Mulch",
+     "Gully erosion",
+     "Sheet erosion"
+    ],
+    "answer": 2
+   },
+   {
+    "question": "On a slope, we should dig and plant...",
+    "options": [
+     "Across the slope",
+     "Up and down the slope",
+     "Only at the top",
+     "Nowhere"
+    ],
+    "answer": 0
+   },
+   {
+    "question": "Soil erosion carries away...",
+    "options": [
+     "Rocks only",
+     "Clouds",
+     "Top soil",
+     "Water"
+    ],
+    "answer": 2
+   }
+  ]
+ },
+ {
+  "learning_area": "Kiswahili",
+  "strand": "Kusikiliza na Kuzungumza",
+  "sub_strand": "Matamshi Bora",
+  "title": "Matamshi bora: d/nd, ch/sh, j/nj, g/ng",
+  "minutes": 25,
+  "summary": "Sauti d/nd, ch/sh, j/nj na g/ng zinakaribiana. Tunazitamka vizuri na kufurahia vitendawili.",
+  "body": "## Sauti zinazokaribiana\n\n| Sauti | Mifano |\n|---|---|\n| **d / nd** | **d**ege – **nd**ege, **d**ani – **nd**ani |\n| **ch / sh** | **ch**aka – **sh**aka, **ch**ati – **sh**ati |\n| **j / nj** | **j**ia – **nj**ia, **j**aa – **nj**aa |\n| **g / ng** | **g**oma – **ng**oma, **g**uo – **ng**uo |\n\nKumbuka:\n\n- **Njia** ni barabara; **jia** ni kuja kwa ajili ya mtu.\n- **Njaa** ni hamu ya chakula; **jaa** ni kujaa.\n- **Ngoma** ni chombo cha muziki au densi.\n\n## Vitanzandimi\n\n- *Ndege ndogo ndani ya ndoo ya Nduta.*\n- *Shangazi Chausiku anashona shati la Chacha.*\n- *Ngoma ya Ngugi inagonga njiani.*\n\n## Vitendawili\n\n- **Kitendawili!** — **Tega!**\n- *Ana meno lakini hali.* — **Kitana.**\n- *Kamba yangu ndefu lakini haifungi kuni.* — **Njia.**",
+  "key_vocabulary": [
+   "njia",
+   "njaa",
+   "ngoma",
+   "ndani",
+   "shati",
+   "vitendawili"
+  ],
+  "activities": "1. Tamka maneno ya kila jozi kwa sauti na uyatumie katika sentensi.\n2. Kariri kitanzandimi kimoja haraka mara tatu.\n3. Tega vitendawili vitatu kwa familia yako jioni ya leo.",
+  "reflection": "Kwa nini vitendawili husaidia kuboresha lugha na kufikiri?",
+  "quiz": [
+   {
+    "question": "Barabara inaitwa pia...",
+    "options": [
+     "Jia",
+     "Njia",
+     "Dani",
+     "Jaa"
+    ],
+    "answer": 1
+   },
+   {
+    "question": "'Ngoma' na 'goma' zinatofautiana kwa sauti...",
+    "options": [
+     "ch na sh",
+     "d na nd",
+     "j na nj",
+     "g na ng"
+    ],
+    "answer": 3
+   },
+   {
+    "question": "Hamu ya kula chakula ni...",
+    "options": [
+     "Shati",
+     "Jaa",
+     "Ndani",
+     "Njaa"
+    ],
+    "answer": 3
+   },
+   {
+    "question": "'Ana meno lakini hali.' Jibu ni...",
+    "options": [
+     "Kitana",
+     "Mbwa",
+     "Mtoto",
+     "Simba"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "learning_area": "Mathematics",
+  "strand": "Numbers",
+  "sub_strand": "Whole Numbers",
+  "title": "Whole numbers up to millions",
+  "minutes": 30,
+  "summary": "We use place value up to millions, read and write big numbers, round them off and find squares.",
+  "body": "## Place value up to millions\n\nIn **4,385,276**:\n\n| Millions | Hundred thousands | Ten thousands | Thousands | Hundreds | Tens | Ones |\n|---|---|---|---|---|---|---|\n| 4 | 3 | 8 | 5 | 2 | 7 | 6 |\n\n- Total value of 8 = 8 × 10,000 = **80,000**\n- Total value of 4 = **4,000,000**\n\n## In words\n\n**72,405** → seventy-two thousand, four hundred and five.\n\nKenya's population is about **50,000,000** — fifty million!\n\n## Rounding to the nearest thousand\n\nLook at the **hundreds** digit:\n\n- 0–4 → round down: 46,**3**80 → **46,000**\n- 5–9 → round up: 46,**7**80 → **47,000**\n\n## Squares\n\nA **square** is a number multiplied by itself.\n\n| Number | Square |\n|---|---|\n| 4 | 4 × 4 = **16** |\n| 9 | 9 × 9 = **81** |\n| 12 | 12 × 12 = **144** |\n| 100 | 100 × 100 = **10,000** |",
+  "key_vocabulary": [
+   "millions",
+   "place value",
+   "total value",
+   "round off",
+   "square",
+   "digit"
+  ],
+  "activities": "1. Write the total value of every digit in 7,064,213.\n2. Look up the population of your county. Write it in words.\n3. Make a table of the squares of the numbers 1 to 15.",
+  "reflection": "Why do we round off big numbers when we talk about crowds or money?",
+  "quiz": [
+   {
+    "question": "What is the total value of 8 in 4,385,276?",
+    "options": [
+     "80,000",
+     "8,000",
+     "800,000",
+     "800"
+    ],
+    "answer": 0
+   },
+   {
+    "question": "Round 46,780 to the nearest thousand.",
+    "options": [
+     "50,000",
+     "46,800",
+     "47,000",
+     "46,000"
+    ],
+    "answer": 2
+   },
+   {
+    "question": "What is the square of 9?",
+    "options": [
+     "27",
+     "99",
+     "18",
+     "81"
+    ],
+    "answer": 3
+   },
+   {
+    "question": "How do we write 72,405 in words?",
+    "options": [
+     "Seven hundred and twenty-four thousand",
+     "Seventy-two thousand and forty-five",
+     "Seventy-two thousand, four hundred and five",
+     "Seven thousand, two hundred and forty-five"
+    ],
+    "answer": 2
+   }
+  ]
+ },
+ {
+  "learning_area": "Science and Technology",
+  "strand": "Living things and their Environment",
+  "sub_strand": "Fungi",
+  "title": "Fungi around us",
+  "minutes": 25,
+  "summary": "Fungi are living things like mushrooms, moulds and yeast. Some are useful, some cause disease or spoil food.",
+  "body": "## What are fungi?\n\n**Fungi** (one is a *fungus*) are living things that are **not plants and not animals**. They have no green colour and cannot make their own food. They feed on dead or living things.\n\n## Common fungi\n\n| Fungus | Where we find it |\n|---|---|\n| **Mushrooms** | On rotting logs and damp soil after rain |\n| **Mould** | On old bread, rotting fruit and damp walls (green, white or black fluff) |\n| **Yeast** | Used in baking bread and mandazi |\n| **Bracket fungi** | Like shelves on tree trunks |\n\n## Fungi are useful\n\n- They **decompose** dead plants and animals, returning nutrients to the soil.\n- **Yeast** makes bread and mandazi rise.\n- Some **mushrooms** are good food and are grown for sale.\n- Some medicines, like **penicillin**, come from moulds.\n\n## Fungi can be harmful\n\n- **Mould** spoils food. Do not eat mouldy food.\n- Some cause diseases like **ringworm** and **athlete's foot**.\n- **Some wild mushrooms are poisonous.** Never eat a wild mushroom unless an adult who knows them says it is safe.",
+  "key_vocabulary": [
+   "fungi",
+   "mushroom",
+   "mould",
+   "yeast",
+   "decompose",
+   "penicillin"
+  ],
+  "activities": "1. Put a slice of bread in a damp bag for 5 days. Look at the mould with a hand lens — do not smell or eat it! Then throw it away and wash your hands.\n2. Look for mushrooms or bracket fungi after rain. Draw them (do not touch).\n3. Ask at home how yeast is used in baking.",
+  "reflection": "Why should we never eat wild mushrooms we are not sure about?",
+  "quiz": [
+   {
+    "question": "Which fungus is used to make bread rise?",
+    "options": [
+     "Ringworm",
+     "Bracket fungus",
+     "Yeast",
+     "Mould"
+    ],
+    "answer": 2
+   },
+   {
+    "question": "Fungi get their food by...",
+    "options": [
+     "Feeding on dead or living things",
+     "Eating stones",
+     "Drinking only water",
+     "Making it from sunlight"
+    ],
+    "answer": 0
+   },
+   {
+    "question": "Which disease is caused by a fungus?",
+    "options": [
+     "Cholera",
+     "Malaria",
+     "Ringworm",
+     "Broken bone"
+    ],
+    "answer": 2
+   },
+   {
+    "question": "What should you do with mouldy bread?",
+    "options": [
+     "Toast it",
+     "Throw it away",
+     "Eat it quickly",
+     "Give it to a friend"
+    ],
+    "answer": 1
+   }
+  ]
+ },
+ {
+  "learning_area": "Social Studies",
+  "strand": "Natural and the Built Environments",
+  "sub_strand": "Position and Size of Countries in Eastern Africa",
+  "title": "The countries of Eastern Africa",
+  "minutes": 30,
+  "summary": "Eastern Africa has many countries of different sizes. We locate them on a map using latitudes and longitudes.",
+  "body": "## Countries of Eastern Africa\n\nSome countries of Eastern Africa are: **Kenya, Uganda, Tanzania, Rwanda, Burundi, South Sudan, Ethiopia, Somalia, Eritrea** and **Djibouti**.\n\n## Position of Kenya\n\nKenya's neighbours are:\n\n| Direction | Neighbour |\n|---|---|\n| North | **Ethiopia** and **South Sudan** |\n| East | **Somalia** and the **Indian Ocean** |\n| South | **Tanzania** |\n| West | **Uganda** |\n\n## Size\n\n- **Ethiopia** and **Tanzania** are among the largest countries in Eastern Africa.\n- **Rwanda** and **Burundi** are among the smallest.\n- Kenya covers about **580,000 square kilometres**.\n\n## Latitudes and longitudes\n\n- **Latitudes** are imaginary lines running **east to west** around the Earth. The **Equator** (0°) passes through Kenya, Uganda and Somalia.\n- **Longitudes** are imaginary lines running **north to south**, from pole to pole.\n\nWe use them like a grid to give the exact position of a place.\n\n## Unity\n\nCountries of Eastern Africa work together in the **East African Community (EAC)**, trading and travelling more easily across borders.",
+  "key_vocabulary": [
+   "Eastern Africa",
+   "neighbour",
+   "latitude",
+   "longitude",
+   "Equator",
+   "EAC"
+  ],
+  "activities": "1. Trace a map of Eastern Africa and label Kenya and its neighbours.\n2. On an atlas, find the Equator. Name three countries it passes through.\n3. Find out one product Kenya sells to Uganda or Tanzania.",
+  "reflection": "How does the East African Community help ordinary people like traders and travellers?",
+  "quiz": [
+   {
+    "question": "Which country is to the west of Kenya?",
+    "options": [
+     "Uganda",
+     "Tanzania",
+     "Ethiopia",
+     "Somalia"
+    ],
+    "answer": 0
+   },
+   {
+    "question": "Lines that run from east to west around the Earth are...",
+    "options": [
+     "Longitudes",
+     "Latitudes",
+     "Borders",
+     "Rivers"
+    ],
+    "answer": 1
+   },
+   {
+    "question": "The Equator passes through Kenya and...",
+    "options": [
+     "Rwanda",
+     "Ethiopia",
+     "Tanzania",
+     "Uganda"
+    ],
+    "answer": 3
+   },
+   {
+    "question": "Which is one of the smallest countries in Eastern Africa?",
+    "options": [
+     "Kenya",
+     "Rwanda",
+     "Ethiopia",
+     "Tanzania"
+    ],
+    "answer": 1
+   }
+  ]
+ }
+]

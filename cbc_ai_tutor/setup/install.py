@@ -121,7 +121,18 @@ def after_migrate():
 	ensure_settings()
 	seed_grades()
 	import_bundled()
+	_bundled_lessons()
 	_free_lessons()
+
+
+def _bundled_lessons():
+	"""The lessons shipped with the app, so every core learning area has one with no AI set up."""
+	try:
+		from cbc_ai_tutor.setup.lessons import import_bundled_lessons
+
+		import_bundled_lessons()
+	except Exception:
+		frappe.log_error(title="CBC bundled lessons could not be imported")
 
 
 def _free_lessons():
