@@ -121,6 +121,17 @@ def after_migrate():
 	ensure_settings()
 	seed_grades()
 	import_bundled()
+	_free_lessons()
+
+
+def _free_lessons():
+	"""Every learning area gets its free lessons, written in the background after a migrate."""
+	try:
+		from cbc_ai_tutor.ai.content import enqueue_free_lessons
+
+		enqueue_free_lessons()
+	except Exception:
+		frappe.log_error(title="CBC free lessons could not be queued")
 
 
 def seed():

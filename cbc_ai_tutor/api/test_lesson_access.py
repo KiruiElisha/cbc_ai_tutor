@@ -102,3 +102,38 @@ class TestLessonAccess(unittest.TestCase):
 		sub = frappe.get_doc({"doctype": "Sub-strand", "name1": "Y", "strand": strand.name}).insert()
 		with self.assertRaises(frappe.ValidationError):
 			self.ask(sub.name)
+
+
+class TestFreeLessonWriting(unittest.TestCase):
+	setUp = TestLessonAccess.setUp
+	tearDown = TestLessonAccess.tearDown
+	lesson = TestLessonAccess.lesson
+
+	def test_each_area_gets_its_free_lessons_written_once_in_curriculum_order(self):
+		from cbc_ai_tutor.ai import content
+
+		frappe.db.set_single_value("CBC Settings", "free_lessons_per_area", 1)
+		mine = [m for m in content.free_lessons_missing() if frappe.db.get_value("Sub-strand", m[0], "strand") in {s.name for s in self.strands}]
+		self.assertEqual(mine, [(self.subs["Numbers"].name, None)])     # Numbers comes before Measurement
+		answer = {"text": json.dumps(REPLY), "provider": "test", "model": "", "input_tokens": 0, "output_tokens": 0}
+		with (
+			patch("cbc_ai_tutor.ai.content.free_lessons_missing", return_value=mine),
+			patch("cbc_ai_tutor.ai.providers.complete", return_value=answer),
+			patch.object(frappe.db, "commit"),
+		):
+			content.write_free()
+		lesson = frappe.db.get_value("Lesson", {"sub_strand": self.subs["Numbers"].name}, ["published", "is_free"])
+		self.assertEqual(lesson, (1, 1))
+		self.assertNotIn(self.subs["Numbers"].name, [m[0] for m in content.free_lessons_missing()])
+
+	def test_a_draft_is_published_instead_of_written_again(self):
+		from cbc_ai_tutor.ai import content
+
+		draft = self.lesson("Numbers", "Counting", published=0)
+		mine = [m for m in content.free_lessons_missing() if m[1] == draft]
+		self.assertEqual(mine, [(self.subs["Numbers"].name, draft)])
+		with patch("cbc_ai_tutor.ai.providers.complete") as call, patch.object(frappe.db, "commit"), \
+				patch("cbc_ai_tutor.ai.content.free_lessons_missing", return_value=mine):
+			content.write_free()
+		call.assert_not_called()
+		self.assertEqual(frappe.db.get_value("Lesson", draft, ["published", "is_free"]), (1, 1))

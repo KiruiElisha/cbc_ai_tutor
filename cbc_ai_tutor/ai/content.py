@@ -213,7 +213,96 @@ def write_grade(grade: str) -> dict:
 
 
 def daily() -> None:
-	"""Scheduled: write lessons for sub-strands that have none, a few a day."""
+	"""Scheduled: first the free lessons every learning area needs, then a few more a day."""
+	if not cint(common.setting("ai_enabled", 1)):
+		return
+	write_free()
 	per_day = cint(common.setting("ai_lessons_per_day", 0))
-	if per_day and cint(common.setting("ai_enabled", 1)):
+	if per_day:
 		write_many(without_lessons(per_day))
+
+
+# --- the free lessons: something to learn in every learning area, from the first sync ------------
+
+FREE_PER_RUN = 40
+
+
+def free_lessons_missing(limit: int = 1000) -> list[tuple[str, str | None]]:
+	"""(sub_strand, draft lesson or None) to publish so that every learning area of every grade has
+	its `free_lessons_per_area` published lessons: the first topics in curriculum order that have
+	none. A draft already written for a topic is published instead of being written again."""
+	per_area = cint(common.setting("free_lessons_per_area", 2))
+	if per_area <= 0:
+		return []
+	rows = frappe.db.sql(
+		"""select pc.parent as grade, st.subject as course, ss.name as sub_strand,
+			(select count(*) from `tabLesson` p where p.course = st.subject and p.program = pc.parent
+				and p.published = 1) as published,
+			(select l.name from `tabLesson` l where l.sub_strand = ss.name and l.program = pc.parent
+				and l.published = 0 order by l.creation limit 1) as draft,
+			exists(select 1 from `tabLesson` l where l.sub_strand = ss.name and l.program = pc.parent
+				and l.published = 1) as has_published
+		from `tabSub-strand` ss
+		join `tabStrand` st on st.name = ss.strand
+		join `tabProgram Course` pc on pc.course = st.subject and pc.parenttype = 'Program'
+		where ifnull(ss.active, 1) = 1 and ifnull(st.active, 1) = 1
+		order by pc.parent, st.subject, ifnull(st.`order`, 999999), ifnull(ss.`order`, 999999), ss.name""",
+		as_dict=True,
+	)
+	out, wanted = [], {}
+	for r in rows:
+		key = (r.grade, r.course)
+		if key not in wanted:
+			wanted[key] = per_area - cint(r.published)
+		if wanted[key] <= 0 or r.has_published:
+			continue
+		out.append((r.sub_strand, r.draft))
+		wanted[key] -= 1
+		if len(out) >= limit:
+			break
+	return out
+
+
+def write_free(limit: int = FREE_PER_RUN) -> dict:
+	"""Write (or publish) the missing free lessons, each in its own transaction. Stops at the first
+	AI failure: a missing key or an exhausted quota fails every lesson the same way."""
+	made = 0
+	for sub_strand, draft in free_lessons_missing(limit):
+		try:
+			name = draft or write_lesson(sub_strand)
+			frappe.db.set_value("Lesson", name, {"published": 1, "is_free": 1})
+			frappe.db.commit()
+			made += 1
+		except providers.AIUnavailable:
+			frappe.db.rollback()
+			frappe.log_error(title="CBC free lessons: the AI could not write them", message=frappe.get_traceback())
+			break
+		except Exception:
+			frappe.db.rollback()
+			frappe.log_error(title=f"CBC free lesson for {sub_strand}")
+	return {"written": made, "left": len(free_lessons_missing())}
+
+
+def enqueue_free_lessons() -> None:
+	"""After migrate and from Desk: the free lessons are written in the background."""
+	if not cint(common.setting("ai_enabled", 1)) or not free_lessons_missing(1):
+		return
+	frappe.enqueue(
+		"cbc_ai_tutor.ai.content.write_free",
+		limit=1000,
+		queue="long",
+		timeout=60 * 60 * 6,
+		job_id="cbc-free-lessons",
+		deduplicate=True,
+		enqueue_after_commit=True,
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+def write_free_lessons() -> dict:
+	"""CBC Settings → Write free lessons now."""
+	frappe.only_for(("System Manager", "Academics User"))
+	missing = len(free_lessons_missing())
+	if missing:
+		enqueue_free_lessons()
+	return {"queued": missing}
