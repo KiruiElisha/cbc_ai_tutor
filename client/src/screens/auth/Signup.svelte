@@ -1,4 +1,5 @@
 <script>
+  import AuthShell from '../../components/AuthShell.svelte'
   import { refreshState, toast } from '../../lib/app.svelte.js'
   import { call, errorText } from '../../lib/tauri.js'
   import { go } from '../../lib/router.svelte.js'
@@ -35,7 +36,7 @@
   }
 </script>
 
-<div class="auth-wrap">
+<AuthShell>
   <form class="auth card" onsubmit={submit}>
     <button type="button" class="link small" onclick={() => go('/')}>← Back</button>
     <h1 style="margin-top: 10px">Create a parent account</h1>
@@ -52,4 +53,4 @@
     {#if error}<div class="banner bad">{error}</div>{/if}
     <button class="btn block" disabled={busy || !agree}>{busy ? 'Creating…' : 'Create account'}</button>
   </form>
-</div>
+</AuthShell>

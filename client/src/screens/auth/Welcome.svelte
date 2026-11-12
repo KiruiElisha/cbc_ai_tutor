@@ -1,8 +1,9 @@
 <script>
+  import AuthShell from '../../components/AuthShell.svelte'
   import { go } from '../../lib/router.svelte.js'
 </script>
 
-<div class="auth-wrap">
+<AuthShell>
   <div class="auth">
     <img class="logo" src={import.meta.env.BASE_URL + 'logo.svg'} alt="" />
     <h1 class="center">Karibu CBC Tutor</h1>
@@ -25,4 +26,4 @@
       New parent? <a href="#/signup">Create a free account</a>
     </p>
   </div>
-</div>
+</AuthShell>

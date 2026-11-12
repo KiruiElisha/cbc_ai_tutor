@@ -1,4 +1,5 @@
 <script>
+  import AuthShell from '../../components/AuthShell.svelte'
   import { refreshState } from '../../lib/app.svelte.js'
   import { call, errorText } from '../../lib/tauri.js'
   import { go } from '../../lib/router.svelte.js'
@@ -25,7 +26,7 @@
   }
 </script>
 
-<div class="auth-wrap">
+<AuthShell>
   <form class="auth card" onsubmit={submit}>
     <button type="button" class="link small" onclick={() => go('/')}>← Back</button>
     <div class="center" style="font-size: 3rem">🎒</div>
@@ -42,4 +43,4 @@
     {#if error}<div class="banner bad">{error}</div>{/if}
     <button class="btn block" disabled={busy || code.length < 6 || pin.length < 4}>{busy ? 'Opening…' : "Let's learn"}</button>
   </form>
-</div>
+</AuthShell>

@@ -1,4 +1,5 @@
 <script>
+  import AuthShell from '../../components/AuthShell.svelte'
   import { onMount } from 'svelte'
   import { openUrl } from '@tauri-apps/plugin-opener'
   import { refreshState, toast } from '../../lib/app.svelte.js'
@@ -119,7 +120,7 @@
   }
 </script>
 
-<div class="auth-wrap">
+<AuthShell>
   <form class="auth card" onsubmit={submit}>
     <button type="button" class="link small" onclick={() => go('/')}>← Back</button>
     <h1 style="margin-top: 10px">{role === 'Teacher' ? 'Teacher sign in' : 'Parent sign in'}</h1>
@@ -190,4 +191,4 @@
       <p class="small muted" style="margin-top: 14px">Teacher accounts are created by the school. Ask your administrator if you don't have one.</p>
     {/if}
   </div>
-</div>
+</AuthShell>

@@ -196,8 +196,42 @@ input:focus, select:focus, textarea:focus { outline: 3px solid #99f6e4; border-c
 .tab { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 7px 14px; cursor: pointer; white-space: nowrap; font-weight: 600; color: var(--ink-2); }
 .tab.on { background: var(--brand); color: white; border-color: var(--brand); }
 
-.auth-wrap { min-height: 100vh; display: grid; place-items: center; padding: calc(20px + var(--safe-top)) 16px 20px; background: linear-gradient(160deg, #f0fdfa, #f8fafc 50%); }
+/* Sign-in screens (components/AuthShell.svelte). dvh follows the phone's browser bars and keyboard;
+   `safe center` keeps the top reachable when the form is taller than the screen. */
+.auth-wrap {
+  min-height: 100vh; min-height: 100dvh; display: flex; background: linear-gradient(160deg, #f0fdfa, #f8fafc 50%);
+}
+.auth-main {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center;
+  padding: max(20px, var(--safe-top)) max(16px, env(safe-area-inset-right, 0px)) max(24px, var(--safe-bottom)) max(16px, env(safe-area-inset-left, 0px));
+}
 .auth { width: min(440px, 100%); }
+.auth-main > * + * { margin-top: 14px; }
+.auth-side { display: none; }
+@media (min-width: 900px) {
+  .auth-side {
+    display: flex; flex-direction: column; justify-content: center; gap: 14px; width: min(42vw, 520px); flex-shrink: 0;
+    padding: 48px clamp(32px, 5vw, 72px); color: white;
+    background: radial-gradient(circle at 80% 10%, rgb(255 255 255 / 0.14), transparent 45%), linear-gradient(160deg, #0f766e, #115e59);
+  }
+  .auth-side img { width: 72px; height: 72px; }
+  .auth-side h2 { margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.01em; }
+  .auth-side p { margin: 0; font-size: 1.05rem; line-height: 1.55; opacity: 0.92; max-width: 34ch; }
+  .auth-side ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; font-size: 0.98rem; }
+  .auth-side li { background: rgb(255 255 255 / 0.1); border-radius: 12px; padding: 10px 14px; }
+  .auth-main { padding: 40px clamp(24px, 4vw, 56px); }
+  .auth-wrap .auth .logo { display: none; }
+}
+/* phones on their side, small laptops: everything a little tighter so the form fits */
+@media (max-height: 560px) {
+  .auth-main { padding-top: 12px; padding-bottom: 12px; }
+  .auth .logo { width: 48px; height: 48px; margin-bottom: 4px; }
+  .auth h1 { font-size: 1.3rem; margin-bottom: 4px; }
+  .auth .center[style*="font-size: 3rem"] { font-size: 2rem !important; }
+  .auth label.field { margin-bottom: 10px; }
+  .auth .stack { margin-top: 12px !important; }
+  .auth .role-btn { padding: 10px 14px; }
+}
 .auth .logo { width: 72px; height: 72px; display: block; margin: 0 auto 10px; }
 .role-btn { display: flex; gap: 14px; align-items: center; text-align: left; width: 100%; }
 .role-btn .emoji { font-size: 2rem; }
@@ -264,8 +298,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid #99f6e4; border-c
 .grid > .card + .card, .row > .card + .card, .subjects > * + *, .quick > * + * { margin-top: 0; }
 
 /* Sign-in screens: one centred column, so extra options sit right under the form. */
-.auth-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.auth-wrap > .auth + .auth { margin-top: 14px; }
+
 .card.tap.role-btn { display: flex; padding: 16px; }
 .role-btn .emoji {
   width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; flex-shrink: 0;
