@@ -73,8 +73,13 @@ button,a{{display:block;text-align:center;background:#0f766e;color:#fff;padding:
 	frappe.local.response["display_content_as"] = "inline"
 
 
-def _open_app(result: dict, message: str):
+def _open_app(result: dict, message: str, device: dict | None = None):
 	code = _handoff(result)
+	if (device or {}).get("platform") == "web":
+		# the web app (/learn) started this sign-in: straight back to it, where it trades the code
+		frappe.local.response["type"] = "redirect"
+		frappe.local.response["location"] = f"/learn?auth_code={code}"
+		return
 	_page(_("You're signed in"), message, f"cbctutor://auth?code={code}", _("Open CBC Tutor"))
 
 
@@ -271,7 +276,7 @@ def google_callback(code: str | None = None, state: str | None = None, error: st
 <button type="submit">{escape_html(_("Continue"))}</button></form>"""
 		return _page(_("One more step"), _("Add the number you will pay with, then the app opens."), form=form)
 	frappe.db.commit()
-	return _open_app(result, _("You can go back to CBC Tutor."))
+	return _open_app(result, _("You can go back to CBC Tutor."), pending["device"])
 
 
 def _google_account(email: str, name: str, role: str, device: dict) -> dict:
@@ -306,7 +311,7 @@ def google_finish(ticket: str, full_name: str, phone: str):
 	except Exception as e:
 		frappe.db.rollback()
 		return _page(_("Check the details"), escape_html(str(e)))
-	return _open_app(result, _("Your free trial has started. Open the app to add a child."))
+	return _open_app(result, _("Your free trial has started. Open the app to add a child."), pending["device"])
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])

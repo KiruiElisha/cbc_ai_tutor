@@ -178,7 +178,7 @@
 {:else}
   <div class="shell">
     <aside class="side">
-      <div class="brand"><img src="/logo.svg" alt="" /> CBC Tutor</div>
+      <div class="brand"><img src={import.meta.env.BASE_URL + 'logo.svg'} alt="" /> CBC Tutor</div>
       {#each nav as [path, icon, label]}
         <a class="nav-link" class:on={current === path} href={'#' + path}><span class="ico">{icon}</span>{label}</a>
       {/each}

@@ -10,7 +10,8 @@
     "check": "svelte-check --tsconfig ./jsconfig.json",
     "tauri": "tauri",
     "test": "node --test src/lib/*.test.js",
-    "preview:ui": "vite --mode preview"
+    "preview:ui": "vite --mode preview",
+    "build:web": "vite build --mode web --base /assets/cbc_ai_tutor/learn/ --outDir ../cbc_ai_tutor/public/learn --emptyOutDir && node scripts/web-page.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

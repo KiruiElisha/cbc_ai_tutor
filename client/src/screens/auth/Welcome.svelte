@@ -4,7 +4,7 @@
 
 <div class="auth-wrap">
   <div class="auth">
-    <img class="logo" src="/logo.svg" alt="" />
+    <img class="logo" src={import.meta.env.BASE_URL + 'logo.svg'} alt="" />
     <h1 class="center">Karibu CBC Tutor</h1>
     <p class="muted center">Lessons, quizzes and Mwalimu the AI tutor, for every CBC grade. Works offline.</p>
     <div class="stack" style="margin-top: 22px">
