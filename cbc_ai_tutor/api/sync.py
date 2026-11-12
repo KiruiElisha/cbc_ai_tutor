@@ -79,7 +79,8 @@ def pull(
 	strand_rows = curriculum.strands(course_names, cutoff)
 	sub_rows = curriculum.sub_strands(all_strands, cutoff)
 	outcome_rows = curriculum.outcomes(all_subs, cutoff)
-	lesson_rows = curriculum.lessons(scope.custom_grade, ent.active, cutoff)
+	free = curriculum.free_lessons(scope.custom_grade)
+	lesson_rows = curriculum.lessons(scope.custom_grade, ent.active, cutoff, free)
 
 	deleted: dict[str, list[str]] = {}
 	visible_lessons = []
@@ -95,10 +96,10 @@ def pull(
 	open_quizzes = frappe.get_all(
 		"Lesson",
 		filters={"program": scope.custom_grade, "published": 1, "quiz": ["is", "set"]},
-		fields=["quiz", "is_free"],
+		fields=["name", "quiz", "is_free"],
 		limit_page_length=0,
 	)
-	quiz_names = sorted({q.quiz for q in open_quizzes if ent.active or cint(q.is_free)})
+	quiz_names = sorted({q.quiz for q in open_quizzes if ent.active or cint(q.is_free) or q.name in free})
 	relinked = sorted({row["quiz"] for row in visible_lessons if row.get("quiz")} & set(quiz_names))
 	quiz_rows, question_rows = curriculum.quizzes(relinked, None) if cutoff else ([], [])
 	rest_quizzes, rest_questions = curriculum.quizzes(
@@ -343,7 +344,11 @@ def _lesson_for(student: str, scope: frappe._dict, lesson: str) -> frappe._dict:
 	)
 	if not row or row.program != scope.custom_grade or not row.published:
 		raise SyncRejected("lesson_unavailable", _("That lesson is not part of your grade."))
-	if not row.is_free and not common.entitlement_for_student(student).active:
+	if (
+		not row.is_free
+		and not common.entitlement_for_student(student).active
+		and row.name not in curriculum.free_lessons(scope.custom_grade)
+	):
 		raise SyncRejected("subscription_required", _("This lesson needs an active subscription."))
 	return row
 
@@ -639,3 +644,63 @@ def file_payload(file_url: str) -> dict:
 	if isinstance(content, str):
 		content = content.encode()
 	return {"file_name": doc.file_name, "content": base64.b64encode(content).decode()}
+
+
+REQUESTS_PER_DAY = 5
+
+
+@frappe.whitelist(methods=["POST"])
+def request_lesson(sub_strand: str) -> dict:
+	"""A learner opened a sub-strand of their grade that has no lesson yet: write it now.
+
+	The AI writes it from the KICD outcomes (ai.content.write_lesson) and it is published at once,
+	so it is written once and every learner in the grade reads it. The app syncs afterwards to get
+	it. Without a plan a learner can ask only while the learning area still has free lessons to
+	give, and anyone asks at most REQUESTS_PER_DAY a day."""
+	from cbc_ai_tutor.ai import content, providers
+
+	student = common.current_learner()
+	scope = _learner_scope(student)
+	if not cint(common.setting("learner_lesson_requests", 1)):
+		frappe.throw(_("Your teachers add the lessons here. Check again after the next sync."))
+	sub = frappe.db.get_value("Sub-strand", sub_strand, ["name", "strand", "active"], as_dict=True)
+	course = sub and frappe.db.get_value("Strand", sub.strand, "subject")
+	in_grade = course and frappe.db.exists("Program Course", {"parent": scope.custom_grade, "course": course})
+	if not sub or not cint(sub.active if sub.active is not None else 1) or not in_grade:
+		frappe.throw(_("That topic is not part of your grade."))
+
+	ready = frappe.db.get_value("Lesson", {"sub_strand": sub.name, "program": scope.custom_grade, "published": 1})
+	if ready:
+		return {"lesson": ready, "written": 0}
+	if not common.entitlement_for_student(student).active:
+		per_area = cint(common.setting("free_lessons_per_area", 2))
+		published = frappe.db.count("Lesson", {"program": scope.custom_grade, "course": course, "published": 1})
+		if published >= per_area:
+			raise common.SubscriptionRequired(_("The free lessons in this learning area are open already. A plan opens them all."))
+
+	key = f"cbc:lesson-requests:{student}:{frappe.utils.nowdate()}"
+	used = cint(frappe.cache.get_value(key))
+	if used >= REQUESTS_PER_DAY:
+		frappe.throw(_("You asked for {0} new lessons today. Try again tomorrow.").format(REQUESTS_PER_DAY))
+	lock = f"cbc:lesson-writing:{sub.name}"
+	if frappe.cache.get_value(lock):
+		frappe.throw(_("This lesson is being written right now. Sync again in a minute."))
+	frappe.cache.set_value(lock, 1, expires_in_sec=180)
+	try:
+		# a lesson written earlier and waiting for a teacher: the learner asked, so it goes out now
+		waiting = frappe.db.get_value("Lesson", {"sub_strand": sub.name, "program": scope.custom_grade, "published": 0})
+		if waiting:
+			frappe.db.set_value("Lesson", waiting, "published", 1)
+			name = waiting
+		else:
+			name = content.write_lesson(sub.name)  # inserts with ignore_permissions: shared content
+			frappe.db.set_value("Lesson", name, "published", 1)
+		frappe.cache.set_value(key, used + 1, expires_in_sec=2 * 24 * 3600)
+		frappe.db.commit()
+	except providers.AIUnavailable as e:
+		frappe.db.rollback()
+		frappe.throw(_("The lesson couldn't be written just now ({0}). Try again later.").format(str(e)))
+	finally:
+		frappe.cache.delete_value(lock)
+	return {"lesson": name, "written": 1}
+

@@ -12,6 +12,8 @@
   "trial_days",
   "trial_max_learners",
   "trial_ai_messages_per_day",
+  "free_lessons_per_area",
+  "learner_lesson_requests",
   "session_days",
   "learner_email_domain",
   "ai_section",
@@ -102,6 +104,20 @@
    "label": "AI Messages per Learner per Day on Trial",
    "default": "20",
    "non_negative": 1
+  },
+  {
+   "fieldname": "free_lessons_per_area",
+   "fieldtype": "Int",
+   "label": "Free lessons per learning area",
+   "default": "2",
+   "description": "Without a trial or plan, a learner can still open this many lessons in each learning area (the first ones, in curriculum order), with their quizzes. Lessons ticked Is Free are free as well. 0 leaves only those."
+  },
+  {
+   "fieldname": "learner_lesson_requests",
+   "fieldtype": "Check",
+   "label": "Learners can ask for missing lessons",
+   "default": "1",
+   "description": "When a learner opens a sub-strand nobody has written a lesson for, they can ask for it: the AI writes it from the KICD outcomes and it is published at once, for every learner in that grade. Up to 5 a day per learner."
   },
   {
    "fieldname": "session_days",

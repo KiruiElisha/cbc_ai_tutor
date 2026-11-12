@@ -217,10 +217,37 @@ def outcomes(sub_strand_names: list[str], since=None) -> list[dict]:
 	]
 
 
-def lesson_row(row: dict, entitled: bool) -> dict:
+def free_lessons(grade: str) -> set[str]:
+	"""Lessons a learner opens without a trial or plan: those ticked Is Free, and the first
+	`free_lessons_per_area` published ones of each learning area in curriculum order (strand,
+	sub-strand, then lesson), so every grade has something to start with."""
+	from cbc_ai_tutor.api import common
+
+	per_area = max(cint(common.setting("free_lessons_per_area", 2)), 0)
+	rows = frappe.db.sql(
+		"""select l.name, l.course, l.is_free
+		from `tabLesson` l
+		left join `tabStrand` st on st.name = l.strand
+		left join `tabSub-strand` ss on ss.name = l.sub_strand
+		where l.program = %(grade)s and l.published = 1
+		order by l.course, ifnull(st.`order`, 999999), ifnull(ss.`order`, 999999), l.lesson_order, l.name""",
+		{"grade": grade},
+		as_dict=True,
+	)
+	free, taken = set(), {}
+	for r in rows:
+		if cint(r.is_free):
+			free.add(r.name)
+		elif taken.get(r.course, 0) < per_area:
+			free.add(r.name)
+			taken[r.course] = taken.get(r.course, 0) + 1
+	return free
+
+
+def lesson_row(row: dict, entitled: bool, free: set[str] | None = None) -> dict:
 	out = {k: (str(v) if k == "modified" else v) for k, v in row.items()}
 	out["order"] = cint(out.pop("lesson_order", 0))
-	out["is_free"] = cint(out.get("is_free"))
+	out["is_free"] = 1 if cint(out.get("is_free")) or (free is not None and out.get("name") in free) else 0
 	out["locked"] = 0
 	if not entitled and not out["is_free"]:
 		out["locked"] = 1
@@ -229,7 +256,10 @@ def lesson_row(row: dict, entitled: bool) -> dict:
 	return out
 
 
-def lessons(grade: str, entitled: bool, since=None) -> list[dict]:
+def lessons(grade: str, entitled: bool, since=None, free: set[str] | None = None) -> list[dict]:
+	"""The grade's lessons (changed ones after `since`). Without a plan, the free ones are sent
+	whole on every pull: which lessons are free moves as lessons are added, without them changing."""
+	free = free_lessons(grade) if free is None else free
 	filters = {"program": grade}
 	if since:
 		filters["modified"] = [">", since]
@@ -242,7 +272,15 @@ def lessons(grade: str, entitled: bool, since=None) -> list[dict]:
 		order_by="lesson_order asc, title asc",
 		limit_page_length=0,
 	)
-	return [lesson_row(r, entitled) for r in rows]
+	if since and not entitled and free:
+		have = {r.name for r in rows}
+		rows += frappe.get_all(
+			"Lesson",
+			filters={"name": ["in", [n for n in free if n not in have] or [""]]},
+			fields=LESSON_FIELDS,
+			limit_page_length=0,
+		)
+	return [lesson_row(r, entitled, free) for r in rows]
 
 
 def quizzes(quiz_names: list[str], since=None) -> tuple[list[dict], list[dict]]:
