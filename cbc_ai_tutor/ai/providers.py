@@ -82,7 +82,9 @@ def _fallback(conf: frappe._dict) -> frappe._dict | None:
 	return backup
 
 
-def complete(system: str, messages: list[dict], *, json_mode: bool = False, max_tokens: int | None = None) -> dict:
+def complete(
+	system: str, messages: list[dict], *, json_mode: bool = False, max_tokens: int | None = None
+) -> dict:
 	conf = _config()
 	if max_tokens:
 		conf.max_tokens = max_tokens
@@ -138,7 +140,9 @@ def _raise_for(response: requests.Response, provider: str):
 	body = response.text[:2000]
 	frappe.log_error(title=f"AI provider {provider} returned {response.status_code}", message=body)
 	if response.status_code in (401, 403):
-		raise AIUnavailable(_("The AI provider rejected the API key. An administrator needs to check CBC Settings."))
+		raise AIUnavailable(
+			_("The AI provider rejected the API key. An administrator needs to check CBC Settings.")
+		)
 	if response.status_code == 429:
 		raise AIUnavailable(_("The tutor is busy. Try again in a minute."))
 	if response.status_code == 400 and ("safety" in body.lower() or "content_filter" in body.lower()):
@@ -194,7 +198,9 @@ def _anthropic(conf, system, messages, json_mode):
 	response = requests.post(ANTHROPIC_URL, json=body, headers=headers, timeout=conf.timeout)
 	_raise_for(response, conf.provider)
 	data = response.json()
-	text = "".join(block.get("text", "") for block in data.get("content") or [] if block.get("type") == "text")
+	text = "".join(
+		block.get("text", "") for block in data.get("content") or [] if block.get("type") == "text"
+	)
 	usage = data.get("usage") or {}
 	return {
 		"text": text.strip(),
@@ -332,13 +338,13 @@ def _raise_for_cursor(error: Exception):
 	import cursor_sdk.errors as errors
 
 	frappe.log_error(title=f"Cursor: {type(error).__name__}", message=str(error)[:2000])
-	if isinstance(error, (errors.AuthenticationError, errors.PermissionDeniedError)):
+	if isinstance(error, errors.AuthenticationError | errors.PermissionDeniedError):
 		raise AIUnavailable(_("Cursor rejected the API key. An administrator needs to check CBC Settings."))
 	if isinstance(error, errors.RateLimitError):
 		raise AIUnavailable(_("The tutor is busy. Try again in a minute."))
 	if isinstance(error, errors.APITimeoutError):
 		raise AIUnavailable(_("The tutor took too long to answer. Try again."))
-	if isinstance(error, (errors.NetworkError, errors.InternalServerError)):
+	if isinstance(error, errors.NetworkError | errors.InternalServerError):
 		raise AIUnavailable(_("The tutor can't be reached right now. Try again shortly."))
 	raise AIUnavailable(_("The tutor ran into a problem. Try again."))
 
