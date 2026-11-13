@@ -34,6 +34,12 @@ Set the plan prices under **Subscription Plan** before going live; the seeded pr
 
 - **General**: app name, support contacts, trial length and limits, session length.
 - **AI Tutor**: provider (OpenAI, Anthropic, Google Gemini or any OpenAI-compatible endpoint), model and API key. While this is off, Mwalimu answers "not available" and the rest of the app works.
+  - **Cursor** uses an API key from cursor.com/dashboard (billed to the Cursor plan) and a model id from that plan,
+    such as `composer-2`. It runs through the Cursor SDK (`cursor-sdk`, public beta): each answer is a short Cursor
+    agent run with no tools, in a temporary folder removed afterwards. Each web worker starts one Cursor helper
+    process on first use, and answers are a few seconds slower than a direct chat API.
+  - **Backup provider** (optional): answers whenever the main one is down, rejects its key or is out of quota.
+    Safety refusals are not retried elsewhere. **Check AI** on CBC Settings asks one test question.
 - **M-Pesa (IntaSend)**:
   1. Enter your publishable and secret keys.
   2. Use `https://sandbox.intasend.com` as the API base URL for testing. The default is live.

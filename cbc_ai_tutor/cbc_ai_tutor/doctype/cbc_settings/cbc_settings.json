@@ -31,6 +31,11 @@
   "ai_reuse_days",
   "ai_lessons_per_day",
   "ai_lessons_publish",
+  "ai_fallback_section",
+  "ai_fallback_provider",
+  "ai_fallback_model",
+  "ai_fallback_base_url",
+  "ai_fallback_api_key",
   "google_section",
   "google_enabled",
   "google_client_id",
@@ -149,15 +154,16 @@
    "fieldname": "ai_provider",
    "fieldtype": "Select",
    "label": "Provider",
-   "options": "OpenAI\nAnthropic\nGoogle Gemini\nOpenAI Compatible",
-   "default": "OpenAI"
+   "options": "OpenAI\nAnthropic\nGoogle Gemini\nOpenAI Compatible\nCursor",
+   "default": "OpenAI",
+   "description": "Cursor uses an API key from cursor.com/dashboard and is billed to your Cursor plan."
   },
   {
    "fieldname": "ai_model",
    "fieldtype": "Data",
    "label": "Model",
    "default": "gpt-4o-mini",
-   "description": "For example gpt-4o-mini, claude-3-5-haiku-latest, gemini-2.0-flash, or the model name your compatible server uses."
+   "description": "For Cursor, a model id from your Cursor plan, for example composer-2."
   },
   {
    "fieldname": "ai_base_url",
@@ -370,10 +376,41 @@
    "label": "Publish written lessons straight away",
    "default": "0",
    "description": "Off: written lessons wait as drafts for a teacher to check and publish. On: learners see them at once."
+  },
+  {
+   "fieldname": "ai_fallback_section",
+   "fieldtype": "Section Break",
+   "label": "Backup AI provider",
+   "collapsible": 1,
+   "description": "Answers when the main provider is down, rejects its key or is out of quota. Leave empty for none."
+  },
+  {
+   "fieldname": "ai_fallback_provider",
+   "fieldtype": "Select",
+   "label": "Backup Provider",
+   "options": "\nOpenAI\nAnthropic\nGoogle Gemini\nOpenAI Compatible\nCursor"
+  },
+  {
+   "fieldname": "ai_fallback_model",
+   "fieldtype": "Data",
+   "label": "Backup Model",
+   "depends_on": "ai_fallback_provider"
+  },
+  {
+   "fieldname": "ai_fallback_base_url",
+   "fieldtype": "Data",
+   "label": "Backup Base URL",
+   "depends_on": "eval:doc.ai_fallback_provider=='OpenAI Compatible'"
+  },
+  {
+   "fieldname": "ai_fallback_api_key",
+   "fieldtype": "Password",
+   "label": "Backup API Key",
+   "depends_on": "ai_fallback_provider"
   }
  ],
  "links": [],
- "modified": "2026-10-30 18:30:00.000000",
+ "modified": "2026-11-13 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "CBC Settings",

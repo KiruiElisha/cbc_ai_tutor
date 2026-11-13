@@ -9,6 +9,8 @@ readme = "README.md"
 dynamic = ["version"]
 dependencies = [
     # "frappe~=16.0.0" # Installed and managed by bench.
+    # The "Cursor" AI provider (public beta). Wheels bundle their own Node runtime (~175 MB).
+    "cursor-sdk~=1.3",
 ]
 
 [build-system]
