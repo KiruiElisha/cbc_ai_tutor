@@ -3,12 +3,20 @@
 ``complete`` takes a system prompt and a list of ``{"role": "user"|"assistant",
 "content": str}`` turns and returns the reply text with token counts. The provider,
 model, key and limits come from CBC Settings, so switching provider is a settings
-change, not a code change.
+change, not a code change. A backup provider, when set, answers whenever the main one
+is down, rejects the key or is out of quota, so learners still get a reply.
+
+"Cursor" runs a Cursor agent through the Cursor SDK (``cursor-sdk``) with the key from
+cursor.com/dashboard, billed to the Cursor plan. It is an agent runtime rather than a
+chat API: each answer is one short agent run with no tools and no files.
 """
 
 from __future__ import annotations
 
 import json
+import os
+import tempfile
+import threading
 
 import frappe
 import requests
@@ -27,6 +35,10 @@ class AIUnavailable(frappe.ValidationError):
 	http_status_code = 503
 
 
+class AIRefused(AIUnavailable):
+	"""The model declined on safety grounds: asking another provider would not be right."""
+
+
 def _config() -> frappe._dict:
 	conf = frappe._dict(
 		enabled=cint(common.setting("ai_enabled", 1)),
@@ -40,22 +52,58 @@ def _config() -> frappe._dict:
 	)
 	if not conf.enabled:
 		raise AIUnavailable(_("The AI tutor is switched off."))
+	_check(conf)
+	return conf
+
+
+def _check(conf: frappe._dict):
 	if not conf.model:
 		raise AIUnavailable(_("The AI tutor has no model set yet."))
 	if not conf.key and conf.provider != "OpenAI Compatible":
 		raise AIUnavailable(_("The AI tutor is not set up yet."))
-	return conf
+
+
+def _fallback(conf: frappe._dict) -> frappe._dict | None:
+	"""The backup provider from CBC Settings, or None when there is none."""
+	provider = common.setting("ai_fallback_provider")
+	if not provider:
+		return None
+	backup = frappe._dict(
+		conf,
+		provider=provider,
+		model=(common.setting("ai_fallback_model") or "").strip(),
+		base_url=(common.setting("ai_fallback_base_url") or "").strip().rstrip("/"),
+		key=common.secret("ai_fallback_api_key"),
+	)
+	try:
+		_check(backup)
+	except AIUnavailable:
+		return None
+	return backup
 
 
 def complete(system: str, messages: list[dict], *, json_mode: bool = False, max_tokens: int | None = None) -> dict:
 	conf = _config()
 	if max_tokens:
 		conf.max_tokens = max_tokens
+	try:
+		return _ask(conf, system, messages, json_mode)
+	except AIRefused:
+		raise
+	except AIUnavailable:
+		backup = _fallback(conf)
+		if not backup:
+			raise
+		return _ask(backup, system, messages, json_mode)
+
+
+def _ask(conf: frappe._dict, system: str, messages: list[dict], json_mode: bool) -> dict:
 	handler = {
 		"OpenAI": _openai,
 		"OpenAI Compatible": _openai,
 		"Anthropic": _anthropic,
 		"Google Gemini": _gemini,
+		"Cursor": _cursor,
 	}.get(conf.provider)
 	if not handler:
 		raise AIUnavailable(_("Unknown AI provider {0}.").format(conf.provider))
@@ -72,6 +120,18 @@ def complete(system: str, messages: list[dict], *, json_mode: bool = False, max_
 	return result
 
 
+@frappe.whitelist()
+def check() -> dict:
+	"""CBC Settings' "Check AI" button: one tiny question through the configured providers."""
+	frappe.only_for("System Manager")
+	reply = complete(
+		"You are checking that an AI tutor works. Reply with one short friendly sentence.",
+		[{"role": "user", "content": "Say hello to a Grade 4 learner."}],
+		max_tokens=60,
+	)
+	return {"provider": reply["provider"], "model": reply["model"], "text": reply["text"][:300]}
+
+
 def _raise_for(response: requests.Response, provider: str):
 	if response.ok:
 		return
@@ -82,7 +142,7 @@ def _raise_for(response: requests.Response, provider: str):
 	if response.status_code == 429:
 		raise AIUnavailable(_("The tutor is busy. Try again in a minute."))
 	if response.status_code == 400 and ("safety" in body.lower() or "content_filter" in body.lower()):
-		raise AIUnavailable(_("The tutor can't help with that. Ask about your schoolwork."))
+		raise AIRefused(_("The tutor can't help with that. Ask about your schoolwork."))
 	raise AIUnavailable(_("The tutor ran into a problem. Try again."))
 
 
@@ -167,7 +227,7 @@ def _gemini(conf, system, messages, json_mode):
 	data = response.json()
 	candidate = (data.get("candidates") or [{}])[0]
 	if candidate.get("finishReason") == "SAFETY":
-		raise AIUnavailable(_("The tutor can't help with that. Ask about your schoolwork."))
+		raise AIRefused(_("The tutor can't help with that. Ask about your schoolwork."))
 	text = "".join(part.get("text", "") for part in (candidate.get("content") or {}).get("parts") or [])
 	usage = data.get("usageMetadata") or {}
 	return {
@@ -176,6 +236,111 @@ def _gemini(conf, system, messages, json_mode):
 		"output_tokens": cint(usage.get("candidatesTokenCount")),
 		"stop": candidate.get("finishReason"),
 	}
+
+
+CURSOR_BRIEF = (
+	"You are answering inside the CBC AI Tutor app for Kenyan learners. This is not a coding task: "
+	"use no tools, read or write no files, and do not mention code, files or Cursor. "
+	"Follow the instructions below and write only the next reply to the learner."
+)
+
+
+def _cursor_prompt(system: str, messages: list[dict], json_mode: bool) -> str:
+	"""Cursor agents take one message, so the instructions and the conversation go in it."""
+	lines = [CURSOR_BRIEF, "", "<instructions>", system.strip(), "</instructions>", "", "<conversation>"]
+	for message in _alternating(messages):
+		who = "Tutor" if message["role"] == "assistant" else "Learner"
+		lines.append(f"{who}: {message['content']}")
+	lines.append("</conversation>")
+	if json_mode:
+		lines += ["", "Reply with a single JSON object and nothing else: no code fence, no commentary."]
+	return "\n".join(lines)
+
+
+def _cursor(conf, system, messages, json_mode):
+	try:
+		import cursor_sdk
+	except ImportError:
+		raise AIUnavailable(_("Cursor support is not installed on this server. Choose another AI provider."))
+	errors = cursor_sdk.errors
+	# An empty working folder and its own conversation store for each answer, removed afterwards,
+	# so nothing about learners stays on disk and Cursor's user or project settings never apply.
+	with tempfile.TemporaryDirectory(prefix="cbc-cursor-") as folder:
+		options = cursor_sdk.AgentOptions(
+			api_key=conf.key,
+			model=conf.model,
+			name="CBC AI Tutor",
+			tools=[],  # no shell, no file edits: it only writes the answer
+			local=cursor_sdk.LocalAgentOptions(
+				cwd=folder,
+				setting_sources=[],
+				store=cursor_sdk.LocalAgentStoreConfig(type="jsonl", root_dir=os.path.join(folder, "store")),
+			),
+		)
+		try:
+			agent = cursor_sdk.Agent.create(options)
+		except errors.CursorAgentError as e:
+			_raise_for_cursor(e)
+		try:
+			run = agent.send(_cursor_prompt(system, messages, json_mode))
+			outcome: dict = {}
+
+			def wait():
+				try:
+					outcome["result"] = run.wait()
+				except Exception as e:  # handed back to the request thread below
+					outcome["error"] = e
+
+			waiter = threading.Thread(target=wait, daemon=True)
+			waiter.start()
+			waiter.join(conf.timeout)
+			if waiter.is_alive():
+				try:
+					run.cancel()
+				except Exception:
+					pass
+				raise requests.Timeout()
+			if "error" in outcome:
+				error = outcome["error"]
+				if isinstance(error, errors.CursorAgentError):
+					_raise_for_cursor(error)
+				raise error
+		except errors.CursorAgentError as e:
+			_raise_for_cursor(e)
+		finally:
+			try:
+				agent.close()
+			except Exception:
+				pass
+	result = outcome["result"]
+	if result.status != "finished":
+		frappe.log_error(
+			title=f"Cursor run {result.status}",
+			message=f"{result.error_code or ''} {result.error_message or ''}".strip() or result.status,
+		)
+		raise AIUnavailable(_("The tutor ran into a problem. Try again."))
+	usage = result.usage
+	return {
+		"text": (result.result or "").strip(),
+		"input_tokens": cint(getattr(usage, "input_tokens", 0)),
+		"output_tokens": cint(getattr(usage, "output_tokens", 0)),
+		"stop": result.status,
+	}
+
+
+def _raise_for_cursor(error: Exception):
+	import cursor_sdk.errors as errors
+
+	frappe.log_error(title=f"Cursor: {type(error).__name__}", message=str(error)[:2000])
+	if isinstance(error, (errors.AuthenticationError, errors.PermissionDeniedError)):
+		raise AIUnavailable(_("Cursor rejected the API key. An administrator needs to check CBC Settings."))
+	if isinstance(error, errors.RateLimitError):
+		raise AIUnavailable(_("The tutor is busy. Try again in a minute."))
+	if isinstance(error, errors.APITimeoutError):
+		raise AIUnavailable(_("The tutor took too long to answer. Try again."))
+	if isinstance(error, (errors.NetworkError, errors.InternalServerError)):
+		raise AIUnavailable(_("The tutor can't be reached right now. Try again shortly."))
+	raise AIUnavailable(_("The tutor ran into a problem. Try again."))
 
 
 def _alternating(messages: list[dict]) -> list[dict]:
