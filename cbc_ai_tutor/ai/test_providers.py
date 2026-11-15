@@ -158,3 +158,26 @@ class TestCursor(unittest.TestCase):
 		self.assertTrue(
 			prompt.endswith("Reply with a single JSON object and nothing else: no code fence, no commentary.")
 		)
+
+
+class TestParseJson(unittest.TestCase):
+	def test_quotes_the_model_left_unescaped_are_kept_as_text(self):
+		body = 'Wanjiru said "Let us count" and pointed.\nThen "one", "two". Say "Habari!"'
+		reply = (
+			'```json\n{"title": "Counting", "body": "' + body + '", '
+			'"quiz": [{"question": "Which is "big"?", "options": ["a", "b",], "answer": 0},],}\n```'
+		)
+		data = providers.parse_json(reply)
+		self.assertEqual(data["body"], body)
+		self.assertEqual(data["quiz"], [{"question": 'Which is "big"?', "options": ["a", "b"], "answer": 0}])
+
+	def test_well_formed_json_is_read_as_it_is(self):
+		self.assertEqual(
+			providers.parse_json('{"body": "He said \\"hi\\", ok", "n": [1, "x"]}'),
+			{"body": 'He said "hi", ok', "n": [1, "x"]},
+		)
+
+	def test_a_reply_cut_off_mid_lesson_says_what_was_wrong(self):
+		with self.assertRaises(providers.AIBadReply) as caught:
+			providers.parse_json('{"title": "Fractions", "body": "Half of 4 is }')
+		self.assertIn("character", caught.exception.detail)

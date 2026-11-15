@@ -37,7 +37,7 @@ Reply with JSON only, in exactly this shape:
 {{"title": "...", "summary": "one or two sentences", "body": "markdown", "key_vocabulary": ["word", "..."],
 "activities": "markdown: something to do at home or in class", "reflection": "one question to think about",
 "minutes": 20, "quiz": [{{"question": "...", "options": ["...", "...", "...", "..."], "answer": 0}}]}}
-"answer" is the index (0-3) of the correct option."""
+"answer" is the index (0-3) of the correct option. Inside strings, write any double quote as \\"."""
 
 
 def _words(grade: str) -> int:
@@ -54,7 +54,9 @@ def _scope(sub_strand: str) -> frappe._dict:
 	if not sub:
 		frappe.throw(_("Sub-strand {0} not found.").format(sub_strand))
 	strand = frappe.db.get_value("Strand", sub.strand, ["name", "strand_name", "subject"], as_dict=True)
-	grade = frappe.db.get_value("Program Course", {"course": strand.subject, "parenttype": "Program"}, "parent")
+	grade = frappe.db.get_value(
+		"Program Course", {"course": strand.subject, "parenttype": "Program"}, "parent"
+	)
 	if not grade:
 		frappe.throw(_("Add {0} to a grade (Program) before writing its lessons.").format(strand.subject))
 	# Sorted here: Frappe 16 refuses the reserved word `order` in order_by.
@@ -68,7 +70,9 @@ def _scope(sub_strand: str) -> frappe._dict:
 
 
 def _prompt(s: frappe._dict) -> str:
-	outcomes = "\n".join(f"- {strip_html(cstr(o.description)).strip()}" for o in s.outcomes) or "- (none listed)"
+	outcomes = (
+		"\n".join(f"- {strip_html(cstr(o.description)).strip()}" for o in s.outcomes) or "- (none listed)"
+	)
 	area = frappe.db.get_value("Course", s.strand.subject, "course_name") or s.strand.subject
 	return LESSON_PROMPT.format(
 		grade=s.grade,
@@ -95,7 +99,9 @@ def _quiz(title: str, rows: list) -> str | None:
 				"doctype": "Question",
 				"question": text[:1000],
 				"question_type": "Single Correct Answer",
-				"options": [{"option": o[:500], "is_correct": int(i == answer)} for i, o in enumerate(options)],
+				"options": [
+					{"option": o[:500], "is_correct": int(i == answer)} for i, o in enumerate(options)
+				],
 			}
 		).insert(ignore_permissions=True)
 		links.append({"question_link": question.name, "question": question.question})
@@ -122,16 +128,27 @@ def _quiz(title: str, rows: list) -> str | None:
 	)
 
 
+def _ask_for_lesson(prompt: str) -> dict:
+	"""The lesson as JSON. A reply that isn't readable JSON is asked for once more, saying what was wrong."""
+	system = "You write accurate, engaging CBC lessons for Kenyan schools."
+	turns = [{"role": "user", "content": prompt}]
+	reply = providers.complete(system, turns, json_mode=True, max_tokens=4000)
+	try:
+		return providers.parse_json(reply["text"])
+	except providers.AIBadReply as e:
+		retry = (
+			f"{prompt}\n\nYour last reply was not valid JSON ({e.detail}). Reply again with valid JSON only: "
+			'escape every double quote inside a string as \\" and close every string, list and object.'
+		)
+		turns = [{"role": "user", "content": retry}]
+		reply = providers.complete(system, turns, json_mode=True, max_tokens=4000)
+		return providers.parse_json(reply["text"])
+
+
 def write_lesson(sub_strand: str) -> str:
 	"""Writes a lesson and its quiz for the sub-strand and returns the new Lesson's name."""
 	s = _scope(sub_strand)
-	reply = providers.complete(
-		"You write accurate, engaging CBC lessons for Kenyan schools.",
-		[{"role": "user", "content": _prompt(s)}],
-		json_mode=True,
-		max_tokens=4000,
-	)
-	data = providers.parse_json(reply["text"])
+	data = _ask_for_lesson(_prompt(s))
 	title = cstr(data.get("title")).strip() or s.sub.name1
 	body = cstr(data.get("body")).strip()
 	if len(body) < 200:
@@ -151,7 +168,9 @@ def write_lesson(sub_strand: str) -> str:
 			"estimated_minutes": max(5, min(cint(data.get("minutes")) or 20, 60)),
 			"summary": cstr(data.get("summary")).strip()[:500],
 			"body": md_to_html(body),
-			"key_vocabulary": ", ".join(cstr(w).strip() for w in data.get("key_vocabulary") or [] if cstr(w).strip()),
+			"key_vocabulary": ", ".join(
+				cstr(w).strip() for w in data.get("key_vocabulary") or [] if cstr(w).strip()
+			),
 			"activities": md_to_html(cstr(data.get("activities"))),
 			"reflection": cstr(data.get("reflection")).strip()[:500],
 			"quiz": quiz,
@@ -275,7 +294,9 @@ def write_free(limit: int = FREE_PER_RUN) -> dict:
 			made += 1
 		except providers.AIUnavailable:
 			frappe.db.rollback()
-			frappe.log_error(title="CBC free lessons: the AI could not write them", message=frappe.get_traceback())
+			frappe.log_error(
+				title="CBC free lessons: the AI could not write them", message=frappe.get_traceback()
+			)
 			break
 		except Exception:
 			frappe.db.rollback()

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 import threading
 
@@ -33,6 +34,14 @@ GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:ge
 
 class AIUnavailable(frappe.ValidationError):
 	http_status_code = 503
+
+
+class AIBadReply(AIUnavailable):
+	"""The model answered, but not in readable JSON; asking it again usually works."""
+
+	def __init__(self, message: str, detail: str = ""):
+		super().__init__(message)
+		self.detail = detail
 
 
 class AIRefused(AIUnavailable):
@@ -367,7 +376,8 @@ def _alternating(messages: list[dict]) -> list[dict]:
 
 
 def parse_json(text: str) -> dict:
-	"""JSON from a model reply, tolerating a ```json fence around it."""
+	"""JSON from a model reply, tolerating a ```json fence, raw newlines, trailing commas and
+	unescaped double quotes inside strings (a Markdown lesson quoting someone is the usual one)."""
 	text = (text or "").strip()
 	if text.startswith("```"):
 		text = text.strip("`")
@@ -375,8 +385,86 @@ def parse_json(text: str) -> dict:
 			text = text[4:]
 	start, end = text.find("{"), text.rfind("}")
 	if start == -1 or end == -1:
-		raise AIUnavailable(_("The tutor's answer could not be read. Try again."))
+		raise AIBadReply(_("The tutor's answer could not be read. Try again."), "no JSON object in the reply")
+	text = text[start : end + 1]
 	try:
-		return json.loads(text[start : end + 1])
-	except ValueError:
-		raise AIUnavailable(_("The tutor's answer could not be read. Try again."))
+		return json.loads(text, strict=False)
+	except json.JSONDecodeError as e:
+		error = e
+	try:
+		data = json.loads(_repair_json(text), strict=False)
+		if isinstance(data, dict):
+			return data
+	except json.JSONDecodeError:
+		pass
+	raise AIBadReply(
+		_("The tutor's answer could not be read. Try again."), f"{error.msg} at character {error.pos}"
+	)
+
+
+_KEY_AHEAD = re.compile(r'"(?:[^"\\]|\\.)*"\s*:')
+_SPACE = " \t\r\n"
+
+
+def _skip_space(text: str, i: int) -> int:
+	while i < len(text) and text[i] in _SPACE:
+		i += 1
+	return i
+
+
+def _closes_string(text: str, i: int, is_key: bool, container: str) -> bool:
+	"""Whether the quote at i ends the string: what follows must fit where the string stands."""
+	j = _skip_space(text, i + 1)
+	nxt = text[j] if j < len(text) else ""
+	if is_key:
+		return nxt == ":"
+	if nxt in ("}", "]", ""):
+		return True
+	if nxt != ",":
+		return False
+	k = _skip_space(text, j + 1)
+	if container == "{":
+		return bool(_KEY_AHEAD.match(text, k)) or text[k : k + 1] == "}"
+	return text[k : k + 1] != "" and text[k] in '"{[-0123456789tfn]'
+
+
+def _repair_json(text: str) -> str:
+	"""Escape the quotes a model left unescaped inside strings, and drop trailing commas.
+
+	A quote closes a string only when what follows fits: a key is followed by ':', a value by
+	'}' or ']', or by ',' and then the next key (in an object) or the next value (in a list).
+	Any other quote is part of the text."""
+	out, stack, last, i, n = [], [], "", 0, len(text)
+	while i < n:
+		c = text[i]
+		if c == '"':
+			container = stack[-1] if stack else ""
+			is_key = container == "{" and last in "{,"
+			out.append(c)
+			i += 1
+			while i < n:
+				c = text[i]
+				if c == "\\" and i + 1 < n:
+					out.append(text[i : i + 2])
+					i += 2
+				elif c == '"' and _closes_string(text, i, is_key, container):
+					out.append(c)
+					i += 1
+					break
+				else:
+					out.append('\\"' if c == '"' else c)
+					i += 1
+			last = '"'
+			continue
+		if c in "{[":
+			stack.append(c)
+		elif c in "}]" and stack:
+			stack.pop()
+		elif c == "," and text[_skip_space(text, i + 1) : _skip_space(text, i + 1) + 1] in ("}", "]"):
+			i += 1
+			continue
+		if c not in _SPACE:
+			last = c
+		out.append(c)
+		i += 1
+	return "".join(out)
