@@ -37,7 +37,7 @@ Reply with JSON only, in exactly this shape:
 {{"title": "...", "summary": "one or two sentences", "body": "markdown", "key_vocabulary": ["word", "..."],
 "activities": "markdown: something to do at home or in class", "reflection": "one question to think about",
 "minutes": 20, "quiz": [{{"question": "...", "options": ["...", "...", "...", "..."], "answer": 0}}]}}
-"answer" is the index (0-3) of the correct option."""
+"answer" is the index (0-3) of the correct option. Inside strings, write any double quote as \\"."""
 
 
 def _words(grade: str) -> int:
@@ -122,16 +122,27 @@ def _quiz(title: str, rows: list) -> str | None:
 	)
 
 
+def _ask_for_lesson(prompt: str) -> dict:
+	"""The lesson as JSON. A reply that isn't readable JSON is asked for once more, saying what was wrong."""
+	system = "You write accurate, engaging CBC lessons for Kenyan schools."
+	turns = [{"role": "user", "content": prompt}]
+	reply = providers.complete(system, turns, json_mode=True, max_tokens=4000)
+	try:
+		return providers.parse_json(reply["text"])
+	except providers.AIBadReply as e:
+		retry = (
+			f"{prompt}\n\nYour last reply was not valid JSON ({e.detail}). Reply again with valid JSON only: "
+			'escape every double quote inside a string as \\" and close every string, list and object.'
+		)
+		turns = [{"role": "user", "content": retry}]
+		reply = providers.complete(system, turns, json_mode=True, max_tokens=4000)
+		return providers.parse_json(reply["text"])
+
+
 def write_lesson(sub_strand: str) -> str:
 	"""Writes a lesson and its quiz for the sub-strand and returns the new Lesson's name."""
 	s = _scope(sub_strand)
-	reply = providers.complete(
-		"You write accurate, engaging CBC lessons for Kenyan schools.",
-		[{"role": "user", "content": _prompt(s)}],
-		json_mode=True,
-		max_tokens=4000,
-	)
-	data = providers.parse_json(reply["text"])
+	data = _ask_for_lesson(_prompt(s))
 	title = cstr(data.get("title")).strip() or s.sub.name1
 	body = cstr(data.get("body")).strip()
 	if len(body) < 200:

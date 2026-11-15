@@ -79,6 +79,24 @@ class TestWriteLesson(unittest.TestCase):
 		with self.assertRaises(AIUnavailable):
 			self._write({**REPLY, "body": "Too short."})
 
+	def test_a_reply_that_is_not_json_is_asked_for_once_more(self):
+		broken = {"text": '{"title": "Fractions", "body": "cut off', "provider": "test", "model": ""}
+		good = {"text": json.dumps(REPLY), "provider": "test", "model": ""}
+		with patch("cbc_ai_tutor.ai.providers.complete", side_effect=[broken, good]) as call:
+			name = content.write_lesson(self.sub.name)
+		self.assertEqual(frappe.db.get_value("Lesson", name, "sub_strand"), self.sub.name)
+		self.assertEqual(call.call_count, 2)
+		self.assertIn("not valid JSON", call.call_args.args[1][0]["content"])
+
+	def test_a_second_unreadable_reply_gives_up(self):
+		from cbc_ai_tutor.ai.providers import AIBadReply
+
+		broken = {"text": "Sorry, here is the lesson: Fractions", "provider": "test", "model": ""}
+		with patch("cbc_ai_tutor.ai.providers.complete", return_value=broken) as call:
+			with self.assertRaises(AIBadReply):
+				content.write_lesson(self.sub.name)
+		self.assertEqual(call.call_count, 2)
+
 	def test_writing_one_grade_only_picks_that_grades_sub_strands(self):
 		self.assertIn(self.sub.name, content.without_lessons(1000, "CONTENTTEST Grade 4"))
 		frappe.get_doc({"doctype": "Program", "program_name": "CONTENTTEST Grade 5", "program_abbreviation": "CT5"}).insert()
