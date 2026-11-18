@@ -7,9 +7,12 @@
   import * as L from '../../lib/learner.js'
   import Loading from '../../components/Loading.svelte'
   import Empty from '../../components/Empty.svelte'
+  import ParentGate from '../../components/ParentGate.svelte'
+  import { hasPin } from '../../lib/parentPin.js'
   import { subject } from '../../lib/subjects.js'
   import * as Review from '../../lib/review.js'
   import { fresh } from '../../lib/badges.js'
+  import { examName } from '../../lib/exam.js'
 
   let st = $state(null)
   let areas = $state([])
@@ -62,7 +65,14 @@
     return () => window.removeEventListener('cbc:synced', onSynced)
   })
 
-  async function backToParent() {
+  let gate = $state(false)
+
+  function backToParent() {
+    if (hasPin()) gate = true
+    else leave()
+  }
+
+  async function leave() {
     try {
       await call('back_to_parent')
       await refreshState()
@@ -138,7 +148,7 @@
       <a class="quick-item" href="#/tutor" style="--c: #0b7a3d"><span class="chip">💬</span><b>Ask Mwalimu</b><small>Your tutor</small></a>
       <a class="quick-item" href="#/drill" style="--c: #2563eb"><span class="chip">🧮</span><b>Maths drills</b><small>Works offline</small></a>
       <a class="quick-item" href="#/work" style="--c: #ea580c"><span class="chip">📝</span><b>Assignments</b><small>{due ? `${due} to do` : 'All done'}</small></a>
-      <a class="quick-item" href="#/progress" style="--c: #ca8a04"><span class="chip">⭐</span><b>My progress</b><small>Scores and badges</small></a>
+      <a class="quick-item" href="#/exam" style="--c: #b8211a"><span class="chip">📝</span><b>{examName(st?.learner?.grade || app.session?.profile?.learner?.grade)}</b><small>A timed mixed paper</small></a>
     </div>
 
     <div class="section"><h2>Learning areas</h2></div>
@@ -165,3 +175,5 @@
     </p>
   {/if}
 </div>
+
+<ParentGate bind:open={gate} mode="check" onpass={leave} />

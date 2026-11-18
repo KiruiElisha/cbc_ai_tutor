@@ -9,6 +9,8 @@
   import Empty from '../../components/Empty.svelte'
   import ErrorBox from '../../components/ErrorBox.svelte'
   import Stale from '../../components/Stale.svelte'
+  import ParentGate from '../../components/ParentGate.svelte'
+  import { hasPin } from '../../lib/parentPin.js'
 
   let res = $state(null)
   let error = $state(null)
@@ -25,6 +27,18 @@
   onMount(load)
 
   let d = $derived(res?.data)
+
+  // Before the device goes to a child: a parent PIN, once, so the child can't come back here.
+  let gate = $state(false)
+  let pending = null
+  let skipped = false
+
+  function startLearning(child) {
+    if (!hasPin() && !skipped) {
+      pending = child
+      gate = true
+    } else openLearner(child)
+  }
 
   async function openLearner(child) {
     opening = child.student
@@ -76,7 +90,7 @@
               </div>
             </div>
             {#if c.enabled}
-              <button class="kid-learn" onclick={() => openLearner(c)} disabled={opening === c.student || res.cached}>
+              <button class="kid-learn" onclick={() => startLearning(c)} disabled={opening === c.student || res.cached}>
                 <span class="play">▶</span>{opening === c.student ? 'Opening…' : `Start learning as ${first}`}
               </button>
             {/if}
@@ -96,3 +110,5 @@
     {/if}
   {/if}
 </div>
+
+<ParentGate bind:open={gate} mode="set" onpass={() => { skipped = true; openLearner(pending) }} />
