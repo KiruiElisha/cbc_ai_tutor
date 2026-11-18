@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte'
-  import { app, syncNow, refreshState } from '../../lib/app.svelte.js'
+  import { app, syncNow, refreshState, toast } from '../../lib/app.svelte.js'
   import { call, errorText } from '../../lib/tauri.js'
   import { go, enc } from '../../lib/router.svelte.js'
   import { ago, date } from '../../lib/format.js'
@@ -9,6 +9,7 @@
   import Empty from '../../components/Empty.svelte'
   import { subject } from '../../lib/subjects.js'
   import * as Review from '../../lib/review.js'
+  import { fresh } from '../../lib/badges.js'
 
   let st = $state(null)
   let areas = $state([])
@@ -43,6 +44,7 @@
     const subs = Object.fromEntries((await L.mine('submission')).map((s) => [s.assignment, s]))
     due = (await L.mine('assignment')).filter((a) => a.status === 'Published' && !subs[a.name]).length
     practice = await Review.due(app.session?.profile?.learner?.student)
+    for (const b of await fresh(app.session?.profile?.learner?.student)) toast(`${b.icon} New badge: ${b.name}!`, 'ok')
     loading = false
   }
 
@@ -148,7 +150,10 @@
           <span class="chip">{t.icon}</span>
           <b>{a.title}</b>
           <small>{c.total ? `${c.done} of ${c.total} lessons` : 'Coming soon'}</small>
-          <div class="bar"><i style="width: {c.total ? (100 * c.done) / c.total : 0}%"></i></div>
+          {#if c.total}
+            {@const pct = Math.round((100 * c.done) / c.total)}
+            <span class="sring" style="--p: {pct}" aria-label="{pct}% done"><b>{pct}%</b></span>
+          {/if}
         </a>
       {/each}
     </div>

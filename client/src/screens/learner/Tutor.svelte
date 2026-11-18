@@ -9,6 +9,7 @@
   import { canListen, canSpeak, listen, speak, stopSpeaking, looksSwahili } from '../../lib/voice.js'
   import { shrinkPhoto } from '../../lib/photo.js'
   import TopBar from '../../components/TopBar.svelte'
+  import Mwalimu from '../../components/Mwalimu.svelte'
   import Loading from '../../components/Loading.svelte'
   import ErrorBox from '../../components/ErrorBox.svelte'
 
@@ -26,6 +27,7 @@
   let error = $state(null)
   let quota = $state(null)
   let loading = $state(true)
+  let showModes = $state(false)
   let mode = $state(['hint', 'steps', 'simple', 'quiz', 'check', 'kiswahili'].includes(params.mode) ? params.mode : null)
   let listening = $state(false)
   let speaking = $state(null)
@@ -329,6 +331,14 @@
 
 <div class="tutor">
   <section class="tutor-chat">
+    {#if lesson}
+      <!-- What Mwalimu is focused on, so the learner knows why answers stay on this lesson. -->
+      <div class="context-chip">
+        <span>📌 Talking about <b>{lesson.title}</b></span>
+        <a href={`#/lesson/${enc(lesson.name)}`} class="small">Open lesson</a>
+        <a href={`#/tutor?new=${Date.now()}`} class="small muted" aria-label="Talk about anything">✕</a>
+      </div>
+    {/if}
     {#if !app.online}
       <div class="banner info">📶 You are offline. Mwalimu can still work out sums; other questions need the internet.</div>
     {/if}
@@ -337,7 +347,7 @@
       <Loading />
     {:else if !messages.length}
       <div class="tutor-hello">
-        <div class="mwalimu-face" aria-hidden="true">🦉</div>
+        <div class="mwalimu-face"><Mwalimu size={62} mood="happy" /></div>
         <div>
           <h2>Hujambo{firstName ? `, ${firstName}` : ''}! I'm Mwalimu</h2>
           <p class="muted">Ask me about any lesson. I'll help you think it through, one step at a time{canListen ? ', and you can talk to me too' : ''}.</p>
@@ -367,7 +377,7 @@
     <div class="feed" bind:this={feed} aria-live="polite">
       {#each messages as m}
         <div class="msg {m.me ? 'me' : 'ai'}">
-          {#if !m.me}<div class="msg-face" aria-hidden="true">🦉</div>{/if}
+          {#if !m.me}<div class="msg-face"><Mwalimu size={32} /></div>{/if}
           <div class="bubble {m.me ? 'me' : 'ai'}">
             {#if m.me}
               {#if m.mode}<span class="mode-tag">{modes.find((x) => x[0] === m.mode)?.[2]}</span>{/if}
@@ -394,7 +404,7 @@
       {/each}
       {#if busy}
         <div class="msg ai">
-          <div class="msg-face" aria-hidden="true">🦉</div>
+          <div class="msg-face"><Mwalimu size={32} mood="think" /></div>
           {#if draft}
             <div class="bubble ai"><div class="prose">{@html tutorHtml(draft)}</div><span class="caret" aria-hidden="true"></span></div>
           {:else}
@@ -415,9 +425,12 @@
     <ErrorBox {error} />
 
     <div class="composer-wrap">
-      <div class="modes" role="group" aria-label="How Mwalimu answers">
+      <button class="modes-toggle" onclick={() => (showModes = !showModes)} aria-expanded={showModes}>
+        {mode ? `${modes.find((x) => x[0] === mode)[1]} ${modes.find((x) => x[0] === mode)[2]}` : '💡 How should I help?'} <span class="muted">{showModes ? '▴' : '▾'}</span>
+      </button>
+      <div class="modes" class:open={showModes} role="group" aria-label="How Mwalimu answers">
         {#each modes as [key, icon, label]}
-          <button class="mode" class:on={mode === key} aria-pressed={mode === key} onclick={() => (mode = mode === key ? null : key)}>{icon} {label}</button>
+          <button class="mode" class:on={mode === key} aria-pressed={mode === key} onclick={() => { mode = mode === key ? null : key; showModes = false }}>{icon} {label}</button>
         {/each}
       </div>
       {#if photo}
