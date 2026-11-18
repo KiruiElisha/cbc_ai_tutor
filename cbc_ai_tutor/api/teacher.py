@@ -12,7 +12,7 @@ from frappe.utils import cint, cstr, escape_html, flt, getdate, now_datetime, no
 
 from cbc_ai_tutor.api import common, progress, sync
 
-ASSIGNMENT_TYPES = ("Homework", "Assignment", "Project", "Quiz")
+ASSIGNMENT_TYPES = ("Homework", "Assignment", "Project", "Quiz", "Mwalimu Practice")
 COMPETENCY_TYPES = ("Knowledge", "Skills", "Values & Attitudes")
 COMPETENCY_LEVELS = ("Emerging", "Proficient", "Advanced")
 ASSESSMENT_TYPES = ("Quiz", "Project", "Observation", "Test", "Assignment")
@@ -345,7 +345,13 @@ def submissions(assignment: str) -> dict:
 		rows.append(_submission_row(learner.name, learner.student_name, s))
 	for student, s in handed_in.items():
 		rows.append(_submission_row(student, frappe.db.get_value("Student", student, "student_name"), s))
-	return {"assignment": assignment, "title": doc.title, "due_date": str(doc.due_date or ""), "learners": rows}
+	return {
+		"assignment": assignment,
+		"title": doc.title,
+		"assignment_type": doc.assignment_type,
+		"due_date": str(doc.due_date or ""),
+		"learners": rows,
+	}
 
 
 def _submission_row(student, student_name, s) -> dict:
@@ -520,3 +526,66 @@ def respond_feedback(name: str, response: str) -> dict:
 			_html(response[:4000]),
 		)
 	return {"name": name}
+
+
+@frappe.whitelist()
+def mwalimu_work(assignment: str) -> dict:
+	"""For a "Mwalimu Practice" assignment: who practised with Mwalimu, how much, and when."""
+	doc, teacher = _own_assignment(assignment)
+	learners = frappe.get_all(
+		"Student",
+		filters={"custom_school": teacher.school or "", "custom_grade": doc.grade, "enabled": 1},
+		fields=["name", "student_name"],
+		order_by="student_name asc",
+		limit_page_length=0,
+	)
+	counts = {
+		r.student: r
+		for r in frappe.db.sql(
+			"""select student, count(*) as questions, max(date) as last
+			from `tabAI Tutor Interaction` where assignment = %s group by student""",
+			assignment,
+			as_dict=True,
+		)
+	}
+	rows = []
+	for learner in learners:
+		c = counts.get(learner.name)
+		rows.append(
+			{
+				"student": learner.name,
+				"student_name": learner.student_name,
+				"questions": cint(c.questions) if c else 0,
+				"last": str(c.last) if c else None,
+			}
+		)
+	return {"assignment": assignment, "title": doc.title, "learners": rows}
+
+
+@frappe.whitelist(methods=["POST"])
+def mwalimu_summary(assignment: str, student: str) -> dict:
+	"""What one learner got wrong or found hard in their practice with Mwalimu, in a few lines."""
+	from cbc_ai_tutor.ai import providers
+
+	_own_assignment(assignment)
+	rows = frappe.get_all(
+		"AI Tutor Interaction",
+		filters={"assignment": assignment, "student": student},
+		fields=["question", "ai_response"],
+		order_by="creation asc",
+		limit_page_length=40,
+	)
+	if not rows:
+		return {"summary": _("This learner has not practised with Mwalimu yet.")}
+	transcript = "\n\n".join(
+		f"Learner: {strip_html(cstr(r.question))[:600]}\nMwalimu: {strip_html(cstr(r.ai_response))[:900]}"
+		for r in rows
+	)
+	reply = providers.complete(
+		"You help a Kenyan CBC teacher. From a practice chat between a learner and the AI tutor, write "
+		"three short bullet points: what the learner got wrong or found hard, what they did well, and "
+		"one thing to practise next. Plain words, no names, under 90 words.",
+		[{"role": "user", "content": transcript[:12000]}],
+		max_tokens=300,
+	)
+	return {"summary": reply["text"], "questions": len(rows)}

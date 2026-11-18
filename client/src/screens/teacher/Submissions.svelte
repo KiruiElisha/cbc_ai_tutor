@@ -3,7 +3,7 @@
   import { toast } from '../../lib/app.svelte.js'
   import { api, get, errorText } from '../../lib/tauri.js'
   import { enc } from '../../lib/router.svelte.js'
-  import { date, dateTime, safeHtml } from '../../lib/format.js'
+  import { date, dateTime, safeHtml, markdown } from '../../lib/format.js'
   import TopBar from '../../components/TopBar.svelte'
   import Loading from '../../components/Loading.svelte'
   import ErrorBox from '../../components/ErrorBox.svelte'
@@ -20,10 +20,24 @@
   let remarks = $state('')
   let busy = $state(false)
 
+  let practice = $state(null)
+  let summaries = $state({})
+
+  async function summarise(r) {
+    summaries[r.student] = { busy: true }
+    try {
+      summaries[r.student] = await api('teacher.mwalimu_summary', { assignment: params.id, student: r.student })
+    } catch (e) {
+      summaries[r.student] = null
+      toast(errorText(e), 'error')
+    }
+  }
+
   async function load() {
     error = null
     try {
       data = await get('teacher.submissions', { assignment: params.id })
+      if (data.assignment_type === 'Mwalimu Practice') practice = await get('teacher.mwalimu_work', { assignment: params.id })
     } catch (e) {
       error = e
     }
@@ -63,6 +77,26 @@
 
 <TopBar title={data?.title || 'Submissions'} backTo={'/assignment/' + enc(params.id)} />
 <div class="page">
+  {#if practice}
+    <div class="section"><h2>Practice with Mwalimu</h2><span class="small muted">{practice.learners.filter((l) => l.questions).length} of {practice.learners.length} took part</span></div>
+    {#each practice.learners as r}
+      <div class="card flat" style="margin-bottom: 8px">
+        <div class="row">
+          <b class="grow">{r.student_name}</b>
+          {#if r.questions}
+            <span class="small muted">{r.questions} answers · {dateTime(r.last)}</span>
+            <button class="btn sm ghost" onclick={() => summarise(r)} disabled={summaries[r.student]?.busy}>{summaries[r.student]?.busy ? 'Reading…' : 'What did they get wrong?'}</button>
+          {:else}
+            <span class="pill warn">Not started</span>
+          {/if}
+        </div>
+        {#if summaries[r.student]?.summary}
+          <div class="prose small" style="margin-top: 8px">{@html markdown(summaries[r.student].summary)}</div>
+        {/if}
+      </div>
+    {/each}
+    <div class="section"><h2>Handed-in work</h2></div>
+  {/if}
   <ErrorBox {error} retry={load} />
   {#if !data && !error}
     <Loading />

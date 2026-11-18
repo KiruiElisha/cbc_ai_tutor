@@ -253,6 +253,10 @@ def visible_assignments(scope: frappe._dict, cutoff=None) -> list[dict]:
 def ai_quota(student: str) -> dict:
 	ent = common.entitlement_for_student(student)
 	limit = cint(ent.ai_messages_per_day)
+	# A parent may set a lower daily limit for one child; never a higher one than the plan.
+	own = cint(frappe.db.get_value("Student", student, "custom_ai_daily_limit"))
+	if own > 0:
+		limit = min(limit, own) if limit else own
 	# A cached answer was free, so only real AI calls count; rows from before the cache count as AI.
 	used = frappe.db.sql(
 		"""select count(*) from `tabAI Tutor Interaction`

@@ -210,6 +210,7 @@
         message,
         conversation,
         lesson: lesson?.name || null,
+        assignment: params.assignment || null,
         style: styles || null,
         stream,
         image: sentPhoto?.dataUrl || null,

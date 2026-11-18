@@ -68,6 +68,10 @@
     </div>
     <h1>{a.title}</h1>
     <div class="card prose">{@html markdown(a.description || '')}</div>
+    {#if a.assignment_type === 'Mwalimu Practice'}
+      <a class="btn block" style="margin-top: 14px" href={`#/tutor?assignment=${encodeURIComponent(a.name)}&mode=quiz&ask=${encodeURIComponent("I'm ready to practise: " + a.title)}`}>🦉 Practise with Mwalimu</a>
+      <p class="small muted center">Mwalimu asks you questions on this topic, one at a time. Your teacher sees how you did.</p>
+    {/if}
     {#if a.attachment}
       <div style="margin-top: 12px"><FilePreview fileUrl={a.attachment} label={app.online ? 'Open the worksheet' : 'Worksheet (needs internet)'} /></div>
     {/if}

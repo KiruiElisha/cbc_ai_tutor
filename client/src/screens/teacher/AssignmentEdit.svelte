@@ -154,8 +154,9 @@
         </label>
         <label class="field grow">
           <span>Kind</span>
-          <select bind:value={f.assignment_type} disabled={locked}>{#each ['Assignment', 'Homework', 'Project', 'Quiz'] as t}<option>{t}</option>{/each}</select>
+          <select bind:value={f.assignment_type} disabled={locked}>{#each ['Assignment', 'Homework', 'Project', 'Quiz', 'Mwalimu Practice'] as t}<option>{t}</option>{/each}</select>
         </label>
+        {#if f.assignment_type === 'Mwalimu Practice'}<p class="small muted" style="flex-basis: 100%; margin: -6px 0 6px">Each learner practises the topic below with Mwalimu, one question at a time. You see who took part and can ask for a summary of what each got wrong.</p>{/if}
         <label class="field grow"><span>Due date</span><input type="date" bind:value={f.due_date} disabled={locked} /></label>
       </div>
 

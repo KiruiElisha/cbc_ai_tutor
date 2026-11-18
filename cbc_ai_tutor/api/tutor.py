@@ -115,9 +115,32 @@ def _require_ai(student: str, quota: bool = True) -> frappe._dict:
 	ent = common.entitlement_for_student(student)
 	if not ent.active:
 		raise common.SubscriptionRequired(_("The AI tutor needs an active subscription. Ask a parent to renew."))
+	resting = quiet_until(student)
+	if resting:
+		raise common.QuotaExceeded(
+			_("Mwalimu is resting until {0}. Your parent set quiet hours. Lessons and quizzes still work.").format(
+				resting
+			)
+		)
 	if quota:
 		_require_quota(student)
 	return ent
+
+
+def quiet_until(student: str, now=None) -> str | None:
+	"""When the parent's quiet hours (bedtime, say) are on now, the time they end, as HH:MM."""
+	from frappe.utils import get_time, now_datetime
+
+	start, end = frappe.db.get_value("Student", student, ["custom_quiet_from", "custom_quiet_to"]) or (None, None)
+	if not start or not end:
+		return None
+	start, end = get_time(start), get_time(end)
+	if start == end:
+		return None
+	at = (now or now_datetime()).time()
+	# Quiet hours may run past midnight, e.g. 21:00 to 06:00.
+	inside = start <= at < end if start < end else (at >= start or at < end)
+	return end.strftime("%H:%M") if inside else None
 
 
 def _require_quota(student: str) -> None:
@@ -155,8 +178,13 @@ def ask(
 	style: str | None = None,
 	stream: str | None = None,
 	image: str | None = None,
+	assignment: str | None = None,
 ) -> dict:
 	student = common.current_learner()
+	work = _mwalimu_work(student, assignment)
+	if work:
+		sub_strand = sub_strand or work.sub_strand
+		learning_outcome = learning_outcome or work.learning_outcome
 	photo = _photo(image)
 	message = cstr(message).strip() or (_("Please help me with this.") if photo else "")
 	styles = [s for s in cstr(style).split(",") if s in STYLES]
@@ -177,7 +205,7 @@ def ask(
 	# Only a first question is shared: a follow-up depends on the conversation before it.
 	scope = ctx.lesson or (ctx.sub_strand or {}).get("name")
 	# A styled answer (a hint, Kiswahili, spoken) is not the shared answer to the plain question.
-	key = None if history or styles or photo else reuse.question_key(ctx.grade, scope, message)
+	key = None if history or styles or photo or work else reuse.question_key(ctx.grade, scope, message)
 	cached = reuse.cached_answer(key)
 	if cached:
 		reply = {"text": _html_to_markdownish(cached), "provider": "cache", "model": "", "input_tokens": 0, "output_tokens": 0}
@@ -188,6 +216,8 @@ def ask(
 			system += "\n\nHow to answer:\n" + "\n".join(f"- {STYLES[s]}" for s in styles)
 		if photo:
 			system += "\n\n" + PHOTO_RULES
+		if work:
+			system += "\n\n" + WORK_RULES.format(title=work.title, notes=strip_html(cstr(work.description))[:1500] or "-")
 		reply = providers.complete(
 			system,
 			[*history, {"role": "user", "content": message}],
@@ -206,6 +236,7 @@ def ask(
 			"ai_response": cached or md_to_html(reply["text"]),
 			"linked_learning_outcome": ctx.outcome.name if ctx.outcome else None,
 			"lesson": ctx.lesson,
+			"assignment": work.name if work else None,
 			"question_key": key,
 			"source": "Cache" if cached else "AI",
 			"provider": reply["provider"],
@@ -233,6 +264,29 @@ def ask(
 		"answer": reply["text"],
 		"quota": sync.ai_quota(student),
 	}
+
+
+WORK_RULES = """This chat is practice the learner's teacher set: "{title}". The teacher's notes:
+{notes}
+Run it as a short practice session on this topic: ask one question at a time, wait for the answer,
+say what was right, and when something is wrong, give a hint and let the learner try again before
+explaining. After about five questions, sum up what went well and what to practise."""
+
+
+def _mwalimu_work(student: str, assignment: str | None):
+	"""A teacher's "Mwalimu Practice" assignment this learner can see, or None."""
+	if not assignment:
+		return None
+	scope = sync._learner_scope(student)
+	if assignment not in {a.name for a in sync.visible_assignments(scope)}:
+		frappe.throw(_("That work was not set for you."))
+	work = frappe.db.get_value(
+		"Assignment",
+		assignment,
+		["name", "title", "description", "assignment_type", "sub_strand", "learning_outcome"],
+		as_dict=True,
+	)
+	return work if work and work.assignment_type == "Mwalimu Practice" else None
 
 
 PHOTO_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}

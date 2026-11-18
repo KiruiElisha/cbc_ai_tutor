@@ -6,6 +6,8 @@
   import { ago } from '../lib/format.js'
   import TopBar from '../components/TopBar.svelte'
   import Modal from '../components/Modal.svelte'
+  import ParentGate from '../components/ParentGate.svelte'
+  import { hasPin, clearPin } from '../lib/parentPin.js'
 
   let role = $derived(app.session?.role || null)
   let adult = $derived(role === 'Parent' || role === 'Teacher')
@@ -51,7 +53,14 @@
     }
   }
 
-  async function backToParent() {
+  let gate = $state(false)
+
+  function backToParent() {
+    if (hasPin()) gate = true
+    else leave()
+  }
+
+  async function leave() {
     try {
       await call('back_to_parent')
       await refreshState()
@@ -66,6 +75,7 @@
     busy = true
     try {
       await call('logout')
+      clearPin() // signing in again is how a forgotten parent PIN is reset
     } catch {}
     await refreshState()
     busy = false
@@ -129,3 +139,5 @@
     <button class="btn block" disabled={busy}>Change password</button>
   </form>
 </Modal>
+
+<ParentGate bind:open={gate} mode="check" onpass={leave} />

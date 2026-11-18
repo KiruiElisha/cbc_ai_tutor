@@ -39,7 +39,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Assignment Type",
-   "options": "Homework\nAssignment\nProject\nQuiz",
+   "options": "Homework\nAssignment\nProject\nQuiz\nMwalimu Practice",
    "reqd": 1
   },
   {
@@ -122,7 +122,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-04 23:00:43.635061",
+ "modified": "2026-11-18 11:30:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "Assignment",

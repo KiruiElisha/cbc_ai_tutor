@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import re
+
 import frappe
 from frappe import _
-from frappe.utils import cint, getdate, nowdate, strip_html
+from frappe.utils import add_days, cint, getdate, now_datetime, nowdate, strip_html
 
 from cbc_ai_tutor.api import common, progress, sync
 from cbc_ai_tutor.api.auth import _learner_domain, learner_card
@@ -238,7 +240,59 @@ def child_progress(student: str) -> dict:
 	common.assert_parent_of(student)
 	report = progress.report(student)
 	report["learner"]["enabled"] = cint(frappe.db.get_value("Student", student, "enabled"))
+	report["limits"] = child_limits(student)
 	return report
+
+
+@frappe.whitelist(methods=["POST"])
+def set_child_limits(
+	student: str, ai_daily_limit: int | None = None, quiet_from: str | None = None, quiet_to: str | None = None
+) -> dict:
+	"""The parent's own limits for one child: Mwalimu questions a day, and quiet hours."""
+	common.assert_parent_of(student)
+	limit = cint(ai_daily_limit)
+	if limit < 0 or limit > 500:
+		frappe.throw(_("Choose between 0 (the plan's limit) and 500 questions a day."))
+	times = []
+	for value in (quiet_from, quiet_to):
+		value = (value or "").strip()
+		if value and not re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?", value):
+			frappe.throw(_("Give quiet hours as times like 21:00."))
+		times.append(value or None)
+	if bool(times[0]) != bool(times[1]):
+		frappe.throw(_("Give both the start and the end of the quiet hours, or neither."))
+	frappe.db.set_value(
+		"Student",
+		student,
+		{"custom_ai_daily_limit": limit, "custom_quiet_from": times[0], "custom_quiet_to": times[1]},
+	)
+	return child_limits(student)
+
+
+def child_limits(student: str) -> dict:
+	row = frappe.db.get_value(
+		"Student", student, ["custom_ai_daily_limit", "custom_quiet_from", "custom_quiet_to"], as_dict=True
+	)
+	hhmm = lambda t: str(t)[:5] if t else None  # noqa: E731
+	return {
+		"ai_daily_limit": cint(row.custom_ai_daily_limit),
+		"quiet_from": hhmm(row.custom_quiet_from),
+		"quiet_to": hhmm(row.custom_quiet_to),
+	}
+
+
+@frappe.whitelist()
+def child_topics(student: str, days: int = 30) -> list[dict]:
+	"""What the child asked Mwalimu about lately, by topic and how often: the subjects, not the chats."""
+	common.assert_parent_of(student)
+	rows = frappe.db.sql(
+		"""select coalesce(nullif(topic, ''), 'Other questions') as topic, count(*) as questions, max(date) as last
+		from `tabAI Tutor Interaction` where student = %s and date >= %s
+		group by 1 order by questions desc, last desc limit 20""",
+		(student, add_days(now_datetime(), -min(max(cint(days), 1), 365))),
+		as_dict=True,
+	)
+	return sync._stringify(rows)
 
 
 @frappe.whitelist()

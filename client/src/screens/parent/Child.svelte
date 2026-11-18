@@ -9,6 +9,8 @@
   import ErrorBox from '../../components/ErrorBox.svelte'
   import Stale from '../../components/Stale.svelte'
   import Modal from '../../components/Modal.svelte'
+  import ParentGate from '../../components/ParentGate.svelte'
+  import { hasPin } from '../../lib/parentPin.js'
 
   let { params } = $props()
   const id = params.id
@@ -23,6 +25,9 @@
   let msgOpen = $state(false)
   let message = $state('')
   let busy = $state(false)
+  let limitsOpen = $state(false)
+  let limits = $state({ ai_daily_limit: 0, quiet_from: '', quiet_to: '' })
+  let topics = $state(null)
 
   async function load() {
     error = null
@@ -36,8 +41,34 @@
 
   let r = $derived(res?.data)
 
+  async function saveLimits(e) {
+    e.preventDefault()
+    busy = true
+    try {
+      const saved = await api('parent.set_child_limits', {
+        student: id,
+        ai_daily_limit: Number(limits.ai_daily_limit) || 0,
+        quiet_from: limits.quiet_from || null,
+        quiet_to: limits.quiet_to || null,
+      })
+      limitsOpen = false
+      if (r) r.limits = saved
+      toast('Limits saved.', 'ok')
+    } catch (err) {
+      toast(errorText(err), 'error')
+    } finally {
+      busy = false
+    }
+  }
+
+  function editLimits() {
+    limits = { ai_daily_limit: r.limits?.ai_daily_limit || 0, quiet_from: r.limits?.quiet_from || '', quiet_to: r.limits?.quiet_to || '' }
+    limitsOpen = true
+  }
+
   async function showChats() {
     tab = 'chats'
+    if (!topics) get('parent.child_topics', { student: id }).then((t) => (topics = t)).catch(() => (topics = []))
     if (chats) return
     try {
       chats = await get('parent.child_conversations', { student: id })
@@ -45,6 +76,12 @@
       chats = []
       toast(errorText(e), 'error')
     }
+  }
+
+  let gate = $state(false)
+  function startLearning() {
+    if (!hasPin()) gate = true
+    else openLearner()
   }
 
   async function openLearner() {
@@ -134,8 +171,9 @@
         <div><div class="stat">{r.ai_questions_this_week}</div><div class="small muted">questions to Mwalimu</div></div>
       </div>
       <div class="row wrap">
-        <button class="btn sm" onclick={openLearner} disabled={busy || res.cached || !enabled}>Let them learn here</button>
+        <button class="btn sm" onclick={startLearning} disabled={busy || res.cached || !enabled}>Let them learn here</button>
         <button class="btn sm ghost" onclick={() => (pinOpen = true)} disabled={res.cached}>Change PIN</button>
+        <button class="btn sm ghost" onclick={editLimits} disabled={res.cached || !r.limits}>Limits</button>
         <button class="btn sm ghost" onclick={() => (msgOpen = true)} disabled={res.cached || !r.learner.school}>Message the school</button>
         <button class="btn sm ghost" class:danger={enabled} onclick={toggle} disabled={busy || res.cached}>{enabled ? 'Switch off' : 'Switch on'}</button>
       </div>
@@ -223,6 +261,14 @@
         <p class="muted">No quizzes taken yet.</p>
       {/each}
     {:else}
+      {#if topics?.length}
+        <div class="card flat" style="margin-bottom: 12px">
+          <div class="small muted" style="margin-bottom: 6px">Topics asked about in the last 30 days</div>
+          <div class="row wrap" style="gap: 6px">
+            {#each topics as t}<span class="pill">{t.topic} · {t.questions}</span>{/each}
+          </div>
+        </div>
+      {/if}
       {#if !chats}
         <Loading />
       {:else}
@@ -239,6 +285,21 @@
   {/if}
 </div>
 
+<Modal bind:open={limitsOpen} title="Limits for {r?.learner.first_name || 'this child'}">
+  <form onsubmit={saveLimits}>
+    <label class="field"><span>Mwalimu questions a day</span>
+      <input type="number" min="0" max="500" inputmode="numeric" bind:value={limits.ai_daily_limit} />
+    </label>
+    <p class="small muted" style="margin-top: -8px">0 uses the plan's limit. You can set fewer, never more than the plan allows.</p>
+    <div class="row">
+      <label class="field grow"><span>Quiet from</span><input type="time" bind:value={limits.quiet_from} /></label>
+      <label class="field grow"><span>until</span><input type="time" bind:value={limits.quiet_to} /></label>
+    </div>
+    <p class="small muted" style="margin-top: -8px">Mwalimu doesn't answer during quiet hours (bedtime, say). Lessons and quizzes still work. Leave both empty for none.</p>
+    <button class="btn block" disabled={busy}>{busy ? 'Saving…' : 'Save limits'}</button>
+  </form>
+</Modal>
+
 <Modal bind:open={pinOpen} title="New PIN">
   <form onsubmit={savePin}>
     <label class="field"><span>New PIN (4–8 digits)</span><input class="pin-input" type="password" inputmode="numeric" minlength="4" maxlength="8" bind:value={pin} required /></label>
@@ -254,6 +315,9 @@
     <button class="btn block" disabled={busy || message.trim().length < 3}>Send</button>
   </form>
 </Modal>
+
+
+<ParentGate bind:open={gate} mode="set" onpass={openLearner} />
 
 <style>
   .report { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin: 14px 0; box-shadow: var(--shadow); border-top: 5px solid var(--brand); }

@@ -9,6 +9,7 @@
   import Loading from '../../components/Loading.svelte'
   import Empty from '../../components/Empty.svelte'
   import AskMwalimu from '../../components/AskMwalimu.svelte'
+  import { canSpeak, readAlong, stopSpeaking } from '../../lib/voice.js'
   import { subject } from '../../lib/subjects.js'
 
   let { params } = $props()
@@ -22,12 +23,17 @@
   let scrolled = $state(0)
   let step = $state(0)
   let whole = $state(false)
+  // Read-along: the screen's words, read aloud with the word being said lit up.
+  let reading = $state(false)
+  let word = $state(-1)
+  let words = $state([])
 
   const html = (h) => safeHtml(L.absolutize(h, app.server))
   let embed = $derived(L.videoEmbed(lesson?.video_url))
 
   onMount(() => {
     load()
+    const quiet = () => stopSpeaking()
     const onScroll = () => {
       const h = document.documentElement
       const pct = Math.round((100 * (h.scrollTop + h.clientHeight)) / Math.max(h.scrollHeight, 1))
@@ -37,6 +43,7 @@
     const timer = setInterval(() => report(false), 120000)
     return () => {
       window.removeEventListener('scroll', onScroll)
+      quiet()
       clearInterval(timer)
       report(false)
     }
@@ -102,7 +109,31 @@
   let screens = $derived(screensOf(lesson))
   let last = $derived(step >= screens.length - 1)
 
+  function plainOf(sc) {
+    const div = document.createElement('div')
+    div.innerHTML = sc.html || ''
+    return ((sc.title ? sc.title + '. ' : '') + (sc.text || div.textContent || '')).replace(/\s+/g, ' ').trim()
+  }
+
+  async function readToMe() {
+    if (reading) {
+      stopSpeaking()
+      reading = false
+      word = -1
+      return
+    }
+    const text = plainOf(screens[step])
+    words = text.split(/\s+/).filter(Boolean)
+    reading = true
+    await readAlong(text, { onWord: (i) => (word = i) })
+    reading = false
+  }
+
   function goTo(i) {
+    if (reading) {
+      stopSpeaking()
+      reading = false
+    }
     step = Math.max(0, Math.min(i, screens.length - 1))
     // Reading on is progress, as scrolling down is on the one-page view.
     scrolled = Math.max(scrolled, Math.min(95, Math.round(((step + 1) / screens.length) * 100)))
@@ -170,10 +201,17 @@
         <div class="steps-bar" aria-label="Part {step + 1} of {screens.length}">
           {#each screens as _, i}<button class:done={i < step} class:now={i === step} onclick={() => goTo(i)} aria-label="Part {i + 1}"></button>{/each}
         </div>
+        {#if canSpeak}
+          <button class="btn sm ghost read-btn" class:on={reading} onclick={readToMe}>{reading ? '⏹ Stop reading' : '🔊 Read to me'}</button>
+        {/if}
         {#key step}
           <article class="card prose screen screen-{sc.kind}">
-            {#if sc.title}<h3>{sc.title}</h3>{/if}
-            {#if sc.html}{@html sc.html}{:else if sc.text}<p style="white-space: pre-line">{sc.text}</p>{/if}
+            {#if reading}
+              <p class="read-along">{#each words as w, i}<span class:said={i === word} class:past={i < word}>{w}</span>{' '}{/each}</p>
+            {:else}
+              {#if sc.title}<h3>{sc.title}</h3>{/if}
+              {#if sc.html}{@html sc.html}{:else if sc.text}<p style="white-space: pre-line">{sc.text}</p>{/if}
+            {/if}
           </article>
         {/key}
         <div class="row" style="margin-top: 14px">
@@ -210,6 +248,12 @@
   .steps-bar button { flex: 1; height: 7px; border: 0; padding: 0; border-radius: 99px; background: var(--line); cursor: pointer; }
   .steps-bar button.done { background: var(--brand); }
   .steps-bar button.now { background: var(--sun); }
+  .read-btn { margin-bottom: 10px; }
+  .read-btn.on { background: var(--ke-red-soft); color: var(--ke-red); }
+  .read-along { font-size: 1.35rem; line-height: 1.9; }
+  .read-along span { border-radius: 6px; padding: 0 2px; transition: background 0.1s; }
+  .read-along span.said { background: var(--sun); color: #1f1300; }
+  .read-along span.past { color: var(--muted); }
   .screen { min-height: 220px; animation: slide-in 0.18s ease-out; }
   .screen-try { border-left: 4px solid var(--sun); }
   .screen-think { border-left: 4px solid var(--ke-red); }

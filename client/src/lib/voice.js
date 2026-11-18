@@ -109,3 +109,40 @@ export function speak(text, { lang } = {}) {
 export function stopSpeaking() {
   if (canSpeak) window.speechSynthesis.cancel()
 }
+
+/**
+ * Read text aloud word by word for read-along: `onWord(i)` gets the index of the word being
+ * said (in `text.split(/\s+/)`), so the screen can light it up. Resolves when done or stopped.
+ */
+export function readAlong(text, { lang, onWord } = {}) {
+  if (!canSpeak) return Promise.resolve()
+  const synth = window.speechSynthesis
+  synth.cancel()
+  const words = text.split(/\s+/).filter(Boolean)
+  const starts = []
+  let at = 0
+  const joined = words.join(' ')
+  for (const w of words) {
+    starts.push(at)
+    at += w.length + 1
+  }
+  const tag = lang || (looksSwahili(joined) ? 'sw-KE' : 'en-KE')
+  const u = new SpeechSynthesisUtterance(joined)
+  u.lang = tag
+  u.voice = voiceFor(tag) || voiceFor('en-GB')
+  u.rate = 0.85
+  u.onboundary = (e) => {
+    if (e.name && e.name !== 'word') return
+    let i = starts.length - 1
+    while (i > 0 && starts[i] > e.charIndex) i--
+    onWord?.(i)
+  }
+  return new Promise((resolve) => {
+    u.onend = () => {
+      onWord?.(-1)
+      resolve()
+    }
+    u.onerror = u.onend
+    synth.speak(u)
+  })
+}

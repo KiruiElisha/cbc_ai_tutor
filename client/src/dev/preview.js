@@ -83,6 +83,7 @@ const api = {
   'parent.child_progress': {
     learner: { student: 'EDU-STU-0001', name: 'Amina Wanjiru', first_name: 'Amina', grade: 'Grade 4', school: 'Kilimani Primary School', learner_code: 'AMW-4821', enabled: 1 },
     summary: { last_active: '2026-10-30 08:12:00', lessons_completed_this_week: 6, quizzes_this_week: 4 },
+    limits: { ai_daily_limit: 0, quiet_from: '21:00', quiet_to: '06:00' },
     highlights: { headline: 'Amina finished 6 lessons this week and is doing best in English.', strong: { title: 'English', quiz_average: 85 }, practise: [{ title: 'Science and Technology', why: '11% done' }] },
     ai_questions_this_week: 9,
     learning_areas: [
