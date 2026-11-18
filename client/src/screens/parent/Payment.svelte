@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import { toast } from '../../lib/app.svelte.js'
-  import { api, get, errorText, isOffline } from '../../lib/tauri.js'
+  import { api, errorText, isOffline } from '../../lib/tauri.js'
   import { go } from '../../lib/router.svelte.js'
   import { date, money } from '../../lib/format.js'
   import TopBar from '../../components/TopBar.svelte'
@@ -13,9 +13,12 @@
   let tries = 0
   let timer
 
+  let checking = $state(false)
+
+  // POST, never GET: a cached GET answer would keep saying "Pending" after the payment went through.
   async function poll() {
     try {
-      tx = await get('billing.transaction', { name: params.tx })
+      tx = await api('billing.transaction', { name: params.tx })
       error = ''
     } catch (e) {
       error = isOffline(e) ? 'No internet. Still waiting…' : errorText(e)
@@ -28,6 +31,19 @@
     poll()
     return () => clearTimeout(timer)
   })
+
+  /** The parent says they paid: ask M-Pesa now rather than at the next check. */
+  async function checkNow() {
+    checking = true
+    try {
+      tx = await api('billing.transaction', { name: params.tx, now: 1 })
+      if (tx.status === 'Pending') toast("M-Pesa hasn't confirmed it yet. It usually takes under a minute.", 'info')
+    } catch (e) {
+      toast(errorText(e), 'error')
+    } finally {
+      checking = false
+    }
+  }
 
   async function cancel() {
     busy = true
@@ -57,7 +73,10 @@
       {/if}
       {#if tx}<p class="small muted">{money(tx.amount, tx.currency)}</p>{/if}
       <div class="loading"><span class="spinner"></span></div>
-      <button class="btn ghost" onclick={cancel} disabled={busy || !tx}>I didn't pay, cancel</button>
+      <div class="row wrap" style="justify-content: center">
+        <button class="btn" onclick={checkNow} disabled={checking || !tx}>{checking ? 'Checking…' : "I've paid, check now"}</button>
+        <button class="btn ghost" onclick={cancel} disabled={busy || !tx}>I didn't pay, cancel</button>
+      </div>
     {:else if tx.status === 'Completed'}
       <div style="font-size: 3rem">✅</div>
       <h2>Payment received</h2>

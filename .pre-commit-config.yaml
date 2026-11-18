@@ -9,7 +9,8 @@ repos:
     hooks:
       - id: trailing-whitespace
         files: "cbc_ai_tutor.*"
-        exclude: ".*json$|.*txt$|.*csv|.*md|.*svg"
+        # public/learn and www/learn* are the Svelte app's build output.
+        exclude: ".*json$|.*txt$|.*csv|.*md|.*svg|^cbc_ai_tutor/public/learn/|^cbc_ai_tutor/www/learn"
       - id: check-merge-conflict
       - id: check-ast
       - id: check-json
