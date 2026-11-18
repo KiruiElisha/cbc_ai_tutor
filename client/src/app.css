@@ -348,10 +348,25 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
 .msg .bubble { margin-bottom: 0; max-width: min(86%, 680px); }
 .bubble.me { background: var(--brand); }
 .bubble.ai { box-shadow: var(--shadow); }
+.bubble.ai .prose ol { list-style: none; counter-reset: step; padding-left: 0; display: grid; gap: 6px; }
+.bubble.ai .prose ol > li {
+  counter-increment: step; position: relative; padding: 8px 10px 8px 40px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line);
+}
+.bubble.ai .prose ol > li::before {
+  content: counter(step); position: absolute; left: 9px; top: 8px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--brand); color: white; font-size: 0.75rem; font-weight: 800;
+}
+.bubble.ai .prose strong { color: var(--brand-dark); }
+.bubble.ai .prose .answer-box {
+  margin: 10px 0; padding: 10px 12px; border-radius: 12px; background: #fff8e6; border: 2px solid var(--sun); font-size: 1.05rem;
+}
+.bubble.ai .prose .answer-box strong:first-child { color: #92400e; }
 .mode-tag { display: block; font-size: 0.72rem; font-weight: 700; opacity: 0.85; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
 .msg-tools { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--line); }
 .tool { border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 0.8rem; padding: 4px 8px; border-radius: 8px; cursor: pointer; min-height: 30px; }
 .tool:hover { background: var(--bg); }
+.caret { display: inline-block; width: 8px; height: 1.1em; background: var(--brand); vertical-align: text-bottom; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 .thinking { display: flex; align-items: center; gap: 8px; color: var(--ink-2); }
 .dots { display: inline-flex; gap: 4px; }
 .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); animation: bob 1s infinite ease-in-out; }
@@ -404,6 +419,19 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
   .tutor-hello { padding: 16px; }
   .mwalimu-face { width: 48px; height: 48px; font-size: 1.6rem; }
   .chips { padding-left: 0; }
+}
+
+/* "Stuck? Ask Mwalimu" (components/AskMwalimu.svelte) */
+.ask-fab {
+  position: fixed; right: 20px; bottom: calc(20px + var(--safe-bottom)); z-index: 8; display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px 8px 8px; border-radius: 999px; background: var(--ke-black); color: white; text-decoration: none; font-weight: 700;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.28); transition: transform 0.12s;
+}
+.ask-fab:hover { transform: translateY(-2px); }
+.ask-fab .fab-face { width: 36px; height: 36px; border-radius: 50%; background: white; display: grid; place-items: center; font-size: 1.2rem; box-shadow: 0 0 0 2px var(--ke-red); }
+@media (max-width: 760px) {
+  .ask-fab { bottom: calc(80px + var(--safe-bottom)); right: 12px; }
+  .ask-fab .fab-label { font-size: 0.86rem; }
 }
 
 /* ---- parent: who is learning (screens/parent/Home.svelte) ---- */

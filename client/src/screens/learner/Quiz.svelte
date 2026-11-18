@@ -9,6 +9,8 @@
   import TopBar from '../../components/TopBar.svelte'
   import Loading from '../../components/Loading.svelte'
   import Empty from '../../components/Empty.svelte'
+  import AskMwalimu from '../../components/AskMwalimu.svelte'
+  import { plain } from '../../lib/format.js'
 
   let { params } = $props()
   let quiz = $state(null)
@@ -135,6 +137,14 @@
     {/if}
   {/if}
 </div>
+
+{#if !loading && !error && !result && questions[step]}
+  <!-- A hint for this question, not its answer: the quiz still checks what the learner knows. -->
+  <AskMwalimu
+    href={`#/tutor?${params.lesson ? `lesson=${enc(params.lesson)}&` : ''}mode=hint&ask=${enc(`I'm stuck on this question: ${plain(questions[step].question)}`)}`}
+    label="Stuck? Get a hint"
+  />
+{/if}
 
 <style>
   .dots { display: flex; gap: 6px; margin-bottom: 10px; }

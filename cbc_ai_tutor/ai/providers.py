@@ -252,19 +252,51 @@ def _order(pool: list[frappe._dict], routing: str) -> list[frappe._dict]:
 
 
 def complete(
-	system: str, messages: list[dict], *, json_mode: bool = False, max_tokens: int | None = None
+	system: str,
+	messages: list[dict],
+	*,
+	json_mode: bool = False,
+	max_tokens: int | None = None,
+	on_text=None,
 ) -> dict:
-	"""The reply from whichever provider answers first, by CBC Settings' routing."""
+	"""The reply from whichever provider answers first, by CBC Settings' routing.
+
+	`on_text(text)` receives the reply so far while it is written, for providers that stream
+	(all but Cursor). When two providers are asked at once, only the first to write is shown."""
 	task = "content" if json_mode else "chat"
 	pool = _pool(task)
 	if max_tokens:
 		pool = [frappe._dict(conf, max_tokens=max_tokens) for conf in pool]
+	if on_text and not json_mode:
+		pool = _sharing_one_writer(pool, on_text)
 	routing = common.setting("ai_routing", SMART) or SMART
 	order = _order(pool, routing)
 	if routing == IN_ORDER or len(order) == 1:
 		return _one_after_another(order, system, messages, json_mode)
 	wait = 0 if routing == RACE else max(flt(common.setting("ai_hedge_seconds", 6)), 1)
 	return _overlapping(order, system, messages, json_mode, wait)
+
+
+def _sharing_one_writer(pool: list[frappe._dict], on_text) -> list[frappe._dict]:
+	"""Each provider gets its own on_text; the first one to write keeps the learner's screen."""
+	lock = threading.Lock()
+	state = {"writer": None}
+
+	def for_provider(key):
+		def write(text):
+			with lock:
+				if state["writer"] is None:
+					state["writer"] = key
+				mine = state["writer"] == key
+			if mine:
+				try:
+					on_text(text)
+				except Exception:
+					pass  # showing progress must never break the answer
+
+		return write
+
+	return [frappe._dict(conf, on_text=for_provider(_id(conf))) for conf in pool]
 
 
 def _timed(conf, system, messages, json_mode) -> dict:
@@ -445,6 +477,25 @@ def _raise_for(response: requests.Response, provider: str):
 	raise AIUnavailable(_("The tutor ran into a problem. Try again."))
 
 
+def _sse(response: requests.Response):
+	"""The JSON events of a server-sent-events stream."""
+	response.encoding = "utf-8"
+	for line in response.iter_lines(decode_unicode=True):
+		if not line or not line.startswith("data:"):
+			continue
+		data = line[5:].strip()
+		if data == "[DONE]":
+			break
+		try:
+			yield json.loads(data)
+		except json.JSONDecodeError:
+			continue
+
+
+def _streaming(conf, json_mode) -> bool:
+	return bool(conf.get("on_text")) and not json_mode
+
+
 def _openai(conf, system, messages, json_mode):
 	compatible = conf.provider == "OpenAI Compatible"
 	base = conf.base_url or OPENAI_URL
@@ -461,6 +512,30 @@ def _openai(conf, system, messages, json_mode):
 	headers = {"Content-Type": "application/json"}
 	if conf.key:
 		headers["Authorization"] = f"Bearer {conf.key}"
+	if _streaming(conf, json_mode):
+		body["stream"] = True
+		if not compatible:
+			body["stream_options"] = {"include_usage": True}
+		response = requests.post(
+			f"{base}/chat/completions", json=body, headers=headers, timeout=conf.timeout, stream=True
+		)
+		_raise_for(response, conf.provider)
+		text, usage, stop = "", {}, None
+		with response:
+			for event in _sse(response):
+				usage = event.get("usage") or usage
+				for choice in (event.get("choices") or [])[:1]:
+					piece = (choice.get("delta") or {}).get("content")
+					if piece:
+						text += piece
+						conf.on_text(text)
+					stop = choice.get("finish_reason") or stop
+		return {
+			"text": text.strip(),
+			"input_tokens": cint(usage.get("prompt_tokens")),
+			"output_tokens": cint(usage.get("completion_tokens")),
+			"stop": stop,
+		}
 	response = requests.post(f"{base}/chat/completions", json=body, headers=headers, timeout=conf.timeout)
 	_raise_for(response, conf.provider)
 	data = response.json()
@@ -490,6 +565,28 @@ def _anthropic(conf, system, messages, json_mode):
 		"anthropic-version": ANTHROPIC_VERSION,
 		"content-type": "application/json",
 	}
+	if _streaming(conf, json_mode):
+		body["stream"] = True
+		response = requests.post(ANTHROPIC_URL, json=body, headers=headers, timeout=conf.timeout, stream=True)
+		_raise_for(response, conf.provider)
+		text, tokens_in, tokens_out, stop = "", 0, 0, None
+		with response:
+			for event in _sse(response):
+				kind = event.get("type")
+				if kind == "message_start":
+					tokens_in = cint(((event.get("message") or {}).get("usage") or {}).get("input_tokens"))
+				elif kind == "content_block_delta":
+					piece = (event.get("delta") or {}).get("text")
+					if piece:
+						text += piece
+						conf.on_text(text)
+				elif kind == "message_delta":
+					stop = (event.get("delta") or {}).get("stop_reason") or stop
+					tokens_out = cint((event.get("usage") or {}).get("output_tokens")) or tokens_out
+				elif kind == "error":
+					_log_error("Anthropic stream error", json.dumps(event)[:2000])
+					raise AIUnavailable(_("The tutor ran into a problem. Try again."))
+		return {"text": text.strip(), "input_tokens": tokens_in, "output_tokens": tokens_out, "stop": stop}
 	response = requests.post(ANTHROPIC_URL, json=body, headers=headers, timeout=conf.timeout)
 	_raise_for(response, conf.provider)
 	data = response.json()
@@ -518,11 +615,35 @@ def _gemini(conf, system, messages, json_mode):
 		"contents": contents,
 		"generationConfig": generation,
 	}
+	headers = {"x-goog-api-key": conf.key, "Content-Type": "application/json"}
+	if _streaming(conf, json_mode):
+		url = GEMINI_URL.format(model=conf.model).replace(":generateContent", ":streamGenerateContent")
+		response = requests.post(
+			url, params={"alt": "sse"}, json=body, headers=headers, timeout=conf.timeout, stream=True
+		)
+		_raise_for(response, conf.provider)
+		text, usage, stop = "", {}, None
+		with response:
+			for event in _sse(response):
+				usage = event.get("usageMetadata") or usage
+				for candidate in (event.get("candidates") or [])[:1]:
+					stop = candidate.get("finishReason") or stop
+					if stop == "SAFETY":
+						raise AIRefused(_("The tutor can't help with that. Ask about your schoolwork."))
+					piece = "".join(
+						part.get("text", "") for part in (candidate.get("content") or {}).get("parts") or []
+					)
+					if piece:
+						text += piece
+						conf.on_text(text)
+		return {
+			"text": text.strip(),
+			"input_tokens": cint(usage.get("promptTokenCount")),
+			"output_tokens": cint(usage.get("candidatesTokenCount")),
+			"stop": stop,
+		}
 	response = requests.post(
-		GEMINI_URL.format(model=conf.model),
-		json=body,
-		headers={"x-goog-api-key": conf.key, "Content-Type": "application/json"},
-		timeout=conf.timeout,
+		GEMINI_URL.format(model=conf.model), json=body, headers=headers, timeout=conf.timeout
 	)
 	_raise_for(response, conf.provider)
 	data = response.json()

@@ -74,6 +74,30 @@ LEARNING_AREAS = {
 # Placeholder prices. Change them in Desk (Subscription Plan) before going live.
 PLANS = [
 	{
+		"plan_name": "Daily",
+		"billing_period": "Daily",
+		"duration_days": 1,
+		"display_order": 0,
+		"price_kes": 30,
+		"price_paypal": 0,
+		"max_learners": 1,
+		"ai_messages_per_day": 20,
+		"tagline": "Try everything for a day, or cover exam eve",
+		"features": "All CBC lessons and quizzes for 1 child\nMwalimu AI tutor, 20 questions\nPay with M-Pesa",
+	},
+	{
+		"plan_name": "Weekly",
+		"billing_period": "Weekly",
+		"duration_days": 7,
+		"display_order": 0,
+		"price_kes": 149,
+		"price_paypal": 1.29,
+		"max_learners": 2,
+		"ai_messages_per_day": 30,
+		"tagline": "A week of lessons for up to 2 children",
+		"features": "All CBC lessons and quizzes\nUp to 2 children\nMwalimu AI tutor, 30 questions a day per child",
+	},
+	{
 		"plan_name": "Monthly",
 		"billing_period": "Monthly",
 		"duration_days": 30,

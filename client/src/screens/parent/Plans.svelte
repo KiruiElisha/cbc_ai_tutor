@@ -66,6 +66,8 @@
   // KES per US dollar from CBC Settings, for the approximate dollar price beside each plan.
   let rate = $derived(catalog?.kes_per_usd || 129)
 
+  const period = (days) => ({ 1: 'day', 7: 'week', 30: 'month', 365: 'year' })[days] || `${days} days`
+
   const statusTone = (s) => ({ Completed: 'ok', Failed: 'bad', Cancelled: '' })[s] || 'warn'
 
   // The plan that costs least per day, shown with its daily price so the saving is clear.
@@ -110,7 +112,7 @@
             {#if p.tagline}<div class="small muted">{p.tagline}</div>{/if}
           </div>
           <div>
-            <span class="stat">{kes(p.price_kes)}</span> <span class="small muted" style="white-space: nowrap">/ {p.duration_days} days</span>
+            <span class="stat">{kes(p.price_kes)}</span> <span class="small muted" style="white-space: nowrap">/ {period(p.duration_days)}</span>
             <div class="price-usd">{usd(p.price_kes, rate)}</div>
           </div>
           {#if p.price_paypal}<div class="small muted">or {money(p.price_paypal, p.paypal_currency)} with PayPal</div>{/if}

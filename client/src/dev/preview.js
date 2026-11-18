@@ -73,6 +73,8 @@ const api = {
     ],
   },
   'billing.plans': { gateways: { mpesa: true, paypal: true }, kes_per_usd: 129, plans: [
+    { name: 'Daily', plan_name: 'Daily', price_kes: 30, price_paypal: 0, paypal_currency: 'USD', duration_days: 1, max_learners: 1, ai_messages_per_day: 20, tagline: 'Try everything for a day, or cover exam eve', features: ['All CBC lessons and quizzes for 1 child', 'Mwalimu AI tutor, 20 questions', 'Pay with M-Pesa'] },
+    { name: 'Weekly', plan_name: 'Weekly', price_kes: 149, price_paypal: 1.29, paypal_currency: 'USD', duration_days: 7, max_learners: 2, ai_messages_per_day: 30, tagline: 'A week of lessons for up to 2 children', features: ['All CBC lessons and quizzes', 'Up to 2 children', 'Mwalimu AI tutor, 30 questions a day per child'] },
     { name: 'Monthly', plan_name: 'Monthly', price_kes: 499, price_paypal: 4.99, paypal_currency: 'USD', duration_days: 30, max_learners: 3, ai_messages_per_day: 40, tagline: 'Every lesson and quiz for up to 3 children', features: ['All CBC lessons and quizzes', 'Works offline', 'Mwalimu AI tutor, 40 questions a day', 'Progress reports for parents'] },
     { name: 'Termly', plan_name: 'Termly', price_kes: 1299, price_paypal: 11.99, paypal_currency: 'USD', duration_days: 120, max_learners: 4, ai_messages_per_day: 60, tagline: 'A whole school term, about a month free', features: ['Everything in Monthly', 'Up to 4 children', '60 AI tutor questions a day'] },
     { name: 'Yearly', plan_name: 'Yearly', price_kes: 3999, price_paypal: 34.99, paypal_currency: 'USD', duration_days: 365, max_learners: 6, ai_messages_per_day: 0, tagline: 'The full school year at the best price', features: ['Everything in Termly', 'Up to 6 children', 'Unlimited AI tutor questions'] },
@@ -105,15 +107,24 @@ const api = {
   ],
   'teacher.dashboard': { instructor_name: 'Peter Otieno', school: 'Kilimani Primary School', learners: 38, open_assignments: 3, to_review: 7, unanswered_feedback: 2, grades: [{ grade: 'Grade 4', learners: 21 }, { grade: 'Grade 5', learners: 17 }] },
   'tutor.conversations': [{ conversation: 'c1', topic: 'Fractions', messages: 4, last: '2026-10-29 18:02:00' }],
-  'tutor.ask': (a) => ({ conversation: 'c2', interaction: 'i' + Date.now(), quota: { limit: 20, remaining: 17, used: 3 },
-    answer: `Good question! Let us think about **${a.message.slice(0, 40)}** together.\n\n1. What do you already know?\n2. Try one small example.\n\nWhat do you get?` }),
+  // Written over about three seconds, so the app shows it as it streams in.
+  'tutor.ask': async (a) => {
+    const answer = `Good question! Let us think about **${a.message.slice(0, 40)}** together.\n\n1. What do you already know?\n2. Try one small example, like sharing a chapati into 4 equal pieces.\n\n**Answer:** each piece is 1/4.\n\nWhat do you get if you eat 3 pieces?`
+    streaming = { answer, started: Date.now() }
+    await new Promise((r) => setTimeout(r, 3200))
+    streaming = null
+    return { conversation: 'c2', interaction: 'i' + Date.now(), quota: { limit: 20, remaining: 17, used: 3 }, answer }
+  },
+  'tutor.partial': () => ({ text: streaming ? streaming.answer.slice(0, Math.round(((Date.now() - streaming.started) / 3000) * streaming.answer.length)) : '' }),
   'tutor.practice': { practice: 'P1', title: 'Fractions practice', quota: {}, questions: [
     { question: 'What fraction of a pizza is left if 2 of 8 slices are eaten?', options: ['6/8', '2/8', '8/6', '1/8'], answer: 0, explanation: '8 − 2 = 6 slices are left, so 6/8.' },
     { question: 'Which is equal to 1/2?', options: ['2/4', '1/3', '3/4', '2/3'], answer: 0, explanation: '2/4 means 2 of 4 equal parts, the same as half.' },
   ] },
 }
 
-function command(cmd, args = {}) {
+let streaming = null
+
+async function command(cmd, args = {}) {
   switch (cmd) {
     case 'app_state':
       return { server: 'https://school.nergaa.cloud', session: sessions[role] ?? null, parent_waiting: false, pending: 1, last_sync: '2026-10-30 07:50:00', version: '0.2.0', platform: 'android' }
@@ -138,7 +149,7 @@ function command(cmd, args = {}) {
       return []
     case 'api': {
       const hit = api[args.path]
-      const data = typeof hit === 'function' ? hit(args.args || {}) : hit ?? []
+      const data = typeof hit === 'function' ? await hit(args.args || {}) : hit ?? []
       return args.cacheKey ? { data, cached: false } : { data }
     }
     default:
