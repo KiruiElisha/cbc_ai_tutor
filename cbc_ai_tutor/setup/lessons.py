@@ -79,7 +79,9 @@ def add_lesson(grade: str, row: dict) -> str | None:
 			"estimated_minutes": max(5, min(cint(row.get("minutes")) or 20, 60)),
 			"summary": cstr(row.get("summary")).strip()[:500],
 			"body": md_to_html(cstr(row.get("body"))),
-			"key_vocabulary": ", ".join(cstr(w).strip() for w in row.get("key_vocabulary") or [] if cstr(w).strip()),
+			"key_vocabulary": ", ".join(
+				cstr(w).strip() for w in row.get("key_vocabulary") or [] if cstr(w).strip()
+			),
 			"activities": md_to_html(cstr(row.get("activities"))),
 			"reflection": cstr(row.get("reflection")).strip()[:500],
 			"quiz": _quiz(f"{title} ({grade})", row.get("quiz")),

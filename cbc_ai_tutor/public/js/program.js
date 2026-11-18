@@ -9,8 +9,11 @@ frappe.ui.form.on("Program", {
 				callback: ({ message }) =>
 					frappe.msgprint(
 						message.queued
-							? __("Writing {0} lessons in the background. They appear as drafts in Lesson.", [message.queued])
-							: __("Every sub-strand in {0} already has a lesson.", [frm.doc.name]),
+							? __(
+									"Writing {0} lessons in the background. They appear as drafts in Lesson.",
+									[message.queued]
+							  )
+							: __("Every sub-strand in {0} already has a lesson.", [frm.doc.name])
 					),
 			});
 		});

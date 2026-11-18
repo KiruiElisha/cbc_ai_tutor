@@ -36,9 +36,14 @@ repos:
       - id: prettier
         types_or: [javascript, vue, scss]
         # Ignore any files that might contain jinja / bundles
+        # client/ is the Svelte app, kept in its own style and checked by svelte-check in CI;
+        # public/learn and www/learn* are its build output.
         exclude: |
             (?x)^(
                 cbc_ai_tutor/public/dist/.*|
+                cbc_ai_tutor/public/learn/.*|
+                cbc_ai_tutor/www/learn.*|
+                client/.*|
                 .*node_modules.*|
                 .*boilerplate.*|
                 cbc_ai_tutor/templates/includes/.*|
@@ -56,6 +61,9 @@ repos:
         exclude: |
             (?x)^(
                 cbc_ai_tutor/public/dist/.*|
+                cbc_ai_tutor/public/learn/.*|
+                cbc_ai_tutor/www/learn.*|
+                client/.*|
                 cypress/.*|
                 .*node_modules.*|
                 .*boilerplate.*|

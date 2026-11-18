@@ -181,7 +181,9 @@ def seed():
 def ensure_roles():
 	for role in ROLES:
 		if not frappe.db.exists("Role", role):
-			frappe.get_doc({"doctype": "Role", "role_name": role, "desk_access": 0}).insert(ignore_permissions=True)
+			frappe.get_doc({"doctype": "Role", "role_name": role, "desk_access": 0}).insert(
+				ignore_permissions=True
+			)
 
 
 def ensure_settings():

@@ -60,7 +60,9 @@ def _token() -> str:
 		raise PayPalError(_("PayPal could not be reached. Try again."))
 	if not response.ok:
 		frappe.log_error(title=f"PayPal token {response.status_code}", message=response.text[:2000])
-		raise PayPalError(_("PayPal rejected the app's credentials. An administrator needs to check CBC Settings."))
+		raise PayPalError(
+			_("PayPal rejected the app's credentials. An administrator needs to check CBC Settings.")
+		)
 	data = response.json()
 	token = data["access_token"]
 	frappe.cache.set_value(cache_key, token, expires_in_sec=max(60, cint(data.get("expires_in")) - 300))
@@ -122,7 +124,9 @@ def get_order(order_id: str) -> dict:
 
 
 def capture(order_id: str) -> dict:
-	response = _request("POST", f"/v2/checkout/orders/{order_id}/capture", headers={"PayPal-Request-Id": f"cap-{order_id}"})
+	response = _request(
+		"POST", f"/v2/checkout/orders/{order_id}/capture", headers={"PayPal-Request-Id": f"cap-{order_id}"}
+	)
 	if response.status_code == 422:
 		data = response.json()
 		issue = ((data.get("details") or [{}])[0]).get("issue")

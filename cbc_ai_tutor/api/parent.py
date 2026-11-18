@@ -26,7 +26,11 @@ def dashboard() -> dict:
 		children.append(card)
 	unread = frappe.db.count(
 		"Parental Feedback",
-		{"parent": guardian, "response": ["is", "set"], "modified": [">=", getdate(nowdate()).replace(day=1)]},
+		{
+			"parent": guardian,
+			"response": ["is", "set"],
+			"modified": [">=", getdate(nowdate()).replace(day=1)],
+		},
 	)
 	return {
 		"guardian": guardian,
@@ -110,7 +114,9 @@ def add_child(
 	limit = _capacity(guardian)
 	if _active_children(guardian) >= limit:
 		frappe.throw(
-			_("Your plan covers {0} learners. Upgrade it, or switch off a learner you no longer need.").format(limit),
+			_(
+				"Your plan covers {0} learners. Upgrade it, or switch off a learner you no longer need."
+			).format(limit),
 			common.SubscriptionRequired,
 		)
 
@@ -246,7 +252,10 @@ def child_progress(student: str) -> dict:
 
 @frappe.whitelist(methods=["POST"])
 def set_child_limits(
-	student: str, ai_daily_limit: int | None = None, quiet_from: str | None = None, quiet_to: str | None = None
+	student: str,
+	ai_daily_limit: int | None = None,
+	quiet_from: str | None = None,
+	quiet_to: str | None = None,
 ) -> dict:
 	"""The parent's own limits for one child: Mwalimu questions a day, and quiet hours."""
 	common.assert_parent_of(student)
@@ -317,7 +326,9 @@ def child_conversations(student: str, limit: int = 20) -> list[dict]:
 
 
 @frappe.whitelist(methods=["POST"])
-def send_feedback(student: str, message: str, linked_document_type: str | None = None, linked_document: str | None = None) -> dict:
+def send_feedback(
+	student: str, message: str, linked_document_type: str | None = None, linked_document: str | None = None
+) -> dict:
 	guardian = common.assert_parent_of(student)
 	message = (message or "").strip()
 	if len(message) < 3:
@@ -361,12 +372,27 @@ def feedback(student: str | None = None, limit: int = 50) -> list[dict]:
 	rows = frappe.get_all(
 		"Parental Feedback",
 		filters=filters,
-		fields=["name", "student", "date", "feedback", "response", "teacher", "linked_document_type", "linked_document", "modified"],
+		fields=[
+			"name",
+			"student",
+			"date",
+			"feedback",
+			"response",
+			"teacher",
+			"linked_document_type",
+			"linked_document",
+			"modified",
+		],
 		order_by="creation desc",
 		limit_page_length=common.paginate(limit),
 	)
 	names = dict(
-		frappe.get_all("Student", filters={"name": ["in", [r.student for r in rows] or [""]]}, fields=["name", "student_name"], as_list=True)
+		frappe.get_all(
+			"Student",
+			filters={"name": ["in", [r.student for r in rows] or [""]]},
+			fields=["name", "student_name"],
+			as_list=True,
+		)
 	)
 	for row in rows:
 		row["student_name"] = names.get(row.student)

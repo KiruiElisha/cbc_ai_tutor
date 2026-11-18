@@ -90,7 +90,9 @@ def _open_app(result: dict, message: str, device: dict | None = None):
 
 @frappe.whitelist(allow_guest=True)
 def options() -> dict:
-	return {"google": 1 if cint(common.setting("google_enabled")) and common.setting("google_client_id") else 0}
+	return {
+		"google": 1 if cint(common.setting("google_enabled")) and common.setting("google_client_id") else 0
+	}
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
@@ -169,7 +171,12 @@ def confirm_email_code(
 		if len(full_name) < 2 or not phone:
 			return {"needs_profile": True}
 		result = auth.provision_parent(
-			full_name, email, common.normalize_phone(phone), secrets.token_urlsafe(24), device, ignore_policy=True
+			full_name,
+			email,
+			common.normalize_phone(phone),
+			secrets.token_urlsafe(24),
+			device,
+			ignore_policy=True,
 		)
 	_cache().delete_value(key)
 	frappe.db.commit()
@@ -186,7 +193,11 @@ def _google_redirect() -> str:
 
 
 def _google_ready():
-	if not (cint(common.setting("google_enabled")) and common.setting("google_client_id") and common.secret("google_client_secret")):
+	if not (
+		cint(common.setting("google_enabled"))
+		and common.setting("google_client_id")
+		and common.secret("google_client_secret")
+	):
 		frappe.throw(_("Google sign-in is not available right now."))
 
 
@@ -260,7 +271,9 @@ def google_callback(code: str | None = None, state: str | None = None, error: st
 	except Exception:
 		frappe.db.rollback()
 		frappe.log_error(title="Google sign-in failed", message=frappe.get_traceback())
-		return _page(_("Could not sign in with Google"), _("Something went wrong. Go back to the app and try again."))
+		return _page(
+			_("Could not sign in with Google"), _("Something went wrong. Go back to the app and try again.")
+		)
 	if result.get("needs_phone"):
 		ticket = secrets.token_urlsafe(24)
 		_cache().set_value(
@@ -274,7 +287,9 @@ def google_callback(code: str | None = None, state: str | None = None, error: st
 <label>{escape_html(_("Your name"))}<input name="full_name" value="{escape_html(name)}" required></label>
 <label>{escape_html(_("M-Pesa phone number"))}<input name="phone" inputmode="tel" placeholder="0712 345 678" required></label>
 <button type="submit">{escape_html(_("Continue"))}</button></form>"""
-		return _page(_("One more step"), _("Add the number you will pay with, then the app opens."), form=form)
+		return _page(
+			_("One more step"), _("Add the number you will pay with, then the app opens."), form=form
+		)
 	frappe.db.commit()
 	return _open_app(result, _("You can go back to CBC Tutor."), pending["device"])
 
@@ -311,7 +326,9 @@ def google_finish(ticket: str, full_name: str, phone: str):
 	except Exception as e:
 		frappe.db.rollback()
 		return _page(_("Check the details"), escape_html(str(e)))
-	return _open_app(result, _("Your free trial has started. Open the app to add a child."), pending["device"])
+	return _open_app(
+		result, _("Your free trial has started. Open the app to add a child."), pending["device"]
+	)
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])

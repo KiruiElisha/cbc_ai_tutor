@@ -71,7 +71,9 @@ def paypal_webhook():
 		return _ok()
 	try:
 		frappe.set_user("Administrator")
-		name = frappe.db.get_value("Payment Transaction", {"gateway": "PayPal", "gateway_reference": order_id}, "name")
+		name = frappe.db.get_value(
+			"Payment Transaction", {"gateway": "PayPal", "gateway_reference": order_id}, "name"
+		)
 		if name:
 			billing.reconcile(name)
 			if kind in ("PAYMENT.CAPTURE.DENIED", "PAYMENT.CAPTURE.DECLINED"):
@@ -110,7 +112,9 @@ def paypal_return(tx: str | None = None, token: str | None = None, **kwargs):
 	status = None
 	try:
 		frappe.set_user("Administrator")
-		name = frappe.db.get_value("Payment Transaction", {"name": tx, "gateway": "PayPal", "gateway_reference": token}, "name")
+		name = frappe.db.get_value(
+			"Payment Transaction", {"name": tx, "gateway": "PayPal", "gateway_reference": token}, "name"
+		)
 		if name:
 			status = billing.reconcile(name)
 			frappe.db.commit()
@@ -121,21 +125,47 @@ def paypal_return(tx: str | None = None, token: str | None = None, **kwargs):
 		frappe.set_user("Guest")
 
 	if status == "Completed":
-		_page(_("Payment received"), _("Thank you. Your family's access is open. You can go back to the app."), tx, True)
+		_page(
+			_("Payment received"),
+			_("Thank you. Your family's access is open. You can go back to the app."),
+			tx,
+			True,
+		)
 	elif status == "Failed":
-		_page(_("Payment not completed"), _("PayPal did not complete the payment. Go back to the app to try again."), tx, False)
+		_page(
+			_("Payment not completed"),
+			_("PayPal did not complete the payment. Go back to the app to try again."),
+			tx,
+			False,
+		)
 	else:
-		_page(_("Payment is processing"), _("PayPal is still confirming the payment. The app will update in a moment."), tx, True)
+		_page(
+			_("Payment is processing"),
+			_("PayPal is still confirming the payment. The app will update in a moment."),
+			tx,
+			True,
+		)
 
 
 @frappe.whitelist(allow_guest=True, methods=["GET"])
 def paypal_cancel(tx: str | None = None, token: str | None = None, **kwargs):
 	try:
 		frappe.set_user("Administrator")
-		name = frappe.db.get_value("Payment Transaction", {"name": tx, "gateway": "PayPal", "gateway_reference": token}, "name")
+		name = frappe.db.get_value(
+			"Payment Transaction", {"name": tx, "gateway": "PayPal", "gateway_reference": token}, "name"
+		)
 		if name and frappe.db.get_value("Payment Transaction", name, "status") == "Pending":
-			frappe.db.set_value("Payment Transaction", name, {"status": "Cancelled", "failure_reason": _("Cancelled on PayPal.")})
+			frappe.db.set_value(
+				"Payment Transaction",
+				name,
+				{"status": "Cancelled", "failure_reason": _("Cancelled on PayPal.")},
+			)
 			frappe.db.commit()
 	finally:
 		frappe.set_user("Guest")
-	_page(_("Payment cancelled"), _("No money was taken. Go back to the app to choose another way to pay."), tx, False)
+	_page(
+		_("Payment cancelled"),
+		_("No money was taken. Go back to the app to choose another way to pay."),
+		tx,
+		False,
+	)
