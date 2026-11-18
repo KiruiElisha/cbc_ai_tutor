@@ -17,6 +17,7 @@
   "session_days",
   "learner_email_domain",
   "kes_per_usd",
+  "parent_weekly_report",
   "ai_section",
   "ai_enabled",
   "ai_provider",
@@ -150,6 +151,13 @@
    "fieldtype": "Float",
    "label": "KES per US Dollar",
    "description": "Shown next to plan prices as an approximate US dollar amount, so parents abroad see what they pay. Payment is still in KES; the bank's rate on the day applies."
+  },
+  {
+   "default": "1",
+   "fieldname": "parent_weekly_report",
+   "fieldtype": "Check",
+   "label": "Email parents a weekly report",
+   "description": "Every Sunday: what each child did, where they are doing best, and what to practise together."
   },
   {
    "fieldname": "ai_section",

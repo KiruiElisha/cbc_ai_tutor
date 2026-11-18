@@ -388,6 +388,10 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
   font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .mode.on { background: var(--ke-black); color: white; border-color: var(--ke-black); }
+.photo-chip { display: flex; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px; margin-bottom: 8px; }
+.photo-chip img { width: 54px; height: 54px; object-fit: cover; border-radius: 10px; }
+.sent-photo { display: block; max-width: 220px; max-height: 220px; border-radius: 10px; margin: 2px 0 6px; }
+.round.cam { background: var(--bg); width: 38px; height: 38px; margin-left: -8px; }
 .composer {
   display: flex; align-items: flex-end; gap: 6px; background: var(--card); border: 1.5px solid #cbd5e1; border-radius: 22px; padding: 6px 6px 6px 14px;
   box-shadow: 0 6px 22px rgb(15 23 42 / 0.07);
@@ -420,6 +424,16 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
   .mwalimu-face { width: 48px; height: 48px; font-size: 1.6rem; }
   .chips { padding-left: 0; }
 }
+
+.today { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 6px 6px 8px; margin-bottom: 16px; }
+.today-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 10px 4px; }
+.today-head h2 { margin: 0; font-size: 1.1rem; }
+.today-row { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 14px; text-decoration: none; color: var(--ink); }
+.today-row:hover { background: var(--bg); }
+.today-row small { display: block; color: var(--muted); font-size: 0.78rem; }
+.today-row b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.today-ico { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--brand-soft); font-size: 1.2rem; flex-shrink: 0; }
+.today-ico.play { background: var(--sun); color: #1f1300; border-radius: 50%; font-size: 0.95rem; }
 
 /* "Stuck? Ask Mwalimu" (components/AskMwalimu.svelte) */
 .ask-fab {

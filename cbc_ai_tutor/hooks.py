@@ -36,6 +36,9 @@ scheduler_events = {
 		"cbc_ai_tutor.tasks.purge_sync_receipts",
 		"cbc_ai_tutor.ai.content.daily",
 	],
+	"weekly": [
+		"cbc_ai_tutor.tasks.send_weekly_reports",
+	],
 }
 
 fixtures = [

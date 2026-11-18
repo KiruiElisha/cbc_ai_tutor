@@ -398,3 +398,54 @@ class TestStreaming(unittest.TestCase):
 		second.on_text("from Anthropic")
 		first.on_text("from OpenAI, more")
 		self.assertEqual(seen, ["from OpenAI", "from OpenAI, more"])
+
+
+PHOTO = [{"mime": "image/jpeg", "data": "QUJD"}]
+
+
+class TestPhotos(unittest.TestCase):
+	"""A photo of schoolwork goes with the learner's last message, in each provider's own shape."""
+
+	def _sent(self, provider):
+		conf = _conf(provider, images=PHOTO)
+		body = {
+			"choices": [{"message": {"content": "ok"}}],
+			"content": [{"type": "text", "text": "ok"}],
+			"candidates": [{"content": {"parts": [{"text": "ok"}]}}],
+			"usage": {},
+		}
+		response = SimpleNamespace(ok=True, status_code=200, text="", json=lambda: body)
+		with patch.object(providers.requests, "post", return_value=response) as post:
+			providers._ask(conf, "sys", TURNS, False)
+		return post.call_args.kwargs["json"]
+
+	def test_openai_gets_a_data_url_before_the_question(self):
+		content = self._sent("OpenAI")["messages"][-1]["content"]
+		self.assertEqual(content[0]["image_url"]["url"], "data:image/jpeg;base64,QUJD")
+		self.assertEqual(content[1], {"type": "text", "text": "What is a fraction?"})
+
+	def test_anthropic_and_gemini_get_their_own_image_parts(self):
+		claude = self._sent("Anthropic")["messages"][-1]["content"][0]
+		self.assertEqual(claude["source"], {"type": "base64", "media_type": "image/jpeg", "data": "QUJD"})
+		gemini = self._sent("Google Gemini")["contents"][-1]["parts"]
+		self.assertEqual(gemini[0], {"inline_data": {"mime_type": "image/jpeg", "data": "QUJD"}})
+
+	def test_cursor_is_left_out_of_a_photo_question(self):
+		asked = []
+
+		def ask(conf, *args):
+			asked.append(conf.provider)
+			return {"text": "ok", "provider": conf.provider, "model": conf.model}
+
+		a, b, c, d = _settings(ai_routing="In order")
+		with (
+			a,
+			b,
+			c,
+			d,
+			patch.object(providers, "_config", return_value=_conf("Cursor")),
+			patch.object(providers, "_fallback", return_value=_conf("Google Gemini")),
+			patch.object(providers, "_ask", side_effect=ask),
+		):
+			providers.complete("sys", TURNS, images=PHOTO)
+		self.assertEqual(asked, ["Google Gemini"])

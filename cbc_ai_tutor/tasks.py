@@ -2,7 +2,16 @@
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, add_to_date, format_datetime, getdate, now_datetime, nowdate
+from frappe.utils import (
+	add_days,
+	add_to_date,
+	cint,
+	escape_html,
+	format_datetime,
+	getdate,
+	now_datetime,
+	nowdate,
+)
 
 from cbc_ai_tutor.api import billing, common
 
@@ -81,7 +90,9 @@ def send_renewal_reminders():
 					"Paying early adds the new days on top, so you lose nothing.</p>"
 				).format(app, format_datetime(ends)),
 			)
-		frappe.db.set_value("Parent Subscription", row.name, "reminder_sent_on", nowdate(), update_modified=False)
+		frappe.db.set_value(
+			"Parent Subscription", row.name, "reminder_sent_on", nowdate(), update_modified=False
+		)
 	frappe.db.commit()
 
 
@@ -95,3 +106,57 @@ def purge_sync_receipts():
 	"""Receipts only need to outlive a device's offline queue."""
 	frappe.db.delete("CBC Sync Receipt", {"creation": ["<", add_days(getdate(), -SYNC_RECEIPT_DAYS)]})
 	frappe.db.commit()
+
+
+def send_weekly_reports():
+	"""Sunday's email to each parent: one short report card per child, from the same
+	highlights the app shows, so the two always agree."""
+	if not cint(common.setting("parent_weekly_report", 1)):
+		return
+	app = common.setting("app_name") or "CBC AI Tutor"
+	rows = frappe.get_all(
+		"Parent Subscription",
+		filters={"status": ["in", ["Active", "Trial"]]},
+		fields=["guardian", "user"],
+	)
+	for row in rows:
+		email = frappe.db.get_value("User", row.user, "email") if row.user else None
+		children = common.children_of(row.guardian) if row.guardian else []
+		if not email or not children:
+			continue
+		try:
+			parts = [weekly_report_html(student) for student in children]
+			common.notify(
+				[email],
+				_("{0}: this week's learning").format(app),
+				"".join(parts)
+				+ _("<p style='color:#64748b'>Open the app to see each child's full progress.</p>"),
+			)
+		except Exception:
+			frappe.log_error(title=f"Weekly report for {row.guardian}")
+	frappe.db.commit()
+
+
+def weekly_report_html(student: str) -> str:
+	from cbc_ai_tutor.api import progress
+
+	report = progress.report(student)
+	h = report["highlights"]
+	week = report["summary"]
+	quiz = week.get("quiz_average_this_week")
+	lines = [
+		f"<h3 style='margin:18px 0 4px;color:#065a2b'>{escape_html(report['learner']['name'])}</h3>",
+		f"<p style='margin:0 0 8px'>{escape_html(h['headline'])}</p>",
+		"<ul style='margin:0 0 8px;padding-left:18px'>",
+		f"<li>{cint(week.get('lessons_completed_this_week'))} lessons and {cint(week.get('quizzes_this_week'))} quizzes this week"
+		+ (f", quiz average {round(quiz)}%" if quiz is not None else "")
+		+ "</li>",
+		f"<li>{cint(report.get('ai_questions_this_week'))} questions to Mwalimu</li>",
+		"</ul>",
+	]
+	if h["practise"]:
+		lines.append("<p style='margin:0'><b>To practise together:</b> ")
+		lines.append(
+			", ".join(f"{escape_html(p['title'])} ({escape_html(p['why'])})" for p in h["practise"]) + "</p>"
+		)
+	return "".join(lines)
