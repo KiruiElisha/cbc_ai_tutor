@@ -223,15 +223,19 @@ def pay_paypal(plan: str) -> dict:
 	return {"transaction": tx.name, "status": "Pending", "approve_url": link}
 
 
-@frappe.whitelist()
-def transaction(name: str) -> dict:
-	"""Where a payment stands. Asks the gateway when the answer may have changed."""
+@frappe.whitelist(methods=["GET", "POST"])
+def transaction(name: str, now: int | str = 0) -> dict:
+	"""Where a payment stands. Asks the gateway when the answer may have changed, or at once with
+	`now` (the parent's "I've paid, check now"). The app asks with POST: a GET answer can be kept
+	by a browser or a proxy in front of the site, and the screen would wait on it for ever."""
 	guardian = common.current_parent()
 	tx = frappe.get_doc(TX, name)
 	if tx.guardian != guardian:
 		raise frappe.PermissionError(_("That payment is not yours."))
 	if tx.status == "Pending" and (
-		not tx.last_checked_on or time_diff_in_seconds(now_datetime(), tx.last_checked_on) >= RECHECK_SECONDS
+		cint(now)
+		or not tx.last_checked_on
+		or time_diff_in_seconds(now_datetime(), tx.last_checked_on) >= RECHECK_SECONDS
 	):
 		reconcile(tx.name)
 		frappe.db.commit()
