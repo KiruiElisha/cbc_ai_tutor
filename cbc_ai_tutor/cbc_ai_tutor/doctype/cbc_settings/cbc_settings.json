@@ -36,6 +36,10 @@
   "ai_fallback_model",
   "ai_fallback_base_url",
   "ai_fallback_api_key",
+  "ai_routing_section",
+  "ai_routing",
+  "ai_hedge_seconds",
+  "ai_providers",
   "google_section",
   "google_enabled",
   "google_client_id",
@@ -407,10 +411,37 @@
    "fieldtype": "Password",
    "label": "Backup API Key",
    "depends_on": "ai_fallback_provider"
+  },
+  {
+   "fieldname": "ai_routing_section",
+   "fieldtype": "Section Break",
+   "label": "More AI providers and routing",
+   "description": "List more providers to make Mwalimu faster and harder to knock over. Response times are measured as learners use it, and a provider that fails rests for a while."
+  },
+  {
+   "default": "Smart",
+   "fieldname": "ai_routing",
+   "fieldtype": "Select",
+   "label": "Routing",
+   "options": "Smart\nRace\nIn order",
+   "description": "Smart: the fastest provider first, and the next one as well if it is slow. Race: the two fastest at once, first reply wins (fastest, about twice the cost). In order: main, then backup, then the list."
+  },
+  {
+   "default": "6",
+   "depends_on": "eval:doc.ai_routing=='Smart'",
+   "fieldname": "ai_hedge_seconds",
+   "fieldtype": "Int",
+   "label": "Ask the next provider after (seconds)"
+  },
+  {
+   "fieldname": "ai_providers",
+   "fieldtype": "Table",
+   "label": "More AI Providers",
+   "options": "CBC AI Provider"
   }
  ],
  "links": [],
- "modified": "2026-11-13 12:00:00.000000",
+ "modified": "2026-11-18 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "CBC Settings",

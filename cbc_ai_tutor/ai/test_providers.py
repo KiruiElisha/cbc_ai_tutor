@@ -62,9 +62,36 @@ def _finished(text="A fraction is a part of a whole."):
 	)
 
 
+def _settings(**values):
+	"""CBC Settings as the router reads them, with a cache of its own for response times."""
+	stats: dict = {}
+	return (
+		patch.object(
+			providers.common, "setting", side_effect=lambda field, default=None: values.get(field, default)
+		),
+		patch.object(providers, "_more_providers", return_value=[]),
+		patch.object(providers, "_stats", side_effect=lambda conf: stats.setdefault(providers._id(conf), {})),
+		patch.object(
+			providers, "_save_stats", side_effect=lambda conf, s: stats.__setitem__(providers._id(conf), s)
+		),
+	)
+
+
 class TestBackupProvider(unittest.TestCase):
+	def _complete(self, main, backup, ask, routing="In order"):
+		a, b, c, d = _settings(ai_routing=routing)
+		with (
+			a,
+			b,
+			c,
+			d,
+			patch.object(providers, "_config", return_value=main),
+			patch.object(providers, "_fallback", return_value=backup) as fallback,
+			patch.object(providers, "_ask", side_effect=ask),
+		):
+			return providers.complete("sys", TURNS), fallback
+
 	def test_the_backup_answers_when_the_main_provider_is_down(self):
-		backup = _conf("Google Gemini")
 		calls = []
 
 		def ask(conf, *args):
@@ -73,33 +100,131 @@ class TestBackupProvider(unittest.TestCase):
 				raise providers.AIUnavailable("down")
 			return {"text": "hi", "provider": conf.provider, "model": conf.model}
 
-		with (
-			patch.object(providers, "_config", return_value=_conf("Cursor")),
-			patch.object(providers, "_fallback", return_value=backup),
-			patch.object(providers, "_ask", side_effect=ask),
-		):
-			reply = providers.complete("sys", TURNS)
+		reply, _ = self._complete(_conf("Cursor"), _conf("Google Gemini"), ask)
 		self.assertEqual(calls, ["Cursor", "Google Gemini"])
 		self.assertEqual(reply["provider"], "Google Gemini")
 
 	def test_a_safety_refusal_is_not_sent_to_the_backup(self):
-		with (
-			patch.object(providers, "_config", return_value=_conf()),
-			patch.object(providers, "_fallback", return_value=_conf("Anthropic")) as fallback,
-			patch.object(providers, "_ask", side_effect=providers.AIRefused("no")),
-		):
-			with self.assertRaises(providers.AIRefused):
-				providers.complete("sys", TURNS)
-		fallback.assert_not_called()
+		calls = []
+
+		def ask(conf, *args):
+			calls.append(conf.provider)
+			raise providers.AIRefused("no")
+
+		with self.assertRaises(providers.AIRefused):
+			self._complete(_conf(), _conf("Anthropic"), ask)
+		self.assertEqual(calls, ["OpenAI"])
 
 	def test_without_a_backup_the_main_providers_error_stands(self):
+		with self.assertRaises(providers.AIUnavailable):
+			self._complete(_conf(), None, providers.AIUnavailable("down"))
+
+
+class TestRouting(unittest.TestCase):
+	"""Several providers: the quickest answers, a slow one is overtaken, a failing one rests."""
+
+	def _complete(self, pool, ask, **settings):
+		a, b, c, d = _settings(**settings)
 		with (
-			patch.object(providers, "_config", return_value=_conf()),
-			patch.object(providers, "_fallback", return_value=None),
-			patch.object(providers, "_ask", side_effect=providers.AIUnavailable("down")),
+			a,
+			b,
+			c,
+			d,
+			patch.object(providers, "_config", return_value=pool[0]),
+			patch.object(providers, "_fallback", return_value=pool[1] if len(pool) > 1 else None),
+			patch.object(providers, "_ask", side_effect=ask),
 		):
-			with self.assertRaises(providers.AIUnavailable):
+			return providers.complete("sys", TURNS), providers._order(
+				pool, settings.get("ai_routing", "Smart")
+			)
+
+	def test_cursor_goes_behind_a_chat_api_until_it_proves_quicker(self):
+		with patch.object(providers, "_stats", return_value={}):
+			self.assertEqual(
+				[c.provider for c in providers._order([_conf("Cursor"), _conf("Anthropic")], "Smart")],
+				["Anthropic", "Cursor"],
+			)
+
+	def test_the_provider_that_has_answered_fastest_goes_first(self):
+		stats = {
+			providers._id(_conf("OpenAI")): {"avg": 4.0, "n": 5},
+			providers._id(_conf("Google Gemini")): {"avg": 1.5, "n": 5},
+		}
+		with patch.object(providers, "_stats", side_effect=lambda conf: stats[providers._id(conf)]):
+			order = providers._order([_conf("OpenAI"), _conf("Google Gemini")], "Smart")
+		self.assertEqual([c.provider for c in order], ["Google Gemini", "OpenAI"])
+
+	def test_a_slow_provider_is_overtaken_by_the_next_one(self):
+		import time
+
+		def ask(conf, *args):
+			if conf.provider == "Anthropic":
+				time.sleep(2)
+			return {"text": conf.provider, "provider": conf.provider, "model": conf.model}
+
+		started = time.monotonic()
+		reply, _ = self._complete([_conf("Anthropic"), _conf("Google Gemini")], ask, ai_hedge_seconds=1)
+		self.assertEqual(reply["provider"], "Google Gemini")
+		self.assertLess(time.monotonic() - started, 1.9)
+
+	def test_racing_asks_both_at_once_and_takes_the_first_reply(self):
+		import time
+
+		asked = []
+
+		def ask(conf, *args):
+			asked.append(conf.provider)
+			time.sleep(0.3 if conf.provider == "Anthropic" else 0)
+			return {"text": conf.provider, "provider": conf.provider, "model": conf.model}
+
+		reply, _ = self._complete([_conf("Anthropic"), _conf("Google Gemini")], ask, ai_routing="Race")
+		self.assertEqual(reply["provider"], "Google Gemini")
+		time.sleep(0.4)
+		self.assertEqual(sorted(asked), ["Anthropic", "Google Gemini"])
+
+	def test_a_failing_provider_rests_and_the_next_answers_meanwhile(self):
+		calls = []
+
+		def ask(conf, *args):
+			calls.append(conf.provider)
+			if conf.provider == "Anthropic":
+				raise providers.AIUnavailable("The tutor can't be reached right now.")
+			return {"text": "ok", "provider": conf.provider, "model": conf.model}
+
+		pool = [_conf("Anthropic"), _conf("Google Gemini")]
+		a, b, c, d = _settings(ai_routing="In order")
+		with a, b, c, d, patch.object(providers, "_ask", side_effect=ask):
+			with (
+				patch.object(providers, "_config", return_value=pool[0]),
+				patch.object(providers, "_fallback", return_value=pool[1]),
+			):
 				providers.complete("sys", TURNS)
+				calls.clear()
+				reply = providers.complete("sys", TURNS)
+		# Resting, Anthropic is passed over: the learner does not wait on it a second time.
+		self.assertEqual(calls, ["Google Gemini"])
+		self.assertEqual(reply["provider"], "Google Gemini")
+
+	def test_a_provider_kept_for_lessons_does_not_answer_chat(self):
+		lessons_only = _conf("Anthropic", use_for="Lessons and questions only")
+		a, _b, c, d = _settings()
+		with (
+			a,
+			c,
+			d,
+			patch.object(providers, "_config", return_value=_conf("OpenAI", use_for="Everything")),
+			patch.object(providers, "_fallback", return_value=None),
+			patch.object(providers, "_more_providers", return_value=[lessons_only]),
+		):
+			self.assertEqual([p.provider for p in providers._pool("chat")], ["OpenAI"])
+			self.assertEqual([p.provider for p in providers._pool("content")], ["OpenAI", "Anthropic"])
+
+	def test_a_provider_at_its_daily_limit_waits_until_tomorrow(self):
+		capped = _conf("Anthropic", daily_limit=2)
+		full = {"day": providers._today(), "used": 2, "avg": 0.5, "n": 3}
+		with patch.object(providers, "_stats", side_effect=lambda conf: full if conf is capped else {}):
+			order = providers._order([capped, _conf("OpenAI")], "Smart")
+		self.assertEqual([c.provider for c in order], ["OpenAI", "Anthropic"])
 
 
 class TestCursor(unittest.TestCase):

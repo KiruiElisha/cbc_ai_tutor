@@ -9,14 +9,22 @@ frappe.ui.form.on("CBC Settings", {
 					freeze_message: __("Asking the tutor…"),
 				})
 				.then(({ message }) => {
+					// Every provider is asked at once; the list shows who answered and how fast.
+					const esc = frappe.utils.escape_html;
+					const rows = (message.providers || [])
+						.map(
+							(p) =>
+								`<tr><td>${esc(p.provider)} · ${esc(p.model)}</td><td>${
+									p.error
+										? `<span class="text-danger">${esc(p.error)}</span>`
+										: `${p.seconds}s`
+								}</td></tr>`
+						)
+						.join("");
 					frappe.msgprint({
 						title: __("The AI tutor answered"),
 						indicator: "green",
-						message: `<p>${frappe.utils.escape_html(
-							message.text
-						)}</p><p class="text-muted">${frappe.utils.escape_html(
-							message.provider
-						)} · ${frappe.utils.escape_html(message.model)}</p>`,
+						message: `<p>${esc(message.text)}</p><table class="table table-sm">${rows}</table>`,
 					});
 				});
 		});
