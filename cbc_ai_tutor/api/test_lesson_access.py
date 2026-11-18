@@ -114,7 +114,7 @@ class TestFreeLessonWriting(unittest.TestCase):
 
 		frappe.db.set_single_value("CBC Settings", "free_lessons_per_area", 1)
 		mine = [m for m in content.free_lessons_missing() if frappe.db.get_value("Sub-strand", m[0], "strand") in {s.name for s in self.strands}]
-		self.assertEqual(mine, [(self.subs["Numbers"].name, None)])     # Numbers comes before Measurement
+		self.assertEqual([m[:2] for m in mine], [(self.subs["Numbers"].name, None)])     # Numbers comes before Measurement
 		answer = {"text": json.dumps(REPLY), "provider": "test", "model": "", "input_tokens": 0, "output_tokens": 0}
 		with (
 			patch("cbc_ai_tutor.ai.content.free_lessons_missing", return_value=mine),
@@ -131,7 +131,7 @@ class TestFreeLessonWriting(unittest.TestCase):
 
 		draft = self.lesson("Numbers", "Counting", published=0)
 		mine = [m for m in content.free_lessons_missing() if m[1] == draft]
-		self.assertEqual(mine, [(self.subs["Numbers"].name, draft)])
+		self.assertEqual([m[:2] for m in mine], [(self.subs["Numbers"].name, draft)])
 		with patch("cbc_ai_tutor.ai.providers.complete") as call, patch.object(frappe.db, "commit"), \
 				patch("cbc_ai_tutor.ai.content.free_lessons_missing", return_value=mine):
 			content.write_free()

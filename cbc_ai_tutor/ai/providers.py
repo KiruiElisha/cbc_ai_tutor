@@ -266,13 +266,19 @@ def complete(
 	(all but Cursor). When two providers are asked at once, only the first to write is shown."""
 	task = "content" if json_mode else "chat"
 	pool = _pool(task)
+	if json_mode:
+		# A lesson and its quiz take minutes to write; a learner's chat answer should not.
+		wait = cint(common.setting("ai_content_timeout_seconds", 300)) or 300
+		pool = [frappe._dict(conf, timeout=max(cint(conf.timeout), wait)) for conf in pool]
 	if max_tokens:
 		pool = [frappe._dict(conf, max_tokens=max_tokens) for conf in pool]
 	if images:
 		# A photo of the learner's work goes with their last message; Cursor can't read images.
 		pool = [frappe._dict(conf, images=images) for conf in pool if conf.provider != "Cursor"]
 		if not pool:
-			raise AIUnavailable(_("Photo questions need an AI provider that reads images. Type the question instead."))
+			raise AIUnavailable(
+				_("Photo questions need an AI provider that reads images. Type the question instead.")
+			)
 	if on_text and not json_mode:
 		pool = _sharing_one_writer(pool, on_text)
 	routing = common.setting("ai_routing", SMART) or SMART
@@ -531,7 +537,10 @@ def _openai(conf, system, messages, json_mode):
 	turns = _with_images(
 		list(messages),
 		conf.get("images"),
-		lambda image: {"type": "image_url", "image_url": {"url": f"data:{image['mime']};base64,{image['data']}"}},
+		lambda image: {
+			"type": "image_url",
+			"image_url": {"url": f"data:{image['mime']};base64,{image['data']}"},
+		},
 	)
 	body = {
 		"model": conf.model,
@@ -585,7 +594,10 @@ def _anthropic(conf, system, messages, json_mode):
 	turns = _with_images(
 		_alternating(messages),
 		conf.get("images"),
-		lambda image: {"type": "image", "source": {"type": "base64", "media_type": image["mime"], "data": image["data"]}},
+		lambda image: {
+			"type": "image",
+			"source": {"type": "base64", "media_type": image["mime"], "data": image["data"]},
+		},
 	)
 	if json_mode:
 		system += "\n\nReply with a single JSON object and nothing else."

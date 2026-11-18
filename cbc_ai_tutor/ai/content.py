@@ -232,13 +232,24 @@ def write_grade(grade: str) -> dict:
 
 
 def daily() -> None:
-	"""Scheduled: first the free lessons every learning area needs, then a few more a day."""
+	"""Scheduled: first the free lessons every learning area needs, then a few more a day.
+
+	Both run on the long queue: a lesson takes a minute or more to write, longer than a
+	scheduled job may run, and one job id each means a run still going is not started twice."""
 	if not cint(common.setting("ai_enabled", 1)):
 		return
-	write_free()
+	enqueue_free_lessons()
 	per_day = cint(common.setting("ai_lessons_per_day", 0))
-	if per_day:
-		write_many(without_lessons(per_day))
+	names = without_lessons(per_day) if per_day else []
+	if names:
+		frappe.enqueue(
+			"cbc_ai_tutor.ai.content.write_many",
+			names=names,
+			queue="long",
+			timeout=60 * 60 * 6,
+			job_id="cbc-lessons-daily",
+			deduplicate=True,
+		)
 
 
 # --- the free lessons: something to learn in every learning area, from the first sync ------------
@@ -246,8 +257,8 @@ def daily() -> None:
 FREE_PER_RUN = 40
 
 
-def free_lessons_missing(limit: int = 1000) -> list[tuple[str, str | None]]:
-	"""(sub_strand, draft lesson or None) to publish so that every learning area of every grade has
+def free_lessons_missing(limit: int = 1000) -> list[tuple[str, str | None, str]]:
+	"""(sub_strand, draft lesson or None, grade) to publish so that every learning area of every grade has
 	its `free_lessons_per_area` published lessons: the first topics in curriculum order that have
 	none. A draft already written for a topic is published instead of being written again."""
 	per_area = cint(common.setting("free_lessons_per_area", 2))
@@ -275,29 +286,42 @@ def free_lessons_missing(limit: int = 1000) -> list[tuple[str, str | None]]:
 			wanted[key] = per_area - cint(r.published)
 		if wanted[key] <= 0 or r.has_published:
 			continue
-		out.append((r.sub_strand, r.draft))
+		out.append((r.sub_strand, r.draft, r.grade))
 		wanted[key] -= 1
 		if len(out) >= limit:
 			break
 	return out
 
 
+# Failures in a row before a run gives up: one slow lesson is skipped, a provider that is down
+# or out of quota stops the run until tomorrow.
+FAILURES_IN_A_ROW = 3
+
+
 def write_free(limit: int = FREE_PER_RUN) -> dict:
-	"""Write (or publish) the missing free lessons, each in its own transaction. Stops at the first
-	AI failure: a missing key or an exhausted quota fails every lesson the same way."""
-	made = 0
-	for sub_strand, draft in free_lessons_missing(limit):
+	"""Write (or publish) the missing free lessons, each in its own transaction.
+
+	A topic that gained a lesson since the list was made (another run, a teacher) is skipped,
+	so nothing is written twice. A lesson the AI could not write is skipped too, and the run
+	goes on; it stops after a few failures in a row, or at once when the key is rejected."""
+	made, failed = 0, 0
+	for sub_strand, draft, grade in free_lessons_missing(limit):
+		if not draft and frappe.db.exists("Lesson", {"sub_strand": sub_strand, "program": grade}):
+			continue
 		try:
 			name = draft or write_lesson(sub_strand)
 			frappe.db.set_value("Lesson", name, {"published": 1, "is_free": 1})
 			frappe.db.commit()
-			made += 1
-		except providers.AIUnavailable:
+			made, failed = made + 1, 0
+		except providers.AIUnavailable as e:
 			frappe.db.rollback()
+			failed += 1
 			frappe.log_error(
-				title="CBC free lessons: the AI could not write them", message=frappe.get_traceback()
+				title=f"CBC free lesson for {sub_strand}: the AI could not write it",
+				message=frappe.get_traceback(),
 			)
-			break
+			if failed >= FAILURES_IN_A_ROW or "api key" in str(e).lower():
+				break
 		except Exception:
 			frappe.db.rollback()
 			frappe.log_error(title=f"CBC free lesson for {sub_strand}")

@@ -28,6 +28,7 @@
   "ai_temperature",
   "ai_max_output_tokens",
   "ai_timeout_seconds",
+  "ai_content_timeout_seconds",
   "ai_extra_instructions",
   "ai_reuse_answers",
   "ai_reuse_days",
@@ -222,6 +223,13 @@
    "label": "Request Timeout (seconds)",
    "default": "60",
    "non_negative": 1
+  },
+  {
+   "default": "300",
+   "fieldname": "ai_content_timeout_seconds",
+   "fieldtype": "Int",
+   "label": "Lesson Writing Timeout (seconds)",
+   "description": "How long writing one lesson and its quiz may take. Longer than chat: a Cursor agent can take two minutes or more."
   },
   {
    "fieldname": "ai_extra_instructions",
