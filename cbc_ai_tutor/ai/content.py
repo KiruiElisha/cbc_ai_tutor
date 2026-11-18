@@ -239,6 +239,13 @@ def daily() -> None:
 	if not cint(common.setting("ai_enabled", 1)):
 		return
 	enqueue_free_lessons()
+	frappe.enqueue(
+		"cbc_ai_tutor.api.tutor.prewrite_answers",
+		queue="long",
+		timeout=60 * 60 * 3,
+		job_id="cbc-prewrite-answers",
+		deduplicate=True,
+	)
 	per_day = cint(common.setting("ai_lessons_per_day", 0))
 	names = without_lessons(per_day) if per_day else []
 	if names:

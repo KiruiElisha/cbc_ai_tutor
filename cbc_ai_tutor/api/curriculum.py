@@ -41,7 +41,9 @@ LOCKED_FIELDS = ("body", "activities", "reflection", "key_vocabulary", "video_ur
 @frappe.whitelist(allow_guest=True)
 def grades() -> list[dict]:
 	"""Grades a family can pick, in CBC order (PP1, PP2, Grade 1 … Grade 12)."""
-	rows = frappe.get_all("Program", fields=["name", "program_name", "program_abbreviation"], limit_page_length=0)
+	rows = frappe.get_all(
+		"Program", fields=["name", "program_name", "program_abbreviation"], limit_page_length=0
+	)
 	return sorted(rows, key=lambda r: grade_sort_key(r.name))
 
 
@@ -75,7 +77,7 @@ def display_course_name(course_name: str, grade: str | None) -> str:
 	"""'Grade 4 Mathematics' reads as 'Mathematics' inside the Grade 4 screen."""
 	name = cstr(course_name)
 	if grade and name.lower().startswith(grade.lower()):
-		trimmed = name[len(grade) :].strip(" -–:()")
+		trimmed = name[len(grade) :].strip(" -–:()")  # noqa: RUF001 - names use both dashes
 		return trimmed or name
 	return name
 
@@ -172,7 +174,10 @@ def outcomes(sub_strand_names: list[str], since=None) -> list[dict]:
 	if since:
 		# An outcome is resent with all its indicators when any one of them changed.
 		changed = frappe.get_all(
-			"Performance Indicator", filters={"modified": [">", since]}, pluck="learning_outcome", distinct=True
+			"Performance Indicator",
+			filters={"modified": [">", since]},
+			pluck="learning_outcome",
+			distinct=True,
 		)
 		or_filters = {"modified": [">", since], "name": ["in", changed or [""]]}
 	rows = frappe.get_all(
@@ -330,7 +335,11 @@ def quizzes(quiz_names: list[str], since=None) -> tuple[list[dict], list[dict]]:
 	changed_questions = {q.name for q in questions}
 	quiz_out = []
 	for quiz in quiz_rows:
-		if since and str(quiz.modified) <= str(since) and not changed_questions & set(by_quiz.get(quiz.name, [])):
+		if (
+			since
+			and str(quiz.modified) <= str(since)
+			and not changed_questions & set(by_quiz.get(quiz.name, []))
+		):
 			continue
 		quiz_out.append(
 			{

@@ -32,6 +32,7 @@
   "ai_extra_instructions",
   "ai_reuse_answers",
   "ai_reuse_days",
+  "ai_prewrite_per_day",
   "ai_lessons_per_day",
   "ai_lessons_publish",
   "ai_fallback_section",
@@ -390,6 +391,14 @@
    "default": "90",
    "depends_on": "ai_reuse_answers",
    "description": "Older answers are asked again, so a lesson that changed gets a fresh answer."
+  },
+  {
+   "default": "40",
+   "depends_on": "ai_reuse_answers",
+   "fieldname": "ai_prewrite_per_day",
+   "fieldtype": "Int",
+   "label": "Answers written ahead each day",
+   "description": "Each night Mwalimu answers the starter questions of published lessons (Explain simply, an example from home, quiz me, Kiswahili) with the fast, cheap providers first. Learners then get those answers at once, free of their daily limit. 0 turns this off."
   },
   {
    "fieldname": "ai_lessons_per_day",

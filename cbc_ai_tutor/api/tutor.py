@@ -48,16 +48,46 @@ Safety:
 - If you are not sure of a fact, say so instead of guessing."""
 
 
-def _context(student: str, lesson: str | None, sub_strand: str | None, learning_outcome: str | None) -> frappe._dict:
+def _context(
+	student: str, lesson: str | None, sub_strand: str | None, learning_outcome: str | None
+) -> frappe._dict:
 	scope = frappe.db.get_value("Student", student, ["first_name", "custom_grade"], as_dict=True)
-	ctx = frappe._dict(grade=scope.custom_grade, first_name=scope.first_name, lesson=None, course=None,
-		strand=None, sub_strand=None, outcome=None, lesson_text=None, topic=None)
+	return _context_for(scope, lesson, sub_strand, learning_outcome)
+
+
+def _context_for(
+	scope, lesson: str | None, sub_strand: str | None, learning_outcome: str | None
+) -> frappe._dict:
+	"""The lesson and curriculum around a question; `scope` has the grade (custom_grade)."""
+	ctx = frappe._dict(
+		grade=scope.custom_grade,
+		first_name=scope.first_name,
+		lesson=None,
+		course=None,
+		strand=None,
+		sub_strand=None,
+		outcome=None,
+		lesson_text=None,
+		topic=None,
+	)
 
 	if lesson:
 		row = frappe.db.get_value(
 			"Lesson",
 			lesson,
-			["name", "title", "program", "course", "strand", "sub_strand", "learning_outcome", "summary", "body", "published", "is_free"],
+			[
+				"name",
+				"title",
+				"program",
+				"course",
+				"strand",
+				"sub_strand",
+				"learning_outcome",
+				"summary",
+				"body",
+				"published",
+				"is_free",
+			],
 			as_dict=True,
 		)
 		if not row or row.program != scope.custom_grade or not row.published:
@@ -72,7 +102,9 @@ def _context(student: str, lesson: str | None, sub_strand: str | None, learning_
 		ctx.lesson_text = text[:2500]
 
 	if learning_outcome:
-		outcome = frappe.db.get_value("Learning Outcome", learning_outcome, ["name", "description", "sub_strand"], as_dict=True)
+		outcome = frappe.db.get_value(
+			"Learning Outcome", learning_outcome, ["name", "description", "sub_strand"], as_dict=True
+		)
 		if outcome:
 			ctx.outcome = outcome
 			sub_strand = sub_strand or outcome.sub_strand
@@ -102,7 +134,7 @@ def _system_prompt(ctx: frappe._dict) -> str:
 	if ctx.outcome:
 		lines.append(f"- Learning outcome: {strip_html(cstr(ctx.outcome.description))[:500]}")
 	if ctx.lesson_text:
-		lines.append("- The lesson the learner is reading:\n\"\"\"\n" + ctx.lesson_text + "\n\"\"\"")
+		lines.append('- The lesson the learner is reading:\n"""\n' + ctx.lesson_text + '\n"""')
 	extra = cstr(common.setting("ai_extra_instructions")).strip()
 	if extra:
 		lines += ["", "School instructions:", extra]
@@ -114,13 +146,15 @@ def _require_ai(student: str, quota: bool = True) -> frappe._dict:
 		raise providers.AIUnavailable(_("The AI tutor is switched off."))
 	ent = common.entitlement_for_student(student)
 	if not ent.active:
-		raise common.SubscriptionRequired(_("The AI tutor needs an active subscription. Ask a parent to renew."))
+		raise common.SubscriptionRequired(
+			_("The AI tutor needs an active subscription. Ask a parent to renew.")
+		)
 	resting = quiet_until(student)
 	if resting:
 		raise common.QuotaExceeded(
-			_("Mwalimu is resting until {0}. Your parent set quiet hours. Lessons and quizzes still work.").format(
-				resting
-			)
+			_(
+				"Mwalimu is resting until {0}. Your parent set quiet hours. Lessons and quizzes still work."
+			).format(resting)
 		)
 	if quota:
 		_require_quota(student)
@@ -131,7 +165,10 @@ def quiet_until(student: str, now=None) -> str | None:
 	"""When the parent's quiet hours (bedtime, say) are on now, the time they end, as HH:MM."""
 	from frappe.utils import get_time, now_datetime
 
-	start, end = frappe.db.get_value("Student", student, ["custom_quiet_from", "custom_quiet_to"]) or (None, None)
+	start, end = frappe.db.get_value("Student", student, ["custom_quiet_from", "custom_quiet_to"]) or (
+		None,
+		None,
+	)
 	if not start or not end:
 		return None
 	start, end = get_time(start), get_time(end)
@@ -205,10 +242,19 @@ def ask(
 	# Only a first question is shared: a follow-up depends on the conversation before it.
 	scope = ctx.lesson or (ctx.sub_strand or {}).get("name")
 	# A styled answer (a hint, Kiswahili, spoken) is not the shared answer to the plain question.
-	key = None if history or styles or photo or work else reuse.question_key(ctx.grade, scope, message)
+	# A spoken, photographed or assignment answer is the learner's own; any other first question,
+	# styled or plain, can be shared (and may have been written ahead of time).
+	shareable = not (history or photo or work or "voice" in styles)
+	key = reuse.question_key(ctx.grade, scope, message, ",".join(styles) or None) if shareable else None
 	cached = reuse.cached_answer(key)
 	if cached:
-		reply = {"text": _html_to_markdownish(cached), "provider": "cache", "model": "", "input_tokens": 0, "output_tokens": 0}
+		reply = {
+			"text": _html_to_markdownish(cached),
+			"provider": "cache",
+			"model": "",
+			"input_tokens": 0,
+			"output_tokens": 0,
+		}
 	else:
 		_require_quota(student)
 		system = _system_prompt(ctx)
@@ -217,12 +263,16 @@ def ask(
 		if photo:
 			system += "\n\n" + PHOTO_RULES
 		if work:
-			system += "\n\n" + WORK_RULES.format(title=work.title, notes=strip_html(cstr(work.description))[:1500] or "-")
+			system += "\n\n" + WORK_RULES.format(
+				title=work.title, notes=strip_html(cstr(work.description))[:1500] or "-"
+			)
 		reply = providers.complete(
 			system,
 			[*history, {"role": "user", "content": message}],
 			on_text=_writer(student, stream),
 			images=[{"mime": photo["mime"], "data": photo["data"]}] if photo else None,
+			# Short, simple questions can go to a fast, cheap model; working and checking can't.
+			light=len(message) < 160 and not photo and not {"steps", "check"} & set(styles),
 		)
 
 	doc = frappe.get_doc(
@@ -467,7 +517,9 @@ def practice(
 		frappe.throw(_("Pick a lesson or topic to practise."))
 	count = max(3, min(cint(count) or 5, 10))
 	ctx = _context(student, lesson, sub_strand, learning_outcome)
-	key = reuse.topic_key(ctx.grade, ctx.lesson, (ctx.sub_strand or {}).get("name"), (ctx.outcome or {}).get("name"))
+	key = reuse.topic_key(
+		ctx.grade, ctx.lesson, (ctx.sub_strand or {}).get("name"), (ctx.outcome or {}).get("name")
+	)
 	questions = reuse.pooled_practice(key, count, student)
 	reply, data = None, {}
 	if not questions:
@@ -490,7 +542,12 @@ def practice(
 	)
 	doc.insert(ignore_permissions=True)
 	if not reply:
-		return {"practice": doc.name, "title": doc.topic, "questions": questions, "quota": sync.ai_quota(student)}
+		return {
+			"practice": doc.name,
+			"title": doc.topic,
+			"questions": questions,
+			"quota": sync.ai_quota(student),
+		}
 
 	frappe.get_doc(
 		{
@@ -524,10 +581,14 @@ def grade_practice_for(student: str, practice: str, answers: list) -> dict:
 	questions = json.loads(row.questions or "[]")
 	picked = [cint(a) if a not in (None, "") else -1 for a in (answers or [])][: len(questions)]
 	picked += [-1] * (len(questions) - len(picked))
-	correct = sum(1 for q, a in zip(questions, picked) if cint(q.get("answer")) == a)
+	correct = sum(1 for q, a in zip(questions, picked, strict=True) if cint(q.get("answer")) == a)
 	feedback = [
-		{"correct": cint(q.get("answer")) == a, "answer": cint(q.get("answer")), "explanation": q.get("explanation")}
-		for q, a in zip(questions, picked)
+		{
+			"correct": cint(q.get("answer")) == a,
+			"answer": cint(q.get("answer")),
+			"explanation": q.get("explanation"),
+		}
+		for q, a in zip(questions, picked, strict=True)
 	]
 	frappe.db.set_value(
 		"Practice Questions",
@@ -538,7 +599,13 @@ def grade_practice_for(student: str, practice: str, answers: list) -> dict:
 			"ai_feedback": json.dumps(feedback),
 		},
 	)
-	return {"doctype": "Practice Questions", "name": practice, "score": correct, "total": len(questions), "feedback": feedback}
+	return {
+		"doctype": "Practice Questions",
+		"name": practice,
+		"score": correct,
+		"total": len(questions),
+		"feedback": feedback,
+	}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -575,7 +642,10 @@ def draft_assignment(
 	common.current_teacher()
 	topic = ""
 	if learning_outcome:
-		topic = " on: " + strip_html(cstr(frappe.db.get_value("Learning Outcome", learning_outcome, "description")))[:400]
+		topic = (
+			" on: "
+			+ strip_html(cstr(frappe.db.get_value("Learning Outcome", learning_outcome, "description")))[:400]
+		)
 	elif sub_strand:
 		topic = " on: " + cstr(frappe.db.get_value("Sub-strand", sub_strand, "name1"))
 	prompt = DRAFT_PROMPT.format(
@@ -593,3 +663,67 @@ def draft_assignment(
 	)
 	data = providers.parse_json(reply["text"])
 	return {"title": cstr(data.get("title"))[:140], "description": cstr(data.get("description"))}
+
+
+# The questions behind a lesson's starter buttons in the app (screens/learner/Tutor.svelte), with
+# how they are asked for: answered once ahead of time, then instant for every learner.
+STARTERS = (
+	("Explain this lesson simply", "simple"),
+	("Give me an example from home (lesson: {title})", None),
+	("Ask me questions to check I understand", "quiz"),
+	("Nieleze somo hili kwa Kiswahili", "kiswahili"),
+)
+
+
+def prewrite_answers(limit: int | None = None) -> dict:
+	"""Write answers to the starter questions of published lessons that have none yet, with the
+	fast, cheap providers first. Each in its own transaction; stops after a few failures in a row."""
+	limit = cint(common.setting("ai_prewrite_per_day", 40)) if limit is None else cint(limit)
+	if (
+		limit <= 0
+		or not cint(common.setting("ai_enabled", 1))
+		or not cint(common.setting("ai_reuse_answers", 1))
+	):
+		return {"written": 0}
+	written, failed = 0, 0
+	for lesson in frappe.get_all(
+		"Lesson",
+		filters={"published": 1},
+		fields=["name", "title", "program"],
+		order_by="modified desc",
+		limit_page_length=500,
+	):
+		ctx = None
+		for question, style in STARTERS:
+			if written >= limit:
+				return {"written": written}
+			message = question.format(title=lesson.title)
+			key = reuse.question_key(lesson.program, lesson.name, message, style)
+			if not key or reuse.cached_answer(key):
+				continue
+			try:
+				ctx = ctx or _context_for(frappe._dict(custom_grade=lesson.program), lesson.name, None, None)
+				system = _system_prompt(ctx)
+				if style:
+					system += "\n\nHow to answer:\n- " + STYLES[style]
+				reply = providers.complete(system, [{"role": "user", "content": message}], light=True)
+				frappe.get_doc(
+					{
+						"doctype": "CBC Shared Answer",
+						"question_key": key,
+						"lesson": lesson.name,
+						"style": style,
+						"answer": md_to_html(reply["text"]),
+						"provider": reply["provider"],
+						"model": reply["model"],
+					}
+				).insert(ignore_permissions=True)
+				frappe.db.commit()
+				written, failed = written + 1, 0
+			except Exception:
+				frappe.db.rollback()
+				frappe.log_error(title=f"Mwalimu answer ahead of time for {lesson.name}")
+				failed += 1
+				if failed >= 3:
+					return {"written": written}
+	return {"written": written}

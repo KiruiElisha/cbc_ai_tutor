@@ -63,7 +63,9 @@ def dashboard() -> dict:
 	)
 	from cbc_ai_tutor.api.curriculum import grade_sort_key
 
-	mine = frappe.get_all("Assignment", filters={"instructor": teacher.name}, pluck="name", limit_page_length=0)
+	mine = frappe.get_all(
+		"Assignment", filters={"instructor": teacher.name}, pluck="name", limit_page_length=0
+	)
 	return {
 		"instructor": teacher.name,
 		"instructor_name": frappe.db.get_value("Instructor", teacher.name, "instructor_name"),
@@ -90,14 +92,18 @@ def dashboard() -> dict:
 
 
 @frappe.whitelist()
-def students(grade: str | None = None, txt: str | None = None, limit: int = 100, start: int = 0) -> list[dict]:
+def students(
+	grade: str | None = None, txt: str | None = None, limit: int = 100, start: int = 0
+) -> list[dict]:
 	teacher = common.current_teacher()
 	if not teacher.school:
 		return []
 	filters = {"custom_school": teacher.school, "enabled": 1}
 	if grade:
 		filters["custom_grade"] = grade
-	or_filters = {"student_name": ["like", f"%{txt}%"], "custom_learner_code": ["like", f"%{txt}%"]} if txt else None
+	or_filters = (
+		{"student_name": ["like", f"%{txt}%"], "custom_learner_code": ["like", f"%{txt}%"]} if txt else None
+	)
 	rows = frappe.get_all(
 		"Student",
 		filters=filters,
@@ -189,10 +195,19 @@ def _check_curriculum_links(grade, strand, sub_strand, learning_outcome, perform
 			frappe.throw(_("That strand is not taught in {0}.").format(grade))
 	if sub_strand and strand and frappe.db.get_value("Sub-strand", sub_strand, "strand") != strand:
 		frappe.throw(_("That sub-strand is not part of the strand."))
-	if learning_outcome and sub_strand and frappe.db.get_value("Learning Outcome", learning_outcome, "sub_strand") != sub_strand:
+	if (
+		learning_outcome
+		and sub_strand
+		and frappe.db.get_value("Learning Outcome", learning_outcome, "sub_strand") != sub_strand
+	):
 		frappe.throw(_("That learning outcome is not part of the sub-strand."))
-	if performance_indicator and learning_outcome and (
-		frappe.db.get_value("Performance Indicator", performance_indicator, "learning_outcome") != learning_outcome
+	if (
+		performance_indicator
+		and learning_outcome
+		and (
+			frappe.db.get_value("Performance Indicator", performance_indicator, "learning_outcome")
+			!= learning_outcome
+		)
 	):
 		frappe.throw(_("That performance indicator is not part of the learning outcome."))
 
@@ -217,7 +232,9 @@ def save_assignment(
 		doc, teacher = _own_assignment(name)
 	else:
 		teacher = common.current_teacher()
-		doc = frappe.get_doc({"doctype": "Assignment", "instructor": teacher.name, "status": "Draft", "is_active": 1})
+		doc = frappe.get_doc(
+			{"doctype": "Assignment", "instructor": teacher.name, "status": "Draft", "is_active": 1}
+		)
 
 	title = cstr(title).strip()
 	if len(title) < 3:
@@ -232,7 +249,12 @@ def save_assignment(
 	if sub_strand and not strand:
 		strand = frappe.db.get_value("Sub-strand", sub_strand, "strand")
 	if attachment and not frappe.db.exists(
-		"File", {"file_url": attachment, "attached_to_doctype": ["in", ["Instructor", "Assignment"]], "attached_to_name": ["in", [teacher.name, doc.name or ""]]}
+		"File",
+		{
+			"file_url": attachment,
+			"attached_to_doctype": ["in", ["Instructor", "Assignment"]],
+			"attached_to_name": ["in", [teacher.name, doc.name or ""]],
+		},
 	):
 		frappe.throw(_("Upload the file again, then save."))
 
@@ -254,9 +276,13 @@ def save_assignment(
 	doc.flags.ignore_permissions = True
 	doc.save()
 	if attachment:
-		file_name = frappe.db.get_value("File", {"file_url": attachment, "attached_to_doctype": "Instructor"}, "name")
+		file_name = frappe.db.get_value(
+			"File", {"file_url": attachment, "attached_to_doctype": "Instructor"}, "name"
+		)
 		if file_name:
-			frappe.db.set_value("File", file_name, {"attached_to_doctype": "Assignment", "attached_to_name": doc.name})
+			frappe.db.set_value(
+				"File", file_name, {"attached_to_doctype": "Assignment", "attached_to_name": doc.name}
+			)
 	return assignment(doc.name)
 
 
@@ -296,7 +322,9 @@ def upload(filename: str, content: str) -> dict:
 def file(file_url: str) -> dict:
 	"""A file handed in by a learner at the teacher's school, or the teacher's own sheet."""
 	teacher = common.current_teacher()
-	row = frappe.db.get_value("File", {"file_url": file_url}, ["attached_to_doctype", "attached_to_name"], as_dict=True)
+	row = frappe.db.get_value(
+		"File", {"file_url": file_url}, ["attached_to_doctype", "attached_to_name"], as_dict=True
+	)
 	allowed = False
 	if row and row.attached_to_doctype == "Instructor":
 		allowed = row.attached_to_name == teacher.name
@@ -335,7 +363,17 @@ def submissions(assignment: str) -> dict:
 		for s in frappe.get_all(
 			"Assignment Submission",
 			filters={"assignment": assignment},
-			fields=["name", "student", "status", "submission_date", "answer_text", "attachment", "grade_given", "remarks", "reviewed_on"],
+			fields=[
+				"name",
+				"student",
+				"status",
+				"submission_date",
+				"answer_text",
+				"attachment",
+				"grade_given",
+				"remarks",
+				"reviewed_on",
+			],
 			limit_page_length=0,
 		)
 	}
@@ -373,7 +411,9 @@ def _submission_row(student, student_name, s) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def review_submission(name: str, grade_given: str | None = None, remarks: str | None = None, status: str = "Reviewed") -> dict:
+def review_submission(
+	name: str, grade_given: str | None = None, remarks: str | None = None, status: str = "Reviewed"
+) -> dict:
 	"""Mark the work. 'Returned' sends it back for the learner to redo."""
 	sub = frappe.get_doc("Assignment Submission", name)
 	_own_assignment(sub.assignment)
@@ -410,9 +450,15 @@ def record_competency(
 		frappe.throw(_("Pick Emerging, Proficient or Advanced."))
 	if not frappe.db.exists("Learning Outcome", learning_outcome):
 		frappe.throw(_("Pick a learning outcome."))
-	if performance_indicator and frappe.db.get_value("Performance Indicator", performance_indicator, "learning_outcome") != learning_outcome:
+	if (
+		performance_indicator
+		and frappe.db.get_value("Performance Indicator", performance_indicator, "learning_outcome")
+		!= learning_outcome
+	):
 		frappe.throw(_("That performance indicator is not part of the learning outcome."))
-	if evidence and not frappe.db.exists("File", {"file_url": evidence, "attached_to_doctype": "Instructor", "attached_to_name": teacher.name}):
+	if evidence and not frappe.db.exists(
+		"File", {"file_url": evidence, "attached_to_doctype": "Instructor", "attached_to_name": teacher.name}
+	):
 		frappe.throw(_("Upload the evidence again, then save."))
 	doc = frappe.get_doc(
 		{
@@ -485,15 +531,36 @@ def feedback(unanswered: int | str = 0, limit: int = 50) -> list[dict]:
 	rows = frappe.get_all(
 		"Parental Feedback",
 		filters=filters,
-		fields=["name", "student", "parent", "date", "feedback", "response", "teacher", "linked_document_type", "linked_document", "modified"],
+		fields=[
+			"name",
+			"student",
+			"parent",
+			"date",
+			"feedback",
+			"response",
+			"teacher",
+			"linked_document_type",
+			"linked_document",
+			"modified",
+		],
 		order_by="creation desc",
 		limit_page_length=common.paginate(limit),
 	)
 	names = dict(
-		frappe.get_all("Student", filters={"name": ["in", [r.student for r in rows] or [""]]}, fields=["name", "student_name"], as_list=True)
+		frappe.get_all(
+			"Student",
+			filters={"name": ["in", [r.student for r in rows] or [""]]},
+			fields=["name", "student_name"],
+			as_list=True,
+		)
 	)
 	parents = dict(
-		frappe.get_all("Guardian", filters={"name": ["in", [r.parent for r in rows if r.parent] or [""]]}, fields=["name", "guardian_name"], as_list=True)
+		frappe.get_all(
+			"Guardian",
+			filters={"name": ["in", [r.parent for r in rows if r.parent] or [""]]},
+			fields=["name", "guardian_name"],
+			as_list=True,
+		)
 	)
 	for row in rows:
 		row["student_name"] = names.get(row.student)
@@ -522,7 +589,9 @@ def respond_feedback(name: str, response: str) -> dict:
 		app = common.setting("app_name") or "CBC AI Tutor"
 		common.notify(
 			[email],
-			_("{0}: a teacher replied about {1}").format(app, frappe.db.get_value("Student", row.student, "student_name")),
+			_("{0}: a teacher replied about {1}").format(
+				app, frappe.db.get_value("Student", row.student, "student_name")
+			),
 			_html(response[:4000]),
 		)
 	return {"name": name}

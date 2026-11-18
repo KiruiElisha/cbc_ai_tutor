@@ -1,15 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0f766e"/>
-      <stop offset="1" stop-color="#115e59"/>
+      <stop offset="0" stop-color="#0b7a3d"/>
+      <stop offset="1" stop-color="#065a2b"/>
     </linearGradient>
+    <clipPath id="tile"><rect width="1024" height="1024" rx="224"/></clipPath>
   </defs>
-  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
-  <path d="M232 330c96-38 196-38 280 22v402c-84-60-184-60-280-22z" fill="#ecfdf5"/>
-  <path d="M792 330c-96-38-196-38-280 22v402c84-60 184-60 280-22z" fill="#d1fae5"/>
-  <path d="M512 352v402" stroke="#0f766e" stroke-width="18"/>
-  <circle cx="512" cy="238" r="62" fill="#fbbf24"/>
-  <path d="M512 150v-34M512 360v-34M424 238h-34M634 238h-34M450 176l-24-24M598 324l-24-24M574 176l24-24M426 324l24-24" stroke="#fbbf24" stroke-width="18" stroke-linecap="round"/>
-  <path d="M300 440h150M300 500h150M300 560h120M574 440h150M574 500h150M574 560h120" stroke="#0f766e" stroke-width="22" stroke-linecap="round" opacity=".55"/>
+  <g clip-path="url(#tile)">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <!-- the flag's stripes along the foot: black, red and green with white edges -->
+    <rect y="846" width="1024" height="60" fill="#141414"/>
+    <rect y="906" width="1024" height="14" fill="#fff"/>
+    <rect y="920" width="1024" height="54" fill="#b8211a"/>
+    <rect y="974" width="1024" height="14" fill="#fff"/>
+    <rect y="988" width="1024" height="36" fill="#0b7a3d"/>
+  </g>
+  <path d="M232 312c96-38 196-38 280 22v402c-84-60-184-60-280-22z" fill="#f6fff9"/>
+  <path d="M792 312c-96-38-196-38-280 22v402c84-60 184-60 280-22z" fill="#dcf3e4"/>
+  <path d="M512 334v402" stroke="#0b7a3d" stroke-width="18"/>
+  <circle cx="512" cy="214" r="62" fill="#fbbf24"/>
+  <path d="M512 126v-34M512 336v-34M424 214h-34M634 214h-34M450 152l-24-24M598 300l-24-24M574 152l24-24M426 300l24-24" stroke="#fbbf24" stroke-width="18" stroke-linecap="round"/>
+  <path d="M300 422h150M300 482h150M300 542h120M574 422h150M574 482h150M574 542h120" stroke="#0b7a3d" stroke-width="22" stroke-linecap="round" opacity=".55"/>
 </svg>

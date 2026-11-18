@@ -72,9 +72,7 @@ def pull(
 	areas = curriculum.learning_areas(scope.custom_grade)
 	course_names = [a["name"] for a in areas]
 	all_strands = frappe.get_all("Strand", filters={"subject": ["in", course_names or [""]]}, pluck="name")
-	all_subs = frappe.get_all(
-		"Sub-strand", filters={"strand": ["in", all_strands or [""]]}, pluck="name"
-	)
+	all_subs = frappe.get_all("Sub-strand", filters={"strand": ["in", all_strands or [""]]}, pluck="name")
 
 	strand_rows = curriculum.strands(course_names, cutoff)
 	sub_rows = curriculum.sub_strands(all_strands, cutoff)
@@ -192,7 +190,15 @@ def _own_records(student: str, scope: frappe._dict, cutoff) -> dict:
 	competencies = frappe.get_all(
 		"Student Competency Progress",
 		filters={"student": student, **since},
-		fields=["name", "learning_outcome", "performance_indicator", "status", "comments", "date", "modified"],
+		fields=[
+			"name",
+			"learning_outcome",
+			"performance_indicator",
+			"status",
+			"comments",
+			"date",
+			"modified",
+		],
 		limit_page_length=0,
 	)
 	return {
@@ -300,7 +306,9 @@ def push(events) -> dict:
 			if done.student != student:
 				results.append({"uuid": uuid, "ok": 0, "error": "uuid_in_use"})
 			else:
-				results.append({"uuid": uuid, "ok": 1, "duplicate": 1, "result": json.loads(done.result or "{}")})
+				results.append(
+					{"uuid": uuid, "ok": 1, "duplicate": 1, "result": json.loads(done.result or "{}")}
+				)
 			continue
 
 		handler = HANDLERS.get(kind)
@@ -326,7 +334,9 @@ def push(events) -> dict:
 		except (frappe.ValidationError, frappe.PermissionError, frappe.DoesNotExistError) as e:
 			frappe.db.rollback(save_point="cbc_sync_event")
 			frappe.clear_messages()
-			results.append({"uuid": uuid, "ok": 0, "error": getattr(e, "cbc_code", "rejected"), "message": cstr(e)})
+			results.append(
+				{"uuid": uuid, "ok": 0, "error": getattr(e, "cbc_code", "rejected"), "message": cstr(e)}
+			)
 		except Exception:
 			frappe.db.rollback(save_point="cbc_sync_event")
 			frappe.clear_messages()
@@ -449,9 +459,16 @@ def grade_answers(quiz: str, answers: list) -> tuple[float, list[dict]]:
 
 def handle_quiz_attempt(student, scope, payload, event):
 	uuid = cstr(event.get("uuid"))
-	existing = frappe.db.get_value("Quiz Submission", {"client_uuid": uuid}, ["name", "score", "status"], as_dict=True)
+	existing = frappe.db.get_value(
+		"Quiz Submission", {"client_uuid": uuid}, ["name", "score", "status"], as_dict=True
+	)
 	if existing:
-		return {"doctype": "Quiz Submission", "name": existing.name, "score": existing.score, "status": existing.status}
+		return {
+			"doctype": "Quiz Submission",
+			"name": existing.name,
+			"score": existing.score,
+			"status": existing.status,
+		}
 
 	quiz = cstr(payload.get("quiz"))
 	lesson_name = cstr(payload.get("lesson"))
@@ -460,7 +477,9 @@ def handle_quiz_attempt(student, scope, payload, event):
 		if lesson.quiz != quiz:
 			raise SyncRejected("quiz_mismatch", _("That quiz does not belong to this lesson."))
 	else:
-		lesson_name = frappe.db.get_value("Lesson", {"quiz": quiz, "program": scope.custom_grade, "published": 1}, "name")
+		lesson_name = frappe.db.get_value(
+			"Lesson", {"quiz": quiz, "program": scope.custom_grade, "published": 1}, "name"
+		)
 		if not lesson_name:
 			raise SyncRejected("quiz_unavailable", _("That quiz is not part of your grade."))
 		_lesson_for(student, scope, lesson_name)
@@ -468,7 +487,9 @@ def handle_quiz_attempt(student, scope, payload, event):
 	conf = frappe.db.get_value("Quiz", quiz, ["passing_score", "max_attempts"], as_dict=True)
 	attempts = frappe.db.count("Quiz Submission", {"quiz": quiz, "student": student})
 	if cint(conf.max_attempts) and attempts >= cint(conf.max_attempts):
-		raise SyncRejected("max_attempts", _("You have used all {0} attempts on this quiz.").format(conf.max_attempts))
+		raise SyncRejected(
+			"max_attempts", _("You have used all {0} attempts on this quiz.").format(conf.max_attempts)
+		)
 
 	score, rows = grade_answers(quiz, payload.get("answers") or [])
 	completed = _when(payload.get("completed_at") or event.get("at"))
@@ -523,13 +544,17 @@ def handle_assignment_submission(student, scope, payload, event):
 	submitted_at = _when(payload.get("submitted_at") or event.get("at"))
 	late = bool(work.due_date and getdate(submitted_at) > getdate(work.due_date))
 
-	name = frappe.db.get_value("Assignment Submission", {"assignment": assignment, "student": student}, "name")
+	name = frappe.db.get_value(
+		"Assignment Submission", {"assignment": assignment, "student": student}, "name"
+	)
 	if name:
 		doc = frappe.get_doc("Assignment Submission", name)
 		if doc.status == "Reviewed":
 			raise SyncRejected("already_reviewed", _("Your teacher has already reviewed this work."))
 	else:
-		doc = frappe.get_doc({"doctype": "Assignment Submission", "assignment": assignment, "student": student})
+		doc = frappe.get_doc(
+			{"doctype": "Assignment Submission", "assignment": assignment, "student": student}
+		)
 	doc.answer_text = frappe.utils.escape_html(text).replace("\n", "<br>") if text else None
 	doc.attachment = attachment
 	doc.submission_date = submitted_at
@@ -578,7 +603,10 @@ def _owns_file(student: str, file_url: str) -> bool:
 			{
 				"file_url": file_url,
 				"attached_to_doctype": ["in", ["Student", "Assignment Submission"]],
-				"attached_to_name": ["in", [student, *frappe.get_all("Assignment Submission", {"student": student}, pluck="name")]],
+				"attached_to_name": [
+					"in",
+					[student, *frappe.get_all("Assignment Submission", {"student": student}, pluck="name")],
+				],
 			},
 		)
 	)
@@ -673,14 +701,20 @@ def request_lesson(sub_strand: str) -> dict:
 	if not sub or not cint(sub.active if sub.active is not None else 1) or not in_grade:
 		frappe.throw(_("That topic is not part of your grade."))
 
-	ready = frappe.db.get_value("Lesson", {"sub_strand": sub.name, "program": scope.custom_grade, "published": 1})
+	ready = frappe.db.get_value(
+		"Lesson", {"sub_strand": sub.name, "program": scope.custom_grade, "published": 1}
+	)
 	if ready:
 		return {"lesson": ready, "written": 0}
 	if not common.entitlement_for_student(student).active:
 		per_area = cint(common.setting("free_lessons_per_area", 2))
-		published = frappe.db.count("Lesson", {"program": scope.custom_grade, "course": course, "published": 1})
+		published = frappe.db.count(
+			"Lesson", {"program": scope.custom_grade, "course": course, "published": 1}
+		)
 		if published >= per_area:
-			raise common.SubscriptionRequired(_("The free lessons in this learning area are open already. A plan opens them all."))
+			raise common.SubscriptionRequired(
+				_("The free lessons in this learning area are open already. A plan opens them all.")
+			)
 
 	key = f"cbc:lesson-requests:{student}:{frappe.utils.nowdate()}"
 	used = cint(frappe.cache.get_value(key))
@@ -692,7 +726,9 @@ def request_lesson(sub_strand: str) -> dict:
 	frappe.cache.set_value(lock, 1, expires_in_sec=180)
 	try:
 		# a lesson written earlier and waiting for a teacher: the learner asked, so it goes out now
-		waiting = frappe.db.get_value("Lesson", {"sub_strand": sub.name, "program": scope.custom_grade, "published": 0})
+		waiting = frappe.db.get_value(
+			"Lesson", {"sub_strand": sub.name, "program": scope.custom_grade, "published": 0}
+		)
 		if waiting:
 			frappe.db.set_value("Lesson", waiting, "published", 1)
 			name = waiting
@@ -707,4 +743,3 @@ def request_lesson(sub_strand: str) -> dict:
 	finally:
 		frappe.cache.delete_value(lock)
 	return {"lesson": name, "written": 1}
-

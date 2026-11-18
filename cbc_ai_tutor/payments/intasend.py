@@ -39,7 +39,11 @@ def _headers() -> dict:
 	key = common.secret("intasend_secret_key")
 	if not key:
 		raise IntaSendError(_("M-Pesa payments are not set up yet."))
-	return {"Authorization": f"Bearer {key}", "Content-Type": "application/json", "Accept": "application/json"}
+	return {
+		"Authorization": f"Bearer {key}",
+		"Content-Type": "application/json",
+		"Accept": "application/json",
+	}
 
 
 def enabled() -> bool:
@@ -60,7 +64,9 @@ def stk_push(amount: float, phone: str, api_ref: str, email: str | None = None) 
 	data = _json(response)
 	if not response.ok:
 		frappe.log_error(title=f"IntaSend STK push {response.status_code}", message=response.text[:2000])
-		raise IntaSendError(_detail(data) or _("M-Pesa did not accept the request. Check the number and try again."))
+		raise IntaSendError(
+			_detail(data) or _("M-Pesa did not accept the request. Check the number and try again.")
+		)
 	invoice = data.get("invoice") or {}
 	if not invoice.get("invoice_id"):
 		frappe.log_error(title="IntaSend STK push without invoice", message=response.text[:2000])
@@ -87,7 +93,9 @@ def invoice_status(invoice_id: str) -> dict:
 
 def failure_text(invoice: dict) -> str:
 	code = str(invoice.get("failed_code") or "")
-	return _(FAILURE_MESSAGES.get(code) or invoice.get("failed_reason") or "The M-Pesa payment did not go through.")
+	return _(
+		FAILURE_MESSAGES.get(code) or invoice.get("failed_reason") or "The M-Pesa payment did not go through."
+	)
 
 
 def _json(response) -> dict:

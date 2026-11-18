@@ -12,7 +12,10 @@
   "column_break_ai",
   "api_key",
   "base_url",
-  "daily_limit"
+  "daily_limit",
+  "tier",
+  "input_price",
+  "output_price"
  ],
  "fields": [
   {
@@ -72,12 +75,33 @@
    "in_list_view": 1,
    "label": "Daily Limit",
    "columns": 1
+  },
+  {
+   "default": "Strong",
+   "fieldname": "tier",
+   "fieldtype": "Select",
+   "label": "Tier",
+   "options": "Strong\nFast and cheap",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Short, simple chat questions go to Fast and cheap providers first; lessons and harder questions to Strong ones."
+  },
+  {
+   "fieldname": "input_price",
+   "fieldtype": "Float",
+   "label": "Input price (US$ per million tokens)",
+   "description": "Optional: for the cost on the AI usage report."
+  },
+  {
+   "fieldname": "output_price",
+   "fieldtype": "Float",
+   "label": "Output price (US$ per million tokens)"
   }
  ],
  "index_web_pages_for_search": 0,
  "istable": 1,
  "links": [],
- "modified": "2026-11-18 10:00:00.000000",
+ "modified": "2026-11-18 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "CBC AI Tutor",
  "name": "CBC AI Provider",

@@ -76,7 +76,11 @@ def as_administrator():
 
 def notify(recipients: list[str], subject: str, message: str) -> bool:
 	"""Queue an email. A missing or broken mail set-up must not undo the action that sent it."""
-	recipients = [r for r in recipients if r and not r.endswith("@" + (setting("learner_email_domain") or "learners.cbc.invalid"))]
+	recipients = [
+		r
+		for r in recipients
+		if r and not r.endswith("@" + (setting("learner_email_domain") or "learners.cbc.invalid"))
+	]
 	if not recipients:
 		return False
 	try:

@@ -17,7 +17,14 @@ import secrets
 import frappe
 from frappe import _
 from frappe.rate_limiter import rate_limit
-from frappe.utils import add_days, cint, get_datetime, now_datetime, time_diff_in_seconds, validate_email_address
+from frappe.utils import (
+	add_days,
+	cint,
+	get_datetime,
+	now_datetime,
+	time_diff_in_seconds,
+	validate_email_address,
+)
 
 from cbc_ai_tutor.api import common
 
@@ -96,7 +103,9 @@ def _device(device_name=None, platform=None, app_version=None) -> dict:
 def profile(user: str | None = None, student: str | None = None) -> dict:
 	"""Everything the app needs to decide which home screen to show."""
 	user = user or frappe.session.user
-	doc = frappe.db.get_value("User", user, ["name", "full_name", "email", "mobile_no", "user_image"], as_dict=True)
+	doc = frappe.db.get_value(
+		"User", user, ["name", "full_name", "email", "mobile_no", "user_image"], as_dict=True
+	)
 	roles = common.roles_for_user(user)
 	out = {
 		"user": doc.name,
@@ -125,7 +134,15 @@ def learner_card(student: str) -> dict:
 	row = frappe.db.get_value(
 		"Student",
 		student,
-		["name", "student_name", "first_name", "custom_grade", "custom_school", "custom_learner_code", "image"],
+		[
+			"name",
+			"student_name",
+			"first_name",
+			"custom_grade",
+			"custom_school",
+			"custom_learner_code",
+			"image",
+		],
 		as_dict=True,
 	)
 	ent = common.entitlement_for_student(student)
@@ -233,7 +250,9 @@ def learner_login(
 	if not row.user:
 		raise frappe.AuthenticationError(_("Ask your parent to open your profile once from their app."))
 
-	token = _issue(row.user, common.LEARNER, student=row.name, device=_device(device_name, platform, app_version))
+	token = _issue(
+		row.user, common.LEARNER, student=row.name, device=_device(device_name, platform, app_version)
+	)
 	frappe.db.commit()
 	return {"token": token, "role": common.LEARNER, "profile": profile(row.user, row.name)}
 
@@ -244,7 +263,9 @@ def open_learner(student: str, device_name: str | None = None, platform: str | N
 	common.assert_parent_of(student)
 	if not frappe.db.get_value("Student", student, "enabled"):
 		frappe.throw(_("This learner's profile is switched off."))
-	token = _issue(frappe.session.user, common.LEARNER, student=student, device=_device(device_name, platform))
+	token = _issue(
+		frappe.session.user, common.LEARNER, student=student, device=_device(device_name, platform)
+	)
 	frappe.db.commit()
 	return {"token": token, "role": common.LEARNER, "profile": profile(frappe.session.user, student)}
 
@@ -285,7 +306,9 @@ def signup_parent(
 	return result
 
 
-def provision_parent(full_name: str, email: str, phone: str, password: str, device: dict, ignore_policy: bool = False) -> dict:
+def provision_parent(
+	full_name: str, email: str, phone: str, password: str, device: dict, ignore_policy: bool = False
+) -> dict:
 	"""A new parent: User, Guardian, free trial and a device token. Caller commits."""
 	_reject_existing_parent(email, phone)
 	first, _sep, last = full_name.partition(" ")

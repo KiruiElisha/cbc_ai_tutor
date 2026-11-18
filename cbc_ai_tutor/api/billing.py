@@ -72,7 +72,18 @@ def subscription() -> dict:
 	history = frappe.get_all(
 		TX,
 		filters={"guardian": guardian, "status": ["in", ["Completed", "Failed", "Cancelled"]]},
-		fields=["name", "gateway", "plan", "amount", "currency", "status", "receipt_number", "completed_on", "creation", "failure_reason"],
+		fields=[
+			"name",
+			"gateway",
+			"plan",
+			"amount",
+			"currency",
+			"status",
+			"receipt_number",
+			"completed_on",
+			"creation",
+			"failure_reason",
+		],
 		order_by="creation desc",
 		limit_page_length=20,
 	)
@@ -101,12 +112,14 @@ def _enabled_plan(plan: str):
 
 
 def _check_capacity(guardian: str, plan) -> None:
-	children = frappe.db.count("Student", {"name": ["in", common.children_of(guardian) or [""]], "enabled": 1})
+	children = frappe.db.count(
+		"Student", {"name": ["in", common.children_of(guardian) or [""]], "enabled": 1}
+	)
 	if children > cint(plan.max_learners):
 		frappe.throw(
-			_("You have {0} learners and {1} covers {2}. Pick a bigger plan or switch a learner off first.").format(
-				children, plan.plan_name, plan.max_learners
-			)
+			_(
+				"You have {0} learners and {1} covers {2}. Pick a bigger plan or switch a learner off first."
+			).format(children, plan.plan_name, plan.max_learners)
 		)
 
 
@@ -142,7 +155,9 @@ def pay_mpesa(plan: str, phone: str) -> dict:
 	tx = _new_tx(guardian, plan_doc, "IntaSend M-Pesa", flt(plan_doc.price_kes), "KES", phone)
 	frappe.db.commit()
 	try:
-		data = intasend.stk_push(flt(plan_doc.price_kes), phone, tx.name, frappe.db.get_value("User", frappe.session.user, "email"))
+		data = intasend.stk_push(
+			flt(plan_doc.price_kes), phone, tx.name, frappe.db.get_value("User", frappe.session.user, "email")
+		)
 	except intasend.IntaSendError as e:
 		tx.db_set({"status": "Failed", "failure_reason": str(e)})
 		frappe.db.commit()
@@ -158,7 +173,9 @@ def pay_mpesa(plan: str, phone: str) -> dict:
 	return {
 		"transaction": tx.name,
 		"status": "Pending",
-		"message": _("Check your phone and enter your M-Pesa PIN to pay KES {0}.").format(int(flt(plan_doc.price_kes))),
+		"message": _("Check your phone and enter your M-Pesa PIN to pay KES {0}.").format(
+			int(flt(plan_doc.price_kes))
+		),
 	}
 
 
@@ -276,7 +293,11 @@ def apply_intasend_invoice(invoice: dict, expected_tx: str | None = None) -> str
 		# The webhook can beat the request that stores the invoice id.
 		name = frappe.db.get_value(
 			TX,
-			{"name": invoice["api_ref"], "gateway": "IntaSend M-Pesa", "gateway_reference": ("is", "not set")},
+			{
+				"name": invoice["api_ref"],
+				"gateway": "IntaSend M-Pesa",
+				"gateway_reference": ("is", "not set"),
+			},
 			"name",
 		)
 		if name:
@@ -308,7 +329,14 @@ def apply_paypal_order(order: dict, expected_tx: str | None = None) -> str | Non
 	payload = json.dumps(order, default=str)[:60000]
 	cap = paypal.completed_capture(order)
 	if cap:
-		fulfil(name, amount=cap["amount"], currency=(cap["currency"] or "").upper(), reference=cap["reference"], receipt=cap["id"], raw=payload)
+		fulfil(
+			name,
+			amount=cap["amount"],
+			currency=(cap["currency"] or "").upper(),
+			reference=cap["reference"],
+			receipt=cap["id"],
+			raw=payload,
+		)
 	elif order.get("status") == "VOIDED":
 		_fail(name, _("The PayPal payment was voided."), payload)
 	else:
@@ -326,7 +354,14 @@ def _fail(name: str, reason: str, raw: str | None = None):
 	frappe.db.set_value(TX, name, values)
 
 
-def fulfil(name: str, amount: float, currency: str, reference: str | None, receipt: str | None, raw: str | None = None) -> bool:
+def fulfil(
+	name: str,
+	amount: float,
+	currency: str,
+	reference: str | None,
+	receipt: str | None,
+	raw: str | None = None,
+) -> bool:
 	"""Grant the plan's days. Safe to call any number of times."""
 	row = frappe.db.sql(
 		f"select name, status, amount, currency, plan, guardian, user from `tab{TX}` where name=%s for update",
@@ -357,12 +392,17 @@ def fulfil(name: str, amount: float, currency: str, reference: str | None, recei
 
 	plan = frappe.get_doc("Subscription Plan", tx.plan)
 	sub_name = frappe.db.get_value("Parent Subscription", {"guardian": tx.guardian}, "name")
-	sub = frappe.get_doc("Parent Subscription", sub_name) if sub_name else frappe.get_doc(
-		{"doctype": "Parent Subscription", "guardian": tx.guardian, "user": tx.user}
+	sub = (
+		frappe.get_doc("Parent Subscription", sub_name)
+		if sub_name
+		else frappe.get_doc({"doctype": "Parent Subscription", "guardian": tx.guardian, "user": tx.user})
 	)
 	now = now_datetime()
 	starts_from = now
-	for value in (sub.current_period_end if sub.status == "Active" else None, sub.trial_ends_on if sub.status == "Trial" else None):
+	for value in (
+		sub.current_period_end if sub.status == "Active" else None,
+		sub.trial_ends_on if sub.status == "Trial" else None,
+	):
 		if value and get_datetime(value) > starts_from:
 			starts_from = get_datetime(value)
 	if sub.status != "Active" or not sub.current_period_start:
@@ -403,5 +443,11 @@ def _notify_paid(tx, plan, sub):
 			"<p>Thank you. We received {0} {1} for the {2} plan.</p>"
 			"<p>Your family's access now runs until <b>{3}</b>.</p>"
 			"<p>Reference: {4}</p>"
-		).format(tx.currency, frappe.utils.fmt_money(tx.amount), plan.plan_name, frappe.utils.format_datetime(sub.current_period_end), tx.name),
+		).format(
+			tx.currency,
+			frappe.utils.fmt_money(tx.amount),
+			plan.plan_name,
+			frappe.utils.format_datetime(sub.current_period_end),
+			tx.name,
+		),
 	)

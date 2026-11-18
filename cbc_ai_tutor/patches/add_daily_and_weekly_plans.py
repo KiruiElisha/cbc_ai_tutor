@@ -15,4 +15,6 @@ def execute():
 		if plan["billing_period"] in ("Daily", "Weekly") and not frappe.db.exists(
 			"Subscription Plan", plan["plan_name"]
 		):
-			frappe.get_doc({"doctype": "Subscription Plan", "enabled": 1, **plan}).insert(ignore_permissions=True)
+			frappe.get_doc({"doctype": "Subscription Plan", "enabled": 1, **plan}).insert(
+				ignore_permissions=True
+			)

@@ -12,11 +12,10 @@ frappe.listview_settings["Strand"] = {
 						freeze_message: __("Importing the curriculum…"),
 						callback: ({ message: added }) => {
 							frappe.msgprint(
-								__("Added {0} strands, {1} sub-strands and {2} learning outcomes.", [
-									added.Strand,
-									added["Sub-strand"],
-									added["Learning Outcome"],
-								]),
+								__(
+									"Added {0} strands, {1} sub-strands and {2} learning outcomes.",
+									[added.Strand, added["Sub-strand"], added["Learning Outcome"]]
+								)
 							);
 							listview.refresh();
 						},

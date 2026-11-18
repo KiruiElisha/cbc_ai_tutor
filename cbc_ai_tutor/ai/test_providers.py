@@ -449,3 +449,19 @@ class TestPhotos(unittest.TestCase):
 		):
 			providers.complete("sys", TURNS, images=PHOTO)
 		self.assertEqual(asked, ["Google Gemini"])
+
+
+class TestTiers(unittest.TestCase):
+	"""Short, simple questions go to fast and cheap models; lessons and hard questions to strong ones."""
+
+	def _order(self, light):
+		cheap = _conf("Google Gemini", tier="Fast and cheap")
+		strong = _conf("Anthropic", tier="Strong")
+		with patch.object(providers, "_stats", return_value={}):
+			return [c.provider for c in providers._order([strong, cheap], "Smart", light)]
+
+	def test_a_light_question_goes_to_the_cheap_tier_first(self):
+		self.assertEqual(self._order(True), ["Google Gemini", "Anthropic"])
+
+	def test_a_heavy_one_goes_to_the_strong_tier_first(self):
+		self.assertEqual(self._order(False), ["Anthropic", "Google Gemini"])

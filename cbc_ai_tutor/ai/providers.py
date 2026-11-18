@@ -132,7 +132,17 @@ def _more_providers(base: frappe._dict) -> list[frappe._dict]:
 	rows = frappe.get_all(
 		"CBC AI Provider",
 		filters={"parenttype": common.SETTINGS, "parentfield": "ai_providers", "enabled": 1},
-		fields=["name", "provider", "model", "base_url", "use_for", "daily_limit"],
+		fields=[
+			"name",
+			"provider",
+			"model",
+			"base_url",
+			"use_for",
+			"daily_limit",
+			"tier",
+			"input_price",
+			"output_price",
+		],
 		order_by="idx",
 	)
 	out = []
@@ -145,6 +155,9 @@ def _more_providers(base: frappe._dict) -> list[frappe._dict]:
 			key=get_decrypted_password("CBC AI Provider", row.name, "api_key", raise_exception=False) or "",
 			use_for=row.use_for or "Everything",
 			daily_limit=cint(row.daily_limit),
+			tier=row.tier or "Strong",
+			input_price=flt(row.input_price),
+			output_price=flt(row.output_price),
 		)
 		try:
 			_check(conf)
@@ -240,14 +253,26 @@ def _ready(conf: frappe._dict, stats: dict) -> bool:
 	return not (limit and stats.get("day") == _today() and stats.get("used", 0) >= limit)
 
 
-def _order(pool: list[frappe._dict], routing: str) -> list[frappe._dict]:
+CHEAP = "Fast and cheap"
+
+
+def _order(pool: list[frappe._dict], routing: str, light: bool | None = None) -> list[frappe._dict]:
 	"""Ready providers first (fastest first, unless routing is "In order"); resting ones last,
-	so they are still tried when nothing else answers."""
+	so they are still tried when nothing else answers.
+
+	`light` True puts Fast and cheap providers ahead (a short, simple question), False puts Strong
+	ones ahead (a lesson, or a question that needs working); None keeps speed alone."""
 	stats = {_id(conf): _stats(conf) for conf in pool}
 	ready = [conf for conf in pool if _ready(conf, stats[_id(conf)])]
 	resting = [conf for conf in pool if conf not in ready]
 	if routing != IN_ORDER:
-		ready.sort(key=lambda conf: _expected(conf, stats[_id(conf)]))
+
+		def rank(conf):
+			cheap = conf.get("tier") == CHEAP
+			tier = 0 if light is None or cheap == bool(light) else 1
+			return (tier, _expected(conf, stats[_id(conf)]))
+
+		ready.sort(key=rank)
 	return ready + resting
 
 
@@ -259,6 +284,7 @@ def complete(
 	max_tokens: int | None = None,
 	on_text=None,
 	images: list[dict] | None = None,
+	light: bool | None = None,
 ) -> dict:
 	"""The reply from whichever provider answers first, by CBC Settings' routing.
 
@@ -282,7 +308,7 @@ def complete(
 	if on_text and not json_mode:
 		pool = _sharing_one_writer(pool, on_text)
 	routing = common.setting("ai_routing", SMART) or SMART
-	order = _order(pool, routing)
+	order = _order(pool, routing, False if json_mode else light)
 	if routing == IN_ORDER or len(order) == 1:
 		return _one_after_another(order, system, messages, json_mode)
 	wait = 0 if routing == RACE else max(flt(common.setting("ai_hedge_seconds", 6)), 1)
@@ -928,3 +954,51 @@ def _repair_json(text: str) -> str:
 		out.append(c)
 		i += 1
 	return "".join(out)
+
+
+@frappe.whitelist()
+def usage(days: int = 30) -> dict:
+	"""CBC Settings' "AI usage": answers, tokens and cost by provider over the last `days`, and how
+	each provider is doing now (its usual time, failures in a row, resting)."""
+	frappe.only_for("System Manager")
+	from frappe.utils import add_days, now_datetime
+
+	days = min(max(cint(days), 1), 365)
+	rows = frappe.db.sql(
+		"""select coalesce(nullif(provider, ''), 'unknown') as provider, coalesce(model, '') as model,
+			count(*) as answers, sum(input_tokens) as input_tokens, sum(output_tokens) as output_tokens,
+			sum(source = 'Cache') as cached
+		from `tabAI Tutor Interaction` where creation >= %s group by 1, 2 order by answers desc""",
+		add_days(now_datetime(), -days),
+		as_dict=True,
+	)
+	try:
+		pool = []
+		for task in ("chat", "content"):
+			pool += [c for c in _pool(task) if _id(c) not in {_id(p) for p in pool}]
+	except AIUnavailable:
+		pool = []
+	prices = {(c.provider, c.model): (flt(c.get("input_price")), flt(c.get("output_price"))) for c in pool}
+	for row in rows:
+		price_in, price_out = prices.get((row.provider, row.model), (0, 0))
+		row["cost_usd"] = (
+			round((flt(row.input_tokens) * price_in + flt(row.output_tokens) * price_out) / 1e6, 2)
+			if price_in or price_out
+			else None
+		)
+	now = []
+	for conf in pool:
+		stats = _stats(conf)
+		now.append(
+			{
+				"provider": conf.provider,
+				"model": conf.model,
+				"tier": conf.get("tier") or "Strong",
+				"seconds": stats.get("avg"),
+				"answers_seen": stats.get("n", 0),
+				"failures_in_a_row": stats.get("fails", 0),
+				"resting": stats.get("rest_until", 0) > time.time(),
+				"today": stats.get("used", 0) if stats.get("day") == _today() else 0,
+			}
+		)
+	return {"days": days, "by_provider": rows, "now": now}

@@ -79,6 +79,7 @@
   import AssignmentEdit from './screens/teacher/AssignmentEdit.svelte'
   import Submissions from './screens/teacher/Submissions.svelte'
   import Inbox from './screens/teacher/Inbox.svelte'
+  import { t } from './lib/i18n.js'
 
   const screens = {
     guest: { home: Welcome, login: Login, signup: Signup, learner_login: LearnerLogin, settings: Settings },
@@ -184,7 +185,7 @@
     <aside class="side">
       <div class="brand"><img src={import.meta.env.BASE_URL + 'logo.svg'} alt="" /> CBC Tutor</div>
       {#each nav as [path, icon, label]}
-        <a class="nav-link" class:on={current === path} href={'#' + path}><span class="ico">{icon}</span>{label}</a>
+        <a class="nav-link" class:on={current === path} href={'#' + path}><span class="ico">{icon}</span>{t(label)}</a>
       {/each}
       <div class="grow"></div>
       <div class="small muted" style="padding: 0 12px">
@@ -197,7 +198,7 @@
     </div>
     <nav class="bottom">
       {#each nav as [path, icon, label]}
-        <a class="nav-link grow" class:on={current === path} href={'#' + path}><span class="ico">{icon}</span>{label}</a>
+        <a class="nav-link grow" class:on={current === path} href={'#' + path}><span class="ico">{icon}</span>{t(label)}</a>
       {/each}
     </nav>
   </div>

@@ -11,6 +11,7 @@
   import Empty from '../../components/Empty.svelte'
   import AskMwalimu from '../../components/AskMwalimu.svelte'
   import { plain } from '../../lib/format.js'
+  import { t } from '../../lib/i18n.js'
 
   let { params } = $props()
   let quiz = $state(null)
@@ -121,9 +122,9 @@
         <div class="small muted" style="margin-top: 6px">Your teacher sees the score after your next sync.</div>
       </div>
       <div class="row wrap" style="margin-bottom: 16px">
-        {#if left === null || left > 1}<button class="btn ghost" onclick={retry}>Try again</button>{/if}
+        {#if left === null || left > 1}<button class="btn ghost" onclick={retry}>{t('Try again')}</button>{/if}
         {#if params.lesson}<a class="btn ghost" href={`#/tutor?lesson=${enc(params.lesson)}`}>💬 Ask Mwalimu what I missed</a>{/if}
-        <a class="btn" href="#/">Back to lessons</a>
+        <a class="btn" href="#/">{t('Back to lessons')}</a>
       </div>
     {:else}
       <div class="dots" aria-label="Question {step + 1} of {questions.length}">
@@ -147,7 +148,7 @@
           </button>
         {/each}
         {#if !result && checked[q.name]}
-          <div class="verdict" class:ok={isRight(q)}>{isRight(q) ? '🎉 Correct!' : '❌ Not quite: the right answer is marked green.'}</div>
+          <div class="verdict" class:ok={isRight(q)}>{isRight(q) ? '🎉 ' + t('Correct!') : '❌ ' + t('Not quite: the right answer is marked green.')}</div>
         {/if}
       </div>
     {/each}
@@ -155,7 +156,7 @@
     {#if result && next}
       <a class="card tap row learn-next" href={`#/lesson/${enc(next.lesson.name)}`}>
         <span class="today-ico">{next.lesson.name === params.lesson ? '🔁' : '➡️'}</span>
-        <span class="grow"><small class="muted">{next.lesson.name === params.lesson ? 'Learn this again' : 'Learn this next'}</small><b style="display: block">{next.lesson.title}</b><small class="muted">{next.why}</small></span>
+        <span class="grow"><small class="muted">{t(next.lesson.name === params.lesson ? 'Learn this again' : 'Learn this next')}</small><b style="display: block">{next.lesson.title}</b><small class="muted">{next.why}</small></span>
       </a>
     {/if}
 
@@ -163,12 +164,12 @@
       <div class="row" style="margin-top: 16px">
         {#if step > 0}<button class="btn ghost" onclick={() => step--}>Back</button>{/if}
         {#if !checked[questions[step].name]}
-          <button class="btn grow" onclick={() => (checked[questions[step].name] = true)} disabled={!answers[questions[step].name]?.size}>Check my answer</button>
+          <button class="btn grow" onclick={() => (checked[questions[step].name] = true)} disabled={!answers[questions[step].name]?.size}>{t('Check my answer')}</button>
         {:else if step < questions.length - 1}
-          <button class="btn grow" onclick={() => step++}>Next question</button>
+          <button class="btn grow" onclick={() => step++}>{t('Next question')}</button>
         {:else}
           <button class="btn grow" onclick={submit} disabled={answered < questions.length}>
-            {answered < questions.length ? `Answer all ${questions.length} questions` : 'See my score'}
+            {answered < questions.length ? `Answer all ${questions.length} questions` : t('See my score')}
           </button>
         {/if}
       </div>
@@ -180,7 +181,7 @@
   <!-- A hint for this question, not its answer: the quiz still checks what the learner knows. -->
   <AskMwalimu
     href={`#/tutor?${params.lesson ? `lesson=${enc(params.lesson)}&` : ''}mode=hint&ask=${enc(`I'm stuck on this question: ${plain(questions[step].question)}`)}`}
-    label="Stuck? Get a hint"
+    label={t("Stuck? Get a hint")}
   />
 {/if}
 

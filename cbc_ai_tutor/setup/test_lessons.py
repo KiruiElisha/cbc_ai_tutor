@@ -15,7 +15,11 @@ class TestBundledLessons(unittest.TestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
 		frappe.get_doc({"doctype": "Program", "program_name": GRADE, "program_abbreviation": "LT7"}).insert()
-		self.row = next(r for r in json.loads((BUNDLED / "grade-7.json").read_text()) if r["learning_area"] == "Mathematics")
+		self.row = next(
+			r
+			for r in json.loads((BUNDLED / "grade-7.json").read_text())
+			if r["learning_area"] == "Mathematics"
+		)
 		import_text(
 			"grade,learning_area,strand,sub_strand,outcome\n"
 			f'{GRADE},Mathematics,"{self.row["strand"]}","{self.row["sub_strand"]}",Read big numbers\n'
