@@ -5,15 +5,18 @@
   import TopBar from '../../components/TopBar.svelte'
   import Loading from '../../components/Loading.svelte'
   import { subject } from '../../lib/subjects.js'
+  import { earned } from '../../lib/badges.js'
 
   let areas = $state([])
   let competencies = $state([])
   let totals = $state({ lessons: 0, done: 0, time: 0, quizzes: 0 })
   let loading = $state(true)
   let act = $state({ streak: 0 })
+  let badges = $state([])
 
   onMount(async () => {
     act = await L.activity()
+    badges = await earned()
     const done = await L.progressByLesson()
     const best = await L.bestScores()
     const attempts = await L.mine('quiz_attempt')
@@ -52,6 +55,17 @@
       <div class="card"><div class="stat">{totals.quizzes}</div><div class="small muted">quizzes taken</div></div>
       <div class="card"><div class="stat">{minutes(totals.time)}</div><div class="small muted">spent learning</div></div>
       <div class="card"><div class="stat">🔥 {act.streak}</div><div class="small muted">day{act.streak === 1 ? '' : 's'} in a row</div></div>
+    </div>
+
+    <div class="section"><h2>Badges</h2><span class="small muted">{badges.filter((b) => b.got).length} of {badges.length}</span></div>
+    <div class="badges">
+      {#each badges as b}
+        <div class="badge" class:got={b.got} title={b.how}>
+          <span class="badge-icon">{b.got ? b.icon : '🔒'}</span>
+          <b>{b.name}</b>
+          <small>{b.how}</small>
+        </div>
+      {/each}
     </div>
 
     <div class="section"><h2>By learning area</h2></div>

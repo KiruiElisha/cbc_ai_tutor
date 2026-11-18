@@ -292,6 +292,12 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
 .subjects { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 @media (max-width: 420px) { .subjects { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
 .subject b { line-height: 1.25; }
+.subject { position: relative; }
+.sring {
+  position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--c) calc(var(--p) * 1%), color-mix(in srgb, var(--c) 14%, white) 0);
+}
+.sring b { width: 34px; height: 34px; border-radius: 50%; background: white; display: grid; place-items: center; font-size: 0.68rem; color: var(--ink-2); }
 .subject .bar { margin-top: 10px; height: 6px; }
 .subject .bar > i { background: var(--c); }
 
@@ -317,8 +323,8 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
 .mwalimu-face, .msg-face {
   display: grid; place-items: center; border-radius: 50%; flex-shrink: 0; background: white; box-shadow: 0 0 0 3px var(--ke-red);
 }
-.mwalimu-face { width: 58px; height: 58px; font-size: 2rem; }
-.msg-face { width: 32px; height: 32px; font-size: 1.05rem; box-shadow: 0 0 0 2px var(--brand-line); margin-top: 2px; }
+.mwalimu-face { width: 62px; height: 62px; background: none; box-shadow: none; }
+.msg-face { width: 32px; height: 32px; background: none; box-shadow: none; margin-top: 2px; }
 
 .ideas { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 8px; }
 @media (max-width: 520px) { .ideas { grid-template-columns: 1fr; } }
@@ -382,12 +388,31 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
 .chip-btn:hover { background: var(--brand-soft); }
 
 .composer-wrap { position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 14px); padding: 14px 0 12px; margin-top: auto; z-index: 3; }
+.context-chip {
+  position: sticky; top: 64px; z-index: 4; display: flex; gap: 10px; align-items: center; padding: 8px 12px; margin-bottom: 10px;
+  background: #fff8e6; border: 1px solid #fde68a; border-radius: 12px; font-size: 0.88rem;
+}
+.context-chip span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.context-chip a { text-decoration: none; font-weight: 600; }
+.modes-toggle { display: none; }
+@media (max-width: 520px) {
+  .modes-toggle {
+    display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); background: var(--card); border-radius: 999px;
+    padding: 5px 12px; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--ink-2); margin-bottom: 8px; cursor: pointer;
+  }
+  .modes { display: none !important; }
+  .modes.open { display: flex !important; flex-wrap: wrap; }
+}
 .modes { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
 .mode {
   border: 1px solid var(--line); background: var(--card); color: var(--ink-2); border-radius: 999px; padding: 5px 12px; font: inherit;
   font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .mode.on { background: var(--ke-black); color: white; border-color: var(--ke-black); }
+.photo-chip { display: flex; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px; margin-bottom: 8px; }
+.photo-chip img { width: 54px; height: 54px; object-fit: cover; border-radius: 10px; }
+.sent-photo { display: block; max-width: 220px; max-height: 220px; border-radius: 10px; margin: 2px 0 6px; }
+.round.cam { background: var(--bg); width: 38px; height: 38px; margin-left: -8px; }
 .composer {
   display: flex; align-items: flex-end; gap: 6px; background: var(--card); border: 1.5px solid #cbd5e1; border-radius: 22px; padding: 6px 6px 6px 14px;
   box-shadow: 0 6px 22px rgb(15 23 42 / 0.07);
@@ -421,6 +446,23 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
   .chips { padding-left: 0; }
 }
 
+.today { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 6px 6px 8px; margin-bottom: 16px; }
+.today-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 10px 4px; }
+.today-head h2 { margin: 0; font-size: 1.1rem; }
+.today-row { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 14px; text-decoration: none; color: var(--ink); }
+.today-row:hover { background: var(--bg); }
+.today-row small { display: block; color: var(--muted); font-size: 0.78rem; }
+.today-row b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.today-ico { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--brand-soft); font-size: 1.2rem; flex-shrink: 0; }
+.today-ico.play { background: var(--sun); color: #1f1300; border-radius: 50%; font-size: 0.95rem; }
+
+.badges { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.badge { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 12px 8px; border-radius: 16px; background: var(--card); border: 1px dashed var(--line); opacity: 0.6; }
+.badge.got { opacity: 1; border: 1px solid #fde68a; background: linear-gradient(180deg, #fffbeb, white); }
+.badge-icon { font-size: 1.9rem; }
+.badge b { font-size: 0.9rem; }
+.badge small { color: var(--muted); font-size: 0.74rem; line-height: 1.3; }
+
 /* "Stuck? Ask Mwalimu" (components/AskMwalimu.svelte) */
 .ask-fab {
   position: fixed; right: 20px; bottom: calc(20px + var(--safe-bottom)); z-index: 8; display: flex; align-items: center; gap: 8px;
@@ -428,7 +470,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--brand-line)
   box-shadow: 0 8px 24px rgb(15 23 42 / 0.28); transition: transform 0.12s;
 }
 .ask-fab:hover { transform: translateY(-2px); }
-.ask-fab .fab-face { width: 36px; height: 36px; border-radius: 50%; background: white; display: grid; place-items: center; font-size: 1.2rem; box-shadow: 0 0 0 2px var(--ke-red); }
+.ask-fab .fab-face { display: grid; }
 @media (max-width: 760px) {
   .ask-fab { bottom: calc(80px + var(--safe-bottom)); right: 12px; }
   .ask-fab .fab-label { font-size: 0.86rem; }

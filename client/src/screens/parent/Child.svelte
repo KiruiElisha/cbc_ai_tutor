@@ -141,6 +141,29 @@
       </div>
     </div>
 
+    {#if r.highlights}
+      <!-- The report card: the week in a sentence, then each learning area at a glance. -->
+      <section class="report">
+        <p class="report-line">{r.highlights.headline}</p>
+        <div class="row wrap" style="gap: 8px; margin-bottom: 12px">
+          {#if r.highlights.strong}
+            <span class="pill ok">⭐ Best: {r.highlights.strong.title}{r.highlights.strong.quiz_average != null ? ` · ${Math.round(r.highlights.strong.quiz_average)}%` : ''}</span>
+          {/if}
+          {#each r.highlights.practise as p}<span class="pill warn">🎯 Practise: {p.title} · {p.why}</span>{/each}
+        </div>
+        <div class="area-bars">
+          {#each r.learning_areas as a}
+            <div class="area-bar">
+              <span class="area-name">{a.title}</span>
+              <span class="bar"><i style="width: {a.percent}%"></i></span>
+              <span class="area-num">{a.percent}%{a.quiz_average != null ? ` · ${Math.round(a.quiz_average)}%` : ''}</span>
+            </div>
+          {/each}
+        </div>
+        <p class="small muted" style="margin: 8px 0 0">Bars show lessons done; the second number is the quiz average. You get this summary by email every Sunday.</p>
+      </section>
+    {/if}
+
     <div class="tabs">
       <button class="tab" class:on={tab === 'areas'} onclick={() => (tab = 'areas')}>Learning areas</button>
       <button class="tab" class:on={tab === 'school'} onclick={() => (tab = 'school')}>School work</button>
@@ -231,3 +254,14 @@
     <button class="btn block" disabled={busy || message.trim().length < 3}>Send</button>
   </form>
 </Modal>
+
+<style>
+  .report { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin: 14px 0; box-shadow: var(--shadow); border-top: 5px solid var(--brand); }
+  .report-line { font-size: 1.15rem; font-weight: 700; margin: 0 0 10px; line-height: 1.4; }
+  .area-bars { display: grid; gap: 8px; }
+  .area-bar { display: grid; grid-template-columns: minmax(110px, 200px) 1fr auto; gap: 10px; align-items: center; font-size: 0.88rem; }
+  .area-bar .bar { height: 10px; }
+  .area-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .area-num { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 72px; text-align: right; }
+  @media (max-width: 520px) { .area-bar { grid-template-columns: 1fr auto; } .area-bar .bar { grid-column: 1 / -1; order: 3; } }
+</style>

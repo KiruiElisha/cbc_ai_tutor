@@ -115,3 +115,57 @@ class TestWriteLesson(unittest.TestCase):
 			{"doctype": "Program", "program_name": "CONTENTTEST Grade 5", "program_abbreviation": "CT5"}
 		).insert()
 		self.assertNotIn(self.sub.name, content.without_lessons(1000, "CONTENTTEST Grade 5"))
+
+
+class TestFreeLessonRun(unittest.TestCase):
+	"""The daily run: a slow lesson is skipped, a topic is never written twice, a dead provider stops it."""
+
+	def _run(self, missing, write, existing=()):
+		written = []
+
+		def fake_write(sub_strand):
+			written.append(sub_strand)
+			return write(sub_strand)
+
+		with (
+			patch.object(content, "free_lessons_missing", side_effect=[missing, []]),
+			patch.object(content, "write_lesson", side_effect=fake_write),
+			patch.object(content.frappe.db, "exists", side_effect=lambda dt, f: f["sub_strand"] in existing),
+			patch.object(content.frappe.db, "set_value"),
+			patch.object(content.frappe.db, "commit"),
+			patch.object(content.frappe.db, "rollback"),
+			patch.object(content.frappe, "log_error"),
+		):
+			result = content.write_free()
+		return written, result
+
+	def test_one_lesson_that_times_out_does_not_stop_the_rest(self):
+		def write(sub):
+			if sub == "SS-1":
+				raise content.providers.AIUnavailable("The tutor took too long to answer. Try again.")
+			return "L-" + sub
+
+		written, result = self._run([("SS-1", None, "Grade 9"), ("SS-2", None, "Grade 9")], write)
+		self.assertEqual(written, ["SS-1", "SS-2"])
+		self.assertEqual(result["written"], 1)
+
+	def test_a_topic_that_got_a_lesson_meanwhile_is_not_written_again(self):
+		written, _ = self._run(
+			[("SS-1", None, "Grade 9"), ("SS-2", None, "Grade 9")], lambda sub: "L-" + sub, existing={"SS-1"}
+		)
+		self.assertEqual(written, ["SS-2"])
+
+	def test_a_provider_that_keeps_failing_stops_the_run(self):
+		def down(sub):
+			raise content.providers.AIUnavailable("The tutor can't be reached right now.")
+
+		missing = [(f"SS-{n}", None, "Grade 9") for n in range(6)]
+		written, _ = self._run(missing, down)
+		self.assertEqual(len(written), content.FAILURES_IN_A_ROW)
+
+	def test_a_rejected_key_stops_the_run_at_once(self):
+		def rejected(sub):
+			raise content.providers.AIUnavailable("The AI provider rejected the API key.")
+
+		written, _ = self._run([("SS-1", None, "G"), ("SS-2", None, "G")], rejected)
+		self.assertEqual(written, ["SS-1"])

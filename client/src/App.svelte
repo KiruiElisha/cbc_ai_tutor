@@ -12,6 +12,7 @@
   route('/quiz/:id', 'quiz')
   route('/tutor', 'tutor')
   route('/practice', 'practice')
+  route('/review', 'review')
   route('/drill', 'drill')
   route('/drill/:topic', 'drill')
   route('/work', 'work')
@@ -55,6 +56,7 @@
   import Quiz from './screens/learner/Quiz.svelte'
   import Tutor from './screens/learner/Tutor.svelte'
   import Practice from './screens/learner/Practice.svelte'
+  import Review from './screens/learner/Review.svelte'
   import Drill from './screens/learner/Drill.svelte'
   import Work from './screens/learner/Work.svelte'
   import WorkItem from './screens/learner/WorkItem.svelte'
@@ -79,7 +81,7 @@
   const screens = {
     guest: { home: Welcome, login: Login, signup: Signup, learner_login: LearnerLogin, settings: Settings },
     Learner: {
-      home: LearnerHome, area: Area, lesson: Lesson, quiz: Quiz, tutor: Tutor, practice: Practice, drill: Drill,
+      home: LearnerHome, area: Area, lesson: Lesson, quiz: Quiz, tutor: Tutor, practice: Practice, review: Review, drill: Drill,
       work: Work, work_item: WorkItem, my_progress: MyProgress, sync: Sync, settings: Settings,
     },
     Parent: {

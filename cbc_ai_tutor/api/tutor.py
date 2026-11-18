@@ -154,9 +154,11 @@ def ask(
 	learning_outcome: str | None = None,
 	style: str | None = None,
 	stream: str | None = None,
+	image: str | None = None,
 ) -> dict:
 	student = common.current_learner()
-	message = cstr(message).strip()
+	photo = _photo(image)
+	message = cstr(message).strip() or (_("Please help me with this.") if photo else "")
 	styles = [s for s in cstr(style).split(",") if s in STYLES]
 	if not message:
 		frappe.throw(_("Type a question first."))
@@ -175,7 +177,7 @@ def ask(
 	# Only a first question is shared: a follow-up depends on the conversation before it.
 	scope = ctx.lesson or (ctx.sub_strand or {}).get("name")
 	# A styled answer (a hint, Kiswahili, spoken) is not the shared answer to the plain question.
-	key = None if history or styles else reuse.question_key(ctx.grade, scope, message)
+	key = None if history or styles or photo else reuse.question_key(ctx.grade, scope, message)
 	cached = reuse.cached_answer(key)
 	if cached:
 		reply = {"text": _html_to_markdownish(cached), "provider": "cache", "model": "", "input_tokens": 0, "output_tokens": 0}
@@ -184,8 +186,13 @@ def ask(
 		system = _system_prompt(ctx)
 		if styles:
 			system += "\n\nHow to answer:\n" + "\n".join(f"- {STYLES[s]}" for s in styles)
+		if photo:
+			system += "\n\n" + PHOTO_RULES
 		reply = providers.complete(
-			system, [*history, {"role": "user", "content": message}], on_text=_writer(student, stream)
+			system,
+			[*history, {"role": "user", "content": message}],
+			on_text=_writer(student, stream),
+			images=[{"mime": photo["mime"], "data": photo["data"]}] if photo else None,
 		)
 
 	doc = frappe.get_doc(
@@ -195,7 +202,7 @@ def ask(
 			"date": now_datetime(),
 			"topic": cstr(ctx.topic)[:140] or message[:140],
 			"conversation": conversation,
-			"question": frappe.utils.escape_html(message),
+			"question": ("📷 " if photo else "") + frappe.utils.escape_html(message),
 			"ai_response": cached or md_to_html(reply["text"]),
 			"linked_learning_outcome": ctx.outcome.name if ctx.outcome else None,
 			"lesson": ctx.lesson,
@@ -208,12 +215,57 @@ def ask(
 		}
 	)
 	doc.insert(ignore_permissions=True)
+	if photo:
+		# Kept privately with the question, for the parent and teacher to see what was asked.
+		frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"mwalimu-{doc.name}.{photo['ext']}",
+				"attached_to_doctype": "AI Tutor Interaction",
+				"attached_to_name": doc.name,
+				"is_private": 1,
+				"content": photo["bytes"],
+			}
+		).insert(ignore_permissions=True)
 	return {
 		"interaction": doc.name,
 		"conversation": conversation,
 		"answer": reply["text"],
 		"quota": sync.ai_quota(student),
 	}
+
+
+PHOTO_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+PHOTO_MAX_BYTES = 4 * 1024 * 1024
+PHOTO_RULES = (
+	"The learner sent a photo of their schoolwork (a book page, worksheet or their own working). "
+	"Read it carefully and help with what it shows, guiding rather than just giving answers. If you "
+	"can't read part of it, say which part. If it shows a person or anything other than schoolwork, "
+	"say kindly that you can only help with photos of schoolwork, and do not describe the person."
+)
+
+
+def _photo(image: str | None) -> dict | None:
+	"""A photo sent with a question, as a data URL or bare base64: checked, and ready to send."""
+	import base64
+	import binascii
+
+	if not image:
+		return None
+	mime = "image/jpeg"
+	data = cstr(image).strip()
+	if data.startswith("data:"):
+		head, _sep, data = data.partition(",")
+		mime = head[5:].split(";")[0].lower()
+	if mime not in PHOTO_TYPES:
+		frappe.throw(_("Send the photo as a JPEG, PNG or WebP picture."))
+	try:
+		raw = base64.b64decode(data, validate=True)
+	except (binascii.Error, ValueError):
+		frappe.throw(_("The photo could not be read. Take it again."))
+	if len(raw) > PHOTO_MAX_BYTES:
+		frappe.throw(_("The photo is too large. Take it again a little further away."))
+	return {"mime": mime, "ext": PHOTO_TYPES[mime], "data": data, "bytes": raw}
 
 
 STREAM_KEY = "cbc_tutor_stream:"

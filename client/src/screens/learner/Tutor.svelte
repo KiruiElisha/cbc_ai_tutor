@@ -7,7 +7,9 @@
   import * as L from '../../lib/learner.js'
   import { solve } from '../../lib/maths.js'
   import { canListen, canSpeak, listen, speak, stopSpeaking, looksSwahili } from '../../lib/voice.js'
+  import { shrinkPhoto } from '../../lib/photo.js'
   import TopBar from '../../components/TopBar.svelte'
+  import Mwalimu from '../../components/Mwalimu.svelte'
   import Loading from '../../components/Loading.svelte'
   import ErrorBox from '../../components/ErrorBox.svelte'
 
@@ -20,9 +22,12 @@
   let busy = $state(false)
   let waited = $state(0)
   let draft = $state('')
+  let photo = $state(null)
+  let picker
   let error = $state(null)
   let quota = $state(null)
   let loading = $state(true)
+  let showModes = $state(false)
   let mode = $state(['hint', 'steps', 'simple', 'quiz', 'check', 'kiswahili'].includes(params.mode) ? params.mode : null)
   let listening = $state(false)
   let speaking = $state(null)
@@ -132,9 +137,27 @@
     box.style.height = Math.min(box.scrollHeight, 160) + 'px'
   }
 
+  async function pickPhoto(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    try {
+      photo = await shrinkPhoto(file)
+      box?.focus()
+    } catch (err) {
+      toast(err.message || 'That photo could not be used.', 'error')
+    }
+  }
+
   async function send(message = text, style = mode) {
     message = message.trim()
-    if (!message || busy) return
+    const sentPhoto = photo
+    if ((!message && !sentPhoto) || busy) return
+    if (sentPhoto && !app.online) {
+      toast('Photos need the internet. Type the question to work out sums offline.', 'error')
+      return
+    }
+    photo = null
     stopListening?.()
     stopSpeaking()
     text = ''
@@ -143,9 +166,9 @@
     grow()
     const spoken = spokenQuestion
     spokenQuestion = false
-    messages.push({ me: true, text: message, mode: style })
+    messages.push({ me: true, text: message, mode: style, photo: sentPhoto?.preview })
     // Sums are worked out on the device: instant, offline, and no tutor question used.
-    const sum = solve(message)
+    const sum = sentPhoto ? null : solve(message)
     if (sum) {
       messages.push({ me: false, text: sum.markdown, local: true })
       scroll()
@@ -183,7 +206,14 @@
     }
     poll()
     try {
-      const res = await api('tutor.ask', { message, conversation, lesson: lesson?.name || null, style: styles || null, stream })
+      const res = await api('tutor.ask', {
+        message,
+        conversation,
+        lesson: lesson?.name || null,
+        style: styles || null,
+        stream,
+        image: sentPhoto?.dataUrl || null,
+      })
       polling = false
       conversation = res.conversation
       quota = res.quota
@@ -194,6 +224,7 @@
       error = e
       messages.pop()
       text = message
+      photo = sentPhoto
     } finally {
       polling = false
       draft = ''
@@ -300,6 +331,14 @@
 
 <div class="tutor">
   <section class="tutor-chat">
+    {#if lesson}
+      <!-- What Mwalimu is focused on, so the learner knows why answers stay on this lesson. -->
+      <div class="context-chip">
+        <span>📌 Talking about <b>{lesson.title}</b></span>
+        <a href={`#/lesson/${enc(lesson.name)}`} class="small">Open lesson</a>
+        <a href={`#/tutor?new=${Date.now()}`} class="small muted" aria-label="Talk about anything">✕</a>
+      </div>
+    {/if}
     {#if !app.online}
       <div class="banner info">📶 You are offline. Mwalimu can still work out sums; other questions need the internet.</div>
     {/if}
@@ -308,7 +347,7 @@
       <Loading />
     {:else if !messages.length}
       <div class="tutor-hello">
-        <div class="mwalimu-face" aria-hidden="true">🦉</div>
+        <div class="mwalimu-face"><Mwalimu size={62} mood="happy" /></div>
         <div>
           <h2>Hujambo{firstName ? `, ${firstName}` : ''}! I'm Mwalimu</h2>
           <p class="muted">Ask me about any lesson. I'll help you think it through, one step at a time{canListen ? ', and you can talk to me too' : ''}.</p>
@@ -338,10 +377,11 @@
     <div class="feed" bind:this={feed} aria-live="polite">
       {#each messages as m}
         <div class="msg {m.me ? 'me' : 'ai'}">
-          {#if !m.me}<div class="msg-face" aria-hidden="true">🦉</div>{/if}
+          {#if !m.me}<div class="msg-face"><Mwalimu size={32} /></div>{/if}
           <div class="bubble {m.me ? 'me' : 'ai'}">
             {#if m.me}
               {#if m.mode}<span class="mode-tag">{modes.find((x) => x[0] === m.mode)?.[2]}</span>{/if}
+              {#if m.photo}<img class="sent-photo" src={m.photo} alt="What you sent" />{/if}
               {m.text}
             {:else}
               <div class="prose">{@html tutorHtml(m.text)}</div>
@@ -364,7 +404,7 @@
       {/each}
       {#if busy}
         <div class="msg ai">
-          <div class="msg-face" aria-hidden="true">🦉</div>
+          <div class="msg-face"><Mwalimu size={32} mood="think" /></div>
           {#if draft}
             <div class="bubble ai"><div class="prose">{@html tutorHtml(draft)}</div><span class="caret" aria-hidden="true"></span></div>
           {:else}
@@ -385,12 +425,24 @@
     <ErrorBox {error} />
 
     <div class="composer-wrap">
-      <div class="modes" role="group" aria-label="How Mwalimu answers">
+      <button class="modes-toggle" onclick={() => (showModes = !showModes)} aria-expanded={showModes}>
+        {mode ? `${modes.find((x) => x[0] === mode)[1]} ${modes.find((x) => x[0] === mode)[2]}` : '💡 How should I help?'} <span class="muted">{showModes ? '▴' : '▾'}</span>
+      </button>
+      <div class="modes" class:open={showModes} role="group" aria-label="How Mwalimu answers">
         {#each modes as [key, icon, label]}
-          <button class="mode" class:on={mode === key} aria-pressed={mode === key} onclick={() => (mode = mode === key ? null : key)}>{icon} {label}</button>
+          <button class="mode" class:on={mode === key} aria-pressed={mode === key} onclick={() => { mode = mode === key ? null : key; showModes = false }}>{icon} {label}</button>
         {/each}
       </div>
+      {#if photo}
+        <div class="photo-chip">
+          <img src={photo.preview} alt="Ready to send" />
+          <span class="grow small">Photo ready. Add a question, or just send it.</span>
+          <button class="tool" onclick={() => (photo = null)} aria-label="Remove photo">✕</button>
+        </div>
+      {/if}
       <div class="composer" class:listening>
+        <input bind:this={picker} type="file" accept="image/*" capture="environment" onchange={pickPhoto} hidden />
+        <button class="round cam" onclick={() => picker.click()} disabled={busy || !app.online} aria-label="Ask with a photo" title="Ask with a photo">📷</button>
         <textarea
           rows="1"
           bind:this={box}
@@ -405,7 +457,7 @@
           <button class="lang" onclick={toggleLang} title="Voice language" aria-label="Voice language">{lang === 'en-KE' ? 'EN' : 'SW'}</button>
           <button class="round mic" class:on={listening} onclick={mic} disabled={!app.online || busy} aria-label={listening ? 'Stop listening' : 'Speak your question'}>{listening ? '■' : '🎤'}</button>
         {/if}
-        <button class="round send" onclick={() => send()} disabled={busy || !text.trim()} aria-label="Send">➤</button>
+        <button class="round send" onclick={() => send()} disabled={busy || (!text.trim() && !photo)} aria-label="Send">➤</button>
       </div>
       <div class="composer-foot">
         {#if quota && quota.limit}

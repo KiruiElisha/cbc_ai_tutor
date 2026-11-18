@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte'
-  import { app, syncNow, refreshState } from '../../lib/app.svelte.js'
+  import { app, syncNow, refreshState, toast } from '../../lib/app.svelte.js'
   import { call, errorText } from '../../lib/tauri.js'
   import { go, enc } from '../../lib/router.svelte.js'
   import { ago, date } from '../../lib/format.js'
@@ -8,6 +8,8 @@
   import Loading from '../../components/Loading.svelte'
   import Empty from '../../components/Empty.svelte'
   import { subject } from '../../lib/subjects.js'
+  import * as Review from '../../lib/review.js'
+  import { fresh } from '../../lib/badges.js'
 
   let st = $state(null)
   let areas = $state([])
@@ -17,6 +19,7 @@
   let loading = $state(true)
   let firstSync = $state(false)
   let act = $state({ streak: 0, today: 0, goal: 3 })
+  let practice = $state({ questions: [], total: 0 })
 
   const first = () => (app.session?.profile?.learner?.first_name || app.session?.profile?.learner?.name || '').split(' ')[0]
 
@@ -40,6 +43,8 @@
     resume = latest
     const subs = Object.fromEntries((await L.mine('submission')).map((s) => [s.assignment, s]))
     due = (await L.mine('assignment')).filter((a) => a.status === 'Published' && !subs[a.name]).length
+    practice = await Review.due(app.session?.profile?.learner?.student)
+    for (const b of await fresh(app.session?.profile?.learner?.student)) toast(`${b.icon} New badge: ${b.name}!`, 'ok')
     loading = false
   }
 
@@ -103,16 +108,31 @@
       <button class="btn" onclick={() => syncNow().then(load)} disabled={app.syncing}>{app.syncing ? 'Syncing…' : 'Sync now'}</button>
     </Empty>
   {:else}
-    {#if resume}
-      <a class="card tap continue" href={'#/lesson/' + enc(resume.l.name)}>
-        <span class="play">▶</span>
-        <div class="grow">
-          <div class="small muted">Continue where you stopped</div>
-          <b>{resume.l.title}</b>
-          <div class="bar" style="margin-top: 8px"><i style="width: {resume.p.progress || 0}%"></i></div>
-        </div>
+    <!-- Today: everything worth doing now, in one place. -->
+    <section class="today">
+      <div class="today-head"><h2>Today</h2><span class="small muted">{new Date().toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'short' })}</span></div>
+      {#if resume}
+        <a class="today-row" href={'#/lesson/' + enc(resume.l.name)}>
+          <span class="today-ico play">▶</span>
+          <span class="grow"><small>Continue where you stopped</small><b>{resume.l.title}</b>
+            <span class="bar" style="margin-top: 6px; display: block"><i style="width: {resume.p.progress || 0}%"></i></span></span>
+        </a>
+      {/if}
+      <a class="today-row" href="#/review">
+        <span class="today-ico">🎯</span>
+        <span class="grow">
+          <small>Today's practice</small>
+          <b>{practice.questions.length ? `${practice.questions.length} questions · about ${Math.max(1, Math.round(practice.questions.length * 0.5))} min` : 'All caught up'}</b>
+        </span>
+        {#if practice.questions.length}<span class="pill brand">Go</span>{/if}
       </a>
-    {/if}
+      {#if due}
+        <a class="today-row" href="#/work">
+          <span class="today-ico">📝</span>
+          <span class="grow"><small>Assignments</small><b>{due} to hand in</b></span>
+        </a>
+      {/if}
+    </section>
 
     <div class="quick">
       <a class="quick-item" href="#/tutor" style="--c: #0b7a3d"><span class="chip">💬</span><b>Ask Mwalimu</b><small>Your tutor</small></a>
@@ -130,7 +150,10 @@
           <span class="chip">{t.icon}</span>
           <b>{a.title}</b>
           <small>{c.total ? `${c.done} of ${c.total} lessons` : 'Coming soon'}</small>
-          <div class="bar"><i style="width: {c.total ? (100 * c.done) / c.total : 0}%"></i></div>
+          {#if c.total}
+            {@const pct = Math.round((100 * c.done) / c.total)}
+            <span class="sring" style="--p: {pct}" aria-label="{pct}% done"><b>{pct}%</b></span>
+          {/if}
         </a>
       {/each}
     </div>

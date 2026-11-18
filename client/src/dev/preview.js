@@ -57,7 +57,7 @@ const parentField = { strand: 'course', sub_strand: 'strand', lesson: 'course', 
 
 const mine = {
   lesson_progress: [{ lesson: 'L-FRAC-1', status: 'In Progress', progress: 60, last_opened: '2026-10-30 08:12:00' }, { lesson: 'L-WHOLE-1', status: 'Completed', progress: 100, last_opened: '2026-10-29 17:40:00' }],
-  quiz_attempt: [{ quiz: 'Q-PV', score: 80, created: '2026-10-29 17:45:00' }],
+  quiz_attempt: [{ quiz: 'Q-PV', score: 80, created: '2026-10-29 17:45:00' }, { quiz: 'Q-FRAC', score: 50, created: '2026-10-30 08:20:00' }],
   assignment: [{ name: 'ASG-1', title: 'Measure things at home', assignment_type: 'Homework', status: 'Published', due_date: '2026-11-04', course: 'MATH-G4', description: '<p>Measure 3 things at home in centimetres.</p>' }],
   submission: [],
   practice: [],
@@ -83,6 +83,7 @@ const api = {
   'parent.child_progress': {
     learner: { student: 'EDU-STU-0001', name: 'Amina Wanjiru', first_name: 'Amina', grade: 'Grade 4', school: 'Kilimani Primary School', learner_code: 'AMW-4821', enabled: 1 },
     summary: { last_active: '2026-10-30 08:12:00', lessons_completed_this_week: 6, quizzes_this_week: 4 },
+    highlights: { headline: 'Amina finished 6 lessons this week and is doing best in English.', strong: { title: 'English', quiz_average: 85 }, practise: [{ title: 'Science and Technology', why: '11% done' }] },
     ai_questions_this_week: 9,
     learning_areas: [
       { title: 'Mathematics', lessons: 24, completed: 9, percent: 38, quiz_average: 78, minutes: 210 },

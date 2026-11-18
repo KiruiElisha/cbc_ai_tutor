@@ -88,7 +88,11 @@ def report(student: str) -> dict:
 			}
 		)
 
-	lesson_titles = dict(frappe.get_all("Lesson", filters={"program": scope.custom_grade or ""}, fields=["name", "title"], as_list=True))
+	lesson_titles = dict(
+		frappe.get_all(
+			"Lesson", filters={"program": scope.custom_grade or ""}, fields=["name", "title"], as_list=True
+		)
+	)
 	recent_quizzes = frappe.get_all(
 		"Quiz Submission",
 		filters={"student": student},
@@ -152,9 +156,12 @@ def report(student: str) -> dict:
 			}
 		)
 
+	card = learner_card(student)
+	week = summary(student)
 	return {
-		"learner": learner_card(student),
-		"summary": summary(student),
+		"learner": card,
+		"summary": week,
+		"highlights": highlights(card, week, by_area),
 		"learning_areas": by_area,
 		"recent_quizzes": sync._stringify(recent_quizzes),
 		"competencies": sync._stringify(competencies),
@@ -164,4 +171,48 @@ def report(student: str) -> dict:
 		"ai_questions_this_week": frappe.db.count(
 			"AI Tutor Interaction", {"student": student, "date": [">=", add_days(now_datetime(), -7)]}
 		),
+	}
+
+
+def highlights(learner: dict, week: dict, areas: list[dict]) -> dict:
+	"""The report card's first lines, and the weekly email's: one sentence about the week,
+	the learning area going best, and up to two to practise next, each with why."""
+	first = (learner or {}).get("first_name") or ((learner or {}).get("name") or "Your child").split(" ")[0]
+	lessons = cint(week.get("lessons_completed_this_week"))
+	started = [a for a in areas if a["completed"] or a["quiz_average"] is not None]
+	scored = [a for a in started if a["quiz_average"] is not None]
+	strong = max(scored, key=lambda a: a["quiz_average"]) if scored else None
+	if strong and strong["quiz_average"] < 70:
+		strong = None
+	if not strong and started:
+		strong = max(started, key=lambda a: a["percent"])
+
+	if lessons:
+		headline = f"{first} finished {lessons} lesson{'s' if lessons != 1 else ''} this week"
+		headline += f" and is doing best in {strong['title']}." if strong else "."
+	elif week.get("last_active"):
+		headline = (
+			f"{first} has not finished a lesson this week yet. A short one today keeps the habit going."
+		)
+	else:
+		headline = f"{first} has not started yet. The first lesson takes about 15 minutes."
+
+	practise = []
+	for area in sorted(scored, key=lambda a: a["quiz_average"]):
+		if area["quiz_average"] < 60 and area is not strong:
+			practise.append({"title": area["title"], "why": f"quiz average {round(area['quiz_average'])}%"})
+	for area in sorted(areas, key=lambda a: a["percent"]):
+		if len(practise) >= 2:
+			break
+		if area is not strong and area["lessons"] and all(p["title"] != area["title"] for p in practise):
+			practise.append(
+				{
+					"title": area["title"],
+					"why": "not started yet" if not area["completed"] else f"{area['percent']}% done",
+				}
+			)
+	return {
+		"headline": headline,
+		"strong": {"title": strong["title"], "quiz_average": strong["quiz_average"]} if strong else None,
+		"practise": practise[:2],
 	}

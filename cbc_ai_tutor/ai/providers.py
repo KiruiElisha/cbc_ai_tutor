@@ -258,6 +258,7 @@ def complete(
 	json_mode: bool = False,
 	max_tokens: int | None = None,
 	on_text=None,
+	images: list[dict] | None = None,
 ) -> dict:
 	"""The reply from whichever provider answers first, by CBC Settings' routing.
 
@@ -265,8 +266,19 @@ def complete(
 	(all but Cursor). When two providers are asked at once, only the first to write is shown."""
 	task = "content" if json_mode else "chat"
 	pool = _pool(task)
+	if json_mode:
+		# A lesson and its quiz take minutes to write; a learner's chat answer should not.
+		wait = cint(common.setting("ai_content_timeout_seconds", 300)) or 300
+		pool = [frappe._dict(conf, timeout=max(cint(conf.timeout), wait)) for conf in pool]
 	if max_tokens:
 		pool = [frappe._dict(conf, max_tokens=max_tokens) for conf in pool]
+	if images:
+		# A photo of the learner's work goes with their last message; Cursor can't read images.
+		pool = [frappe._dict(conf, images=images) for conf in pool if conf.provider != "Cursor"]
+		if not pool:
+			raise AIUnavailable(
+				_("Photo questions need an AI provider that reads images. Type the question instead.")
+			)
 	if on_text and not json_mode:
 		pool = _sharing_one_writer(pool, on_text)
 	routing = common.setting("ai_routing", SMART) or SMART
@@ -492,6 +504,27 @@ def _sse(response: requests.Response):
 			continue
 
 
+def _last_user(turns: list[dict]) -> int:
+	for i in range(len(turns) - 1, -1, -1):
+		if turns[i]["role"] == "user":
+			return i
+	return -1
+
+
+def _with_images(turns: list[dict], images, part) -> list[dict]:
+	"""The turns with the photos added to the learner's last message, in the provider's shape:
+	`part(image)` makes one image part, and text becomes the matching text part."""
+	if not images:
+		return turns
+	turns = [dict(t) for t in turns]
+	i = _last_user(turns)
+	if i < 0:
+		return turns
+	text = turns[i]["content"]
+	turns[i]["content"] = [*(part(image) for image in images), {"type": "text", "text": text}]
+	return turns
+
+
 def _streaming(conf, json_mode) -> bool:
 	return bool(conf.get("on_text")) and not json_mode
 
@@ -501,9 +534,17 @@ def _openai(conf, system, messages, json_mode):
 	base = conf.base_url or OPENAI_URL
 	if compatible and not conf.base_url:
 		raise AIUnavailable(_("The AI tutor's base URL is not set."))
+	turns = _with_images(
+		list(messages),
+		conf.get("images"),
+		lambda image: {
+			"type": "image_url",
+			"image_url": {"url": f"data:{image['mime']};base64,{image['data']}"},
+		},
+	)
 	body = {
 		"model": conf.model,
-		"messages": [{"role": "system", "content": system}, *messages],
+		"messages": [{"role": "system", "content": system}, *turns],
 		"temperature": conf.temperature,
 	}
 	body["max_tokens" if compatible else "max_completion_tokens"] = conf.max_tokens
@@ -550,7 +591,14 @@ def _openai(conf, system, messages, json_mode):
 
 
 def _anthropic(conf, system, messages, json_mode):
-	turns = _alternating(messages)
+	turns = _with_images(
+		_alternating(messages),
+		conf.get("images"),
+		lambda image: {
+			"type": "image",
+			"source": {"type": "base64", "media_type": image["mime"], "data": image["data"]},
+		},
+	)
 	if json_mode:
 		system += "\n\nReply with a single JSON object and nothing else."
 	body = {
@@ -607,6 +655,11 @@ def _gemini(conf, system, messages, json_mode):
 		{"role": "model" if m["role"] == "assistant" else "user", "parts": [{"text": m["content"]}]}
 		for m in _alternating(messages)
 	]
+	if conf.get("images") and contents and contents[-1]["role"] == "user":
+		contents[-1]["parts"] = [
+			*({"inline_data": {"mime_type": i["mime"], "data": i["data"]}} for i in conf.images),
+			*contents[-1]["parts"],
+		]
 	generation = {"temperature": conf.temperature, "maxOutputTokens": conf.max_tokens}
 	if json_mode:
 		generation["responseMimeType"] = "application/json"
