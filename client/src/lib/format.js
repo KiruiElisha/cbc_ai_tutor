@@ -49,6 +49,13 @@ export function kes(n) {
   return 'KES ' + Number(n || 0).toLocaleString('en-KE', { maximumFractionDigits: 0 })
 }
 
+/** A KES amount in US dollars at `rate` KES to the dollar, as a guide ("≈ US$3.87"). */
+export function usd(kesAmount, rate) {
+  if (!rate || !kesAmount) return ''
+  const dollars = Number(kesAmount) / Number(rate)
+  return '≈ US$' + dollars.toLocaleString('en-US', { minimumFractionDigits: dollars < 100 ? 2 : 0, maximumFractionDigits: 2 })
+}
+
 export function money(n, currency) {
   return `${currency} ${Number(n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }

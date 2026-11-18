@@ -4,7 +4,7 @@
   import { toast } from '../../lib/app.svelte.js'
   import { api, get, errorText } from '../../lib/tauri.js'
   import { go, enc } from '../../lib/router.svelte.js'
-  import { date, dateTime, kes, money } from '../../lib/format.js'
+  import { date, dateTime, kes, money, usd } from '../../lib/format.js'
   import TopBar from '../../components/TopBar.svelte'
   import Loading from '../../components/Loading.svelte'
   import ErrorBox from '../../components/ErrorBox.svelte'
@@ -63,6 +63,9 @@
     }
   }
 
+  // KES per US dollar from CBC Settings, for the approximate dollar price beside each plan.
+  let rate = $derived(catalog?.kes_per_usd || 129)
+
   const statusTone = (s) => ({ Completed: 'ok', Failed: 'bad', Cancelled: '' })[s] || 'warn'
 
   // The plan that costs least per day, shown with its daily price so the saving is clear.
@@ -94,6 +97,7 @@
     {/each}
 
     <div class="section"><h2>Choose a plan</h2></div>
+    <p class="small muted" style="margin: -4px 0 12px">Prices are in Kenyan shillings. The dollar amounts are a guide at about KES {rate} to the dollar: the rate changes, and your bank or card sets the exact amount on the day.</p>
     {#if !catalog.gateways.mpesa && !catalog.gateways.paypal}
       <div class="banner warn">Payments are not set up yet.</div>
     {/if}
@@ -105,7 +109,10 @@
             <h3 style="margin: 0">{p.plan_name}</h3>
             {#if p.tagline}<div class="small muted">{p.tagline}</div>{/if}
           </div>
-          <div><span class="stat">{kes(p.price_kes)}</span> <span class="small muted">/ {p.duration_days} days</span></div>
+          <div>
+            <span class="stat">{kes(p.price_kes)}</span> <span class="small muted" style="white-space: nowrap">/ {p.duration_days} days</span>
+            <div class="price-usd">{usd(p.price_kes, rate)}</div>
+          </div>
           {#if p.price_paypal}<div class="small muted">or {money(p.price_paypal, p.paypal_currency)} with PayPal</div>{/if}
           <ul class="small" style="padding-left: 18px; margin: 0">
             {#if p.features.length}
@@ -142,7 +149,7 @@
   {#if chosen}
     {#if catalog.gateways.mpesa}
       <form onsubmit={mpesa}>
-        <h3 style="margin-top: 0">M-Pesa · {kes(chosen.price_kes)}</h3>
+        <h3 style="margin-top: 0">M-Pesa · {kes(chosen.price_kes)} <span class="price-usd">({usd(chosen.price_kes, rate)})</span></h3>
         <label class="field">
           <span>Safaricom number</span>
           <input type="tel" inputmode="tel" placeholder="07XX XXX XXX" bind:value={phone} required autocomplete="tel" />

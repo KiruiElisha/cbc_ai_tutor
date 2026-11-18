@@ -16,6 +16,7 @@
   "learner_lesson_requests",
   "session_days",
   "learner_email_domain",
+  "kes_per_usd",
   "ai_section",
   "ai_enabled",
   "ai_provider",
@@ -142,6 +143,13 @@
    "label": "Learner Login Domain",
    "default": "learners.cbc.invalid",
    "description": "Learners have no email of their own. Their sign-in is stored as learner-CODE@this-domain. Use a domain you control, or leave the .invalid default so nothing is ever sent."
+  },
+  {
+   "default": "129",
+   "fieldname": "kes_per_usd",
+   "fieldtype": "Float",
+   "label": "KES per US Dollar",
+   "description": "Shown next to plan prices as an approximate US dollar amount, so parents abroad see what they pay. Payment is still in KES; the bank's rate on the day applies."
   },
   {
    "fieldname": "ai_section",

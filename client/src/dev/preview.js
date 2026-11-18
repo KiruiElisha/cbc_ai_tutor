@@ -72,7 +72,7 @@ const api = {
       { student: 'EDU-STU-0002', name: 'Brian Kamau', first_name: 'Brian', grade: 'Grade 7', learner_code: 'BKA-1934', enabled: 1, lessons_completed_this_week: 2, quiz_average_this_week: null, last_active: '2026-10-27 19:30:00' },
     ],
   },
-  'billing.plans': { gateways: { mpesa: true, paypal: true }, plans: [
+  'billing.plans': { gateways: { mpesa: true, paypal: true }, kes_per_usd: 129, plans: [
     { name: 'Monthly', plan_name: 'Monthly', price_kes: 499, price_paypal: 4.99, paypal_currency: 'USD', duration_days: 30, max_learners: 3, ai_messages_per_day: 40, tagline: 'Every lesson and quiz for up to 3 children', features: ['All CBC lessons and quizzes', 'Works offline', 'Mwalimu AI tutor, 40 questions a day', 'Progress reports for parents'] },
     { name: 'Termly', plan_name: 'Termly', price_kes: 1299, price_paypal: 11.99, paypal_currency: 'USD', duration_days: 120, max_learners: 4, ai_messages_per_day: 60, tagline: 'A whole school term, about a month free', features: ['Everything in Monthly', 'Up to 4 children', '60 AI tutor questions a day'] },
     { name: 'Yearly', plan_name: 'Yearly', price_kes: 3999, price_paypal: 34.99, paypal_currency: 'USD', duration_days: 365, max_learners: 6, ai_messages_per_day: 0, tagline: 'The full school year at the best price', features: ['Everything in Termly', 'Up to 6 children', 'Unlimited AI tutor questions'] },
