@@ -50,6 +50,11 @@ Safety:
 
 def _context(student: str, lesson: str | None, sub_strand: str | None, learning_outcome: str | None) -> frappe._dict:
 	scope = frappe.db.get_value("Student", student, ["first_name", "custom_grade"], as_dict=True)
+	return _context_for(scope, lesson, sub_strand, learning_outcome)
+
+
+def _context_for(scope, lesson: str | None, sub_strand: str | None, learning_outcome: str | None) -> frappe._dict:
+	"""The lesson and curriculum around a question; `scope` has the grade (custom_grade)."""
 	ctx = frappe._dict(grade=scope.custom_grade, first_name=scope.first_name, lesson=None, course=None,
 		strand=None, sub_strand=None, outcome=None, lesson_text=None, topic=None)
 
@@ -205,7 +210,10 @@ def ask(
 	# Only a first question is shared: a follow-up depends on the conversation before it.
 	scope = ctx.lesson or (ctx.sub_strand or {}).get("name")
 	# A styled answer (a hint, Kiswahili, spoken) is not the shared answer to the plain question.
-	key = None if history or styles or photo or work else reuse.question_key(ctx.grade, scope, message)
+	# A spoken, photographed or assignment answer is the learner's own; any other first question,
+	# styled or plain, can be shared (and may have been written ahead of time).
+	shareable = not (history or photo or work or "voice" in styles)
+	key = reuse.question_key(ctx.grade, scope, message, ",".join(styles) or None) if shareable else None
 	cached = reuse.cached_answer(key)
 	if cached:
 		reply = {"text": _html_to_markdownish(cached), "provider": "cache", "model": "", "input_tokens": 0, "output_tokens": 0}
@@ -223,6 +231,8 @@ def ask(
 			[*history, {"role": "user", "content": message}],
 			on_text=_writer(student, stream),
 			images=[{"mime": photo["mime"], "data": photo["data"]}] if photo else None,
+			# Short, simple questions can go to a fast, cheap model; working and checking can't.
+			light=len(message) < 160 and not photo and not {"steps", "check"} & set(styles),
 		)
 
 	doc = frappe.get_doc(
@@ -593,3 +603,59 @@ def draft_assignment(
 	)
 	data = providers.parse_json(reply["text"])
 	return {"title": cstr(data.get("title"))[:140], "description": cstr(data.get("description"))}
+
+
+# The questions behind a lesson's starter buttons in the app (screens/learner/Tutor.svelte), with
+# how they are asked for: answered once ahead of time, then instant for every learner.
+STARTERS = (
+	("Explain this lesson simply", "simple"),
+	("Give me an example from home (lesson: {title})", None),
+	("Ask me questions to check I understand", "quiz"),
+	("Nieleze somo hili kwa Kiswahili", "kiswahili"),
+)
+
+
+def prewrite_answers(limit: int | None = None) -> dict:
+	"""Write answers to the starter questions of published lessons that have none yet, with the
+	fast, cheap providers first. Each in its own transaction; stops after a few failures in a row."""
+	limit = cint(common.setting("ai_prewrite_per_day", 40)) if limit is None else cint(limit)
+	if limit <= 0 or not cint(common.setting("ai_enabled", 1)) or not cint(common.setting("ai_reuse_answers", 1)):
+		return {"written": 0}
+	written, failed = 0, 0
+	for lesson in frappe.get_all(
+		"Lesson", filters={"published": 1}, fields=["name", "title", "program"], order_by="modified desc", limit_page_length=500
+	):
+		ctx = None
+		for question, style in STARTERS:
+			if written >= limit:
+				return {"written": written}
+			message = question.format(title=lesson.title)
+			key = reuse.question_key(lesson.program, lesson.name, message, style)
+			if not key or reuse.cached_answer(key):
+				continue
+			try:
+				ctx = ctx or _context_for(frappe._dict(custom_grade=lesson.program), lesson.name, None, None)
+				system = _system_prompt(ctx)
+				if style:
+					system += "\n\nHow to answer:\n- " + STYLES[style]
+				reply = providers.complete(system, [{"role": "user", "content": message}], light=True)
+				frappe.get_doc(
+					{
+						"doctype": "CBC Shared Answer",
+						"question_key": key,
+						"lesson": lesson.name,
+						"style": style,
+						"answer": md_to_html(reply["text"]),
+						"provider": reply["provider"],
+						"model": reply["model"],
+					}
+				).insert(ignore_permissions=True)
+				frappe.db.commit()
+				written, failed = written + 1, 0
+			except Exception:
+				frappe.db.rollback()
+				frappe.log_error(title=f"Mwalimu answer ahead of time for {lesson.name}")
+				failed += 1
+				if failed >= 3:
+					return {"written": written}
+	return {"written": written}

@@ -8,6 +8,7 @@
   import Modal from '../components/Modal.svelte'
   import ParentGate from '../components/ParentGate.svelte'
   import { hasPin, clearPin } from '../lib/parentPin.js'
+  import { prefs, setPref } from '../lib/prefs.js'
 
   let role = $derived(app.session?.role || null)
   let adult = $derived(role === 'Parent' || role === 'Teacher')
@@ -70,6 +71,13 @@
     }
   }
 
+  let display = $state(prefs())
+  function pick(name, value) {
+    display = setPref(name, value)
+    // Words on screen change on the next screen; reload so every one changes at once.
+    if (name === 'lang') location.reload()
+  }
+
   async function logout() {
     if (role === 'Learner' && app.pending && !confirm(`${app.pending} item(s) have not been sent yet and will be lost. Sign out anyway?`)) return
     busy = true
@@ -120,6 +128,35 @@
       </div>
     {/each}
   {/if}
+
+  <div class="section"><h2>Display</h2></div>
+  <div class="card flat stack">
+    <div class="row between wrap">
+      <b>Colours</b>
+      <div class="row wrap" style="gap: 6px">
+        {#each [['auto', 'Like the device'], ['light', 'Light'], ['dark', 'Dark']] as [v, label]}
+          <button class="tab" class:on={display.theme === v} onclick={() => pick('theme', v)}>{label}</button>
+        {/each}
+      </div>
+    </div>
+    <div class="row between wrap">
+      <b>Text size</b>
+      <div class="row wrap" style="gap: 6px">
+        {#each [['normal', 'Normal'], ['large', 'Large'], ['xl', 'Extra large']] as [v, label]}
+          <button class="tab" class:on={display.text === v} onclick={() => pick('text', v)}>{label}</button>
+        {/each}
+      </div>
+    </div>
+    <div class="row between wrap">
+      <b>Language · Lugha</b>
+      <div class="row wrap" style="gap: 6px">
+        {#each [['en', 'English'], ['sw', 'Kiswahili']] as [v, label]}
+          <button class="tab" class:on={display.lang === v} onclick={() => pick('lang', v)}>{label}</button>
+        {/each}
+      </div>
+    </div>
+    <p class="small muted" style="margin: 0">Kiswahili covers the learner's screens: menus, lessons, quizzes, practice and Mwalimu. Mwalimu answers in Kiswahili when asked in Kiswahili.</p>
+  </div>
 
   <div class="section"><h2>This device</h2></div>
   <div class="card flat">

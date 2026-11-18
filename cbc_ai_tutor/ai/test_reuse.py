@@ -29,6 +29,17 @@ class TestNormalize(unittest.TestCase):
 		self.assertNotEqual(reuse.question_key("Grade 5", "L1", q), reuse.question_key("Grade 5", "L2", q))
 
 
+class TestStyledKeys(unittest.TestCase):
+	def test_a_styled_answer_is_not_the_plain_one(self):
+		q = "Explain this lesson simply"
+		self.assertEqual(reuse.question_key("Grade 5", "L1", q, "simple"), "Grade 5|L1|simple|explain this lesson simply")
+		self.assertNotEqual(reuse.question_key("Grade 5", "L1", q, "simple"), reuse.question_key("Grade 5", "L1", q, "quiz"))
+
+	def test_inside_a_lesson_a_short_starter_question_can_be_shared_but_not_outside_one(self):
+		self.assertIsNotNone(reuse.question_key("Grade 5", "L1", "Explain this lesson simply"))
+		self.assertIsNone(reuse.question_key("Grade 5", None, "Explain this lesson simply"))
+
+
 class TestSharedAnswers(unittest.TestCase):
 	KEY = "Grade 5|REUSETEST|what happens to water when it evaporates"
 

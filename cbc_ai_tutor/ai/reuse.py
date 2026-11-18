@@ -34,12 +34,14 @@ def normalize(text: str) -> str:
 	return re.sub(r"\s+", " ", text).strip()
 
 
-def question_key(grade: str, scope: str | None, message: str) -> str | None:
-	"""Grade, lesson or sub-strand, and the normalized question; None when too short to match safely."""
+def question_key(grade: str, scope: str | None, message: str, style: str | None = None) -> str | None:
+	"""Grade, lesson or sub-strand, how it was asked for (a hint, simpler...), and the normalized
+	question; None when too short to match safely. Within one lesson a short question is safe."""
 	words = normalize(message)
-	if len(words) < 6:
+	if len(words.split()) < (3 if scope else 6):
 		return None
-	return f"{grade}|{scope or '-'}|{words}"[:140]
+	# Plain questions keep the key they always had, so answers shared before still match.
+	return (f"{grade}|{scope or '-'}|{style}|{words}" if style else f"{grade}|{scope or '-'}|{words}")[:140]
 
 
 def cached_answer(key: str | None) -> str | None:
@@ -61,7 +63,8 @@ def cached_answer(key: str | None) -> str | None:
 	for row in rows:
 		if row.ai_response and "unhelpful" not in (row.feedback or "").lower():
 			return row.ai_response
-	return None
+	# Answers written ahead of time for a lesson's starter questions.
+	return frappe.db.get_value("CBC Shared Answer", {"question_key": key}, "answer")
 
 
 def topic_key(grade: str, lesson: str | None, sub_strand: str | None, outcome: str | None) -> str:

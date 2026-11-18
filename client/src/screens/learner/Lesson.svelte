@@ -11,6 +11,7 @@
   import AskMwalimu from '../../components/AskMwalimu.svelte'
   import { canSpeak, readAlong, stopSpeaking } from '../../lib/voice.js'
   import { subject } from '../../lib/subjects.js'
+  import { t } from '../../lib/i18n.js'
 
   let { params } = $props()
   let lesson = $state(null)
@@ -155,9 +156,9 @@
   {:else if !lesson}
     <Empty icon="🔍" title="Lesson not found"><p>It may have been removed. Sync to refresh your lessons.</p></Empty>
   {:else}
-    {@const t = subject(where.area)}
-    <header class="lesson-head" style={t.style}>
-      <div class="crumb"><span class="chip">{t.icon}</span>{where.area}{#if where.topic}{' · '}{where.topic}{/if}</div>
+    {@const look = subject(where.area)}
+    <header class="lesson-head" style={look.style}>
+      <div class="crumb"><span class="chip">{look.icon}</span>{where.area}{#if where.topic}{' · '}{where.topic}{/if}</div>
       <h1>{lesson.title}</h1>
       <div class="row wrap small">
         {#if lesson.estimated_minutes}<span class="pill">⏱ {lesson.estimated_minutes} min</span>{/if}
@@ -202,7 +203,7 @@
           {#each screens as _, i}<button class:done={i < step} class:now={i === step} onclick={() => goTo(i)} aria-label="Part {i + 1}"></button>{/each}
         </div>
         {#if canSpeak}
-          <button class="btn sm ghost read-btn" class:on={reading} onclick={readToMe}>{reading ? '⏹ Stop reading' : '🔊 Read to me'}</button>
+          <button class="btn sm ghost read-btn" class:on={reading} onclick={readToMe}>{reading ? '⏹ ' + t('Stop reading') : '🔊 ' + t('Read to me')}</button>
         {/if}
         {#key step}
           <article class="card prose screen screen-{sc.kind}">
@@ -215,19 +216,19 @@
           </article>
         {/key}
         <div class="row" style="margin-top: 14px">
-          {#if step > 0}<button class="btn ghost" onclick={() => goTo(step - 1)}>← Back</button>{/if}
-          {#if !last}<button class="btn grow" onclick={() => goTo(step + 1)}>Next ({step + 2} of {screens.length})</button>{/if}
+          {#if step > 0}<button class="btn ghost" onclick={() => goTo(step - 1)}>← {t('Back')}</button>{/if}
+          {#if !last}<button class="btn grow" onclick={() => goTo(step + 1)}>{t('Next')} ({step + 2} / {screens.length})</button>{/if}
         </div>
       {/if}
       <div class="small center" style="margin-top: 8px">
-        <button class="link" onclick={() => (whole = !whole)}>{whole ? 'Show one part at a time' : 'Show the whole lesson on one page'}</button>
+        <button class="link" onclick={() => (whole = !whole)}>{t(whole ? 'Show one part at a time' : 'Show the whole lesson on one page')}</button>
       </div>
 
       {#if whole || last}
       <div class="row wrap" style="margin-top: 18px">
-        <button class="btn" onclick={finish}>{lesson.quiz ? "I'm done, take the quiz" : "I've finished this lesson"}</button>
-        <a class="btn ghost" href={`#/tutor?lesson=${enc(lesson.name)}`}>💬 Ask Mwalimu</a>
-        <a class="btn ghost" href={`#/practice?lesson=${enc(lesson.name)}`}>🎯 Practice</a>
+        <button class="btn" onclick={finish}>{t(lesson.quiz ? "I'm done, take the quiz" : "I've finished this lesson")}</button>
+        <a class="btn ghost" href={`#/tutor?lesson=${enc(lesson.name)}`}>💬 {t('Ask Mwalimu')}</a>
+        <a class="btn ghost" href={`#/practice?lesson=${enc(lesson.name)}`}>🎯 {t('Practice')}</a>
       </div>
       {/if}
     {/if}
@@ -239,8 +240,8 @@
 <style>
   .lesson-head {
     margin: -4px 0 16px; padding: 16px; border-radius: 18px;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--c) 14%, white), white);
-    border: 1px solid color-mix(in srgb, var(--c) 22%, white);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--c) 14%, var(--card)), var(--card));
+    border: 1px solid color-mix(in srgb, var(--c) 22%, var(--card));
   }
   .lesson-head h1 { margin: 6px 0 10px; font-size: 1.55rem; letter-spacing: -0.01em; }
   .crumb { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--c); }

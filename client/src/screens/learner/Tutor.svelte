@@ -12,6 +12,7 @@
   import Mwalimu from '../../components/Mwalimu.svelte'
   import Loading from '../../components/Loading.svelte'
   import ErrorBox from '../../components/ErrorBox.svelte'
+  import { t } from '../../lib/i18n.js'
 
   let { params } = $props()
   let lesson = $state(null)
@@ -315,7 +316,7 @@
   }
 
   const thinking = $derived(
-    waited < 4 ? 'Mwalimu is thinking' : waited < 10 ? 'Working it out carefully' : 'Almost there, thanks for waiting',
+    t(waited < 4 ? 'Mwalimu is thinking' : waited < 10 ? 'Working it out carefully' : 'Almost there, thanks for waiting'),
   )
   const last = $derived(messages[messages.length - 1])
   const quotaPercent = $derived(quota?.limit ? Math.max(0, Math.min(100, ((quota.remaining ?? 0) / quota.limit) * 100)) : 100)
@@ -326,7 +327,7 @@
     <button class="icon-btn" class:lit={readAloud} aria-pressed={readAloud} title={readAloud ? 'Reading answers aloud' : 'Read answers aloud'} aria-label="Read answers aloud" onclick={toggleRead}>{readAloud ? '🔊' : '🔈'}</button>
   {/if}
   {#if conversation || messages.length}
-    <button class="btn sm ghost" onclick={newChat}>New chat</button>
+    <button class="btn sm ghost" onclick={newChat}>{t('New chat')}</button>
   {/if}
 </TopBar>
 
@@ -335,8 +336,8 @@
     {#if lesson}
       <!-- What Mwalimu is focused on, so the learner knows why answers stay on this lesson. -->
       <div class="context-chip">
-        <span>📌 Talking about <b>{lesson.title}</b></span>
-        <a href={`#/lesson/${enc(lesson.name)}`} class="small">Open lesson</a>
+        <span>📌 {t('Talking about')} <b>{lesson.title}</b></span>
+        <a href={`#/lesson/${enc(lesson.name)}`} class="small">{t('Open lesson')}</a>
         <a href={`#/tutor?new=${Date.now()}`} class="small muted" aria-label="Talk about anything">✕</a>
       </div>
     {/if}
@@ -389,9 +390,9 @@
               {#if m.local}<div class="small muted" style="margin-top: 4px">🧮 Worked out on your device</div>{/if}
               <div class="msg-tools">
                 {#if canSpeak}
-                  <button class="tool" onclick={() => say(m)} aria-label={speaking === m ? 'Stop reading' : 'Read aloud'}>{speaking === m ? '⏹ Stop' : '🔈 Listen'}</button>
+                  <button class="tool" onclick={() => say(m)} aria-label={speaking === m ? 'Stop reading' : 'Read aloud'}>{speaking === m ? '⏹' : '🔈 ' + t('Listen')}</button>
                 {/if}
-                <button class="tool" onclick={() => copy(m)} aria-label="Copy">⧉ Copy</button>
+                <button class="tool" onclick={() => copy(m)} aria-label="Copy">⧉ {t('Copy')}</button>
                 {#if m.interaction}
                   {#if m.feedback}<span class="small muted">Thanks!</span>{:else}
                     <button class="tool" aria-label="Helpful" onclick={() => rate(m, true)}>👍</button>
@@ -418,7 +419,7 @@
     {#if last && !last.me && !busy && !last.local && app.online}
       <div class="chips" aria-label="Ask next">
         {#each followUps as [label, style]}
-          <button class="chip-btn" onclick={() => send(label, style)}>{label}</button>
+          <button class="chip-btn" onclick={() => send(t(label), style)}>{t(label)}</button>
         {/each}
       </div>
     {/if}
@@ -427,11 +428,11 @@
 
     <div class="composer-wrap">
       <button class="modes-toggle" onclick={() => (showModes = !showModes)} aria-expanded={showModes}>
-        {mode ? `${modes.find((x) => x[0] === mode)[1]} ${modes.find((x) => x[0] === mode)[2]}` : '💡 How should I help?'} <span class="muted">{showModes ? '▴' : '▾'}</span>
+        {mode ? `${modes.find((x) => x[0] === mode)[1]} ${modes.find((x) => x[0] === mode)[2]}` : '💡 ' + t('How should I help?')} <span class="muted">{showModes ? '▴' : '▾'}</span>
       </button>
       <div class="modes" class:open={showModes} role="group" aria-label="How Mwalimu answers">
         {#each modes as [key, icon, label]}
-          <button class="mode" class:on={mode === key} aria-pressed={mode === key} onclick={() => { mode = mode === key ? null : key; showModes = false }}>{icon} {label}</button>
+          <button class="mode" class:on={mode === key} aria-pressed={mode === key} onclick={() => { mode = mode === key ? null : key; showModes = false }}>{icon} {t(label)}</button>
         {/each}
       </div>
       {#if photo}
@@ -451,7 +452,7 @@
           oninput={grow}
           onkeydown={onkey}
           maxlength="2000"
-          placeholder={listening ? 'Listening… speak now' : mode === 'check' ? 'Paste your answer or working…' : 'Ask Mwalimu anything…'}
+          placeholder={listening ? 'Listening… speak now' : mode === 'check' ? 'Paste your answer or working…' : t('Ask Mwalimu anything…')}
           aria-label="Your question"
         ></textarea>
         {#if canListen}
@@ -463,11 +464,11 @@
       <div class="composer-foot">
         {#if quota && quota.limit}
           <span class="quota" title="Questions left today"><i style="width: {quotaPercent}%"></i></span>
-          <span>{quota.remaining ?? '∞'} of {quota.limit} questions left today</span>
+          <span>{quota.remaining ?? '∞'} / {quota.limit} {t('questions left today')}</span>
         {/if}
         <span class="grow"></span>
         <span class="hide-sm">Mwalimu can make mistakes. Feeling unsafe? Call Childline Kenya on 116 (free).</span>
-        <span class="show-sm">Feeling unsafe? Call 116 (free)</span>
+        <span class="show-sm">{t('Feeling unsafe? Call 116 (free)')}</span>
       </div>
     </div>
   </section>
