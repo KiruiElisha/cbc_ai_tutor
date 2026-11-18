@@ -15,6 +15,14 @@ export function markdown(text) {
   return safeHtml(marked.parse(text || ''))
 }
 
+/**
+ * Mwalimu's reply as HTML laid out for learning: the line that starts with **Answer:** (or
+ * **Jibu:**) becomes an answer box. Numbered steps are styled as cards in app.css.
+ */
+export function tutorHtml(text) {
+  return markdown(text).replace(/<p>(<strong>(?:Answer|Jibu|Final answer)\s*:?\s*<\/strong>)/gi, '<p class="answer-box">$1')
+}
+
 export function plain(html) {
   const div = document.createElement('div')
   div.innerHTML = DOMPurify.sanitize(html || '')

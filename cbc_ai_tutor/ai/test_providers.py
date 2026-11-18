@@ -1,5 +1,6 @@
 """The provider layer: the backup provider takes over, refusals stand, and Cursor answers without tools."""
 
+import json
 import os
 import unittest
 from types import SimpleNamespace
@@ -306,3 +307,94 @@ class TestParseJson(unittest.TestCase):
 		with self.assertRaises(providers.AIBadReply) as caught:
 			providers.parse_json('{"title": "Fractions", "body": "Half of 4 is }')
 		self.assertIn("character", caught.exception.detail)
+
+
+class FakeStream:
+	"""A streamed HTTP reply: server-sent events, one `data:` line each."""
+
+	def __init__(self, events):
+		self.ok, self.status_code, self.text, self.encoding = True, 200, "", None
+		self._lines = [f"data: {json.dumps(e)}" for e in events] + ["data: [DONE]"]
+
+	def iter_lines(self, decode_unicode=True):
+		yield from self._lines
+
+	def __enter__(self):
+		return self
+
+	def __exit__(self, *exc):
+		return False
+
+
+class TestStreaming(unittest.TestCase):
+	"""The answer reaches the learner's screen while it is written, from every provider that streams."""
+
+	def _stream(self, provider, events):
+		seen = []
+		conf = _conf(provider, on_text=seen.append)
+		with patch.object(providers.requests, "post", return_value=FakeStream(events)) as post:
+			reply = providers._ask(conf, "sys", TURNS, False)
+		self.assertTrue(post.call_args.kwargs["stream"])
+		return reply, seen
+
+	def test_openai_sends_each_piece_and_counts_tokens(self):
+		reply, seen = self._stream(
+			"OpenAI",
+			[
+				{"choices": [{"delta": {"content": "A fraction "}}]},
+				{"choices": [{"delta": {"content": "is a part."}, "finish_reason": "stop"}]},
+				{"choices": [], "usage": {"prompt_tokens": 9, "completion_tokens": 4}},
+			],
+		)
+		self.assertEqual(seen, ["A fraction ", "A fraction is a part."])
+		self.assertEqual(
+			(reply["text"], reply["input_tokens"], reply["output_tokens"]), ("A fraction is a part.", 9, 4)
+		)
+
+	def test_anthropic_reads_its_own_event_types(self):
+		reply, seen = self._stream(
+			"Anthropic",
+			[
+				{"type": "message_start", "message": {"usage": {"input_tokens": 12}}},
+				{"type": "content_block_delta", "delta": {"text": "Habari! "}},
+				{"type": "content_block_delta", "delta": {"text": "Let us count."}},
+				{
+					"type": "message_delta",
+					"delta": {"stop_reason": "end_turn"},
+					"usage": {"output_tokens": 6},
+				},
+			],
+		)
+		self.assertEqual(seen[-1], "Habari! Let us count.")
+		self.assertEqual((reply["input_tokens"], reply["output_tokens"], reply["stop"]), (12, 6, "end_turn"))
+
+	def test_gemini_streams_and_a_safety_stop_is_a_refusal(self):
+		reply, seen = self._stream(
+			"Google Gemini",
+			[
+				{"candidates": [{"content": {"parts": [{"text": "Plants make "}]}}]},
+				{
+					"candidates": [{"content": {"parts": [{"text": "food."}]}, "finishReason": "STOP"}],
+					"usageMetadata": {"promptTokenCount": 5, "candidatesTokenCount": 3},
+				},
+			],
+		)
+		self.assertEqual((seen[-1], reply["output_tokens"]), ("Plants make food.", 3))
+		with self.assertRaises(providers.AIRefused):
+			self._stream("Google Gemini", [{"candidates": [{"finishReason": "SAFETY"}]}])
+
+	def test_lesson_writing_in_json_is_not_streamed(self):
+		conf = _conf("OpenAI", on_text=lambda text: None)
+		body = {"choices": [{"message": {"content": "{}"}}], "usage": {}}
+		response = SimpleNamespace(ok=True, status_code=200, text="", json=lambda: body)
+		with patch.object(providers.requests, "post", return_value=response) as post:
+			providers._ask(conf, "sys", TURNS, True)
+		self.assertNotIn("stream", post.call_args.kwargs)
+
+	def test_only_the_first_provider_to_write_reaches_the_screen(self):
+		seen = []
+		first, second = providers._sharing_one_writer([_conf("OpenAI"), _conf("Anthropic")], seen.append)
+		first.on_text("from OpenAI")
+		second.on_text("from Anthropic")
+		first.on_text("from OpenAI, more")
+		self.assertEqual(seen, ["from OpenAI", "from OpenAI, more"])

@@ -3,7 +3,7 @@
   import { app, queue, toast } from '../../lib/app.svelte.js'
   import { api, get } from '../../lib/tauri.js'
   import { go, enc } from '../../lib/router.svelte.js'
-  import { ago, markdown } from '../../lib/format.js'
+  import { ago, tutorHtml } from '../../lib/format.js'
   import * as L from '../../lib/learner.js'
   import { solve } from '../../lib/maths.js'
   import { canListen, canSpeak, listen, speak, stopSpeaking, looksSwahili } from '../../lib/voice.js'
@@ -16,13 +16,14 @@
   let conversation = $state(params.conversation || null)
   let messages = $state([])
   let past = $state(null)
-  let text = $state('')
+  let text = $state(params.ask || '')
   let busy = $state(false)
   let waited = $state(0)
+  let draft = $state('')
   let error = $state(null)
   let quota = $state(null)
   let loading = $state(true)
-  let mode = $state(null)
+  let mode = $state(['hint', 'steps', 'simple', 'quiz', 'check', 'kiswahili'].includes(params.mode) ? params.mode : null)
   let listening = $state(false)
   let speaking = $state(null)
   let readAloud = $state(load('cbc:tutor:read_aloud') === '1')
@@ -100,6 +101,12 @@
     }
     loading = false
     scroll()
+    if (text) {
+      // A question handed over from a quiz or lesson: show all of it, ready to send or edit.
+      await tick()
+      grow()
+      box?.focus()
+    }
     // Earlier chats: the welcome screen on phones, the side panel on wide screens.
     if (!lesson) {
       get('tutor.conversations', { limit: 20 }, { cache: 'tutor:conversations' })
@@ -154,8 +161,30 @@
     timer = setInterval(() => waited++, 1000)
     scroll()
     const styles = [style, spoken && readAloud ? 'voice' : null].filter(Boolean).join(',')
+    // The answer appears as it is written: the server keeps the text so far, and we ask for it
+    // twice a second until the full answer comes back.
+    const stream = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())).slice(0, 36)
+    draft = ''
+    let polling = true
+    const poll = async () => {
+      while (polling) {
+        await new Promise((r) => setTimeout(r, 500))
+        if (!polling) break
+        try {
+          const part = await get('tutor.partial', { stream })
+          if (polling && part?.text && part.text.length > draft.length) {
+            draft = part.text
+            scroll()
+          }
+        } catch {
+          /* the full answer still comes back from ask */
+        }
+      }
+    }
+    poll()
     try {
-      const res = await api('tutor.ask', { message, conversation, lesson: lesson?.name || null, style: styles || null })
+      const res = await api('tutor.ask', { message, conversation, lesson: lesson?.name || null, style: styles || null, stream })
+      polling = false
       conversation = res.conversation
       quota = res.quota
       const reply = { me: false, text: res.answer, interaction: res.interaction }
@@ -166,6 +195,8 @@
       messages.pop()
       text = message
     } finally {
+      polling = false
+      draft = ''
       busy = false
       clearInterval(timer)
       scroll()
@@ -313,7 +344,7 @@
               {#if m.mode}<span class="mode-tag">{modes.find((x) => x[0] === m.mode)?.[2]}</span>{/if}
               {m.text}
             {:else}
-              <div class="prose">{@html markdown(m.text)}</div>
+              <div class="prose">{@html tutorHtml(m.text)}</div>
               {#if m.local}<div class="small muted" style="margin-top: 4px">🧮 Worked out on your device</div>{/if}
               <div class="msg-tools">
                 {#if canSpeak}
@@ -334,7 +365,11 @@
       {#if busy}
         <div class="msg ai">
           <div class="msg-face" aria-hidden="true">🦉</div>
-          <div class="bubble ai thinking"><span class="dots"><i></i><i></i><i></i></span> {thinking}{waited > 2 ? ` · ${waited}s` : '…'}</div>
+          {#if draft}
+            <div class="bubble ai"><div class="prose">{@html tutorHtml(draft)}</div><span class="caret" aria-hidden="true"></span></div>
+          {:else}
+            <div class="bubble ai thinking"><span class="dots"><i></i><i></i><i></i></span> {thinking}{waited > 2 ? ` · ${waited}s` : '…'}</div>
+          {/if}
         </div>
       {/if}
     </div>

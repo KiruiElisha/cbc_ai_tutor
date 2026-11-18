@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import secrets
+import time
 
 import frappe
 from frappe import _
@@ -37,6 +38,7 @@ How you teach:
 - Link to the CBC core competencies where it helps: communication, critical thinking, creativity, citizenship, digital literacy, learning to learn, self-efficacy.
 - If the learner writes in Kiswahili, answer in Kiswahili. Otherwise answer in English.
 - Use Markdown: short paragraphs, numbered steps, and LaTeX-free maths written plainly (e.g. 3/4, 2 x 5 = 10).
+- Bold the key words. When you give a final answer, put it on its own line starting with **Answer:** (in Kiswahili, **Jibu:**). Number each step of a method, one step per number.
 - Keep answers under 250 words unless the learner asks for more.
 
 Safety:
@@ -151,6 +153,7 @@ def ask(
 	sub_strand: str | None = None,
 	learning_outcome: str | None = None,
 	style: str | None = None,
+	stream: str | None = None,
 ) -> dict:
 	student = common.current_learner()
 	message = cstr(message).strip()
@@ -181,7 +184,9 @@ def ask(
 		system = _system_prompt(ctx)
 		if styles:
 			system += "\n\nHow to answer:\n" + "\n".join(f"- {STYLES[s]}" for s in styles)
-		reply = providers.complete(system, [*history, {"role": "user", "content": message}])
+		reply = providers.complete(
+			system, [*history, {"role": "user", "content": message}], on_text=_writer(student, stream)
+		)
 
 	doc = frappe.get_doc(
 		{
@@ -209,6 +214,42 @@ def ask(
 		"answer": reply["text"],
 		"quota": sync.ai_quota(student),
 	}
+
+
+STREAM_KEY = "cbc_tutor_stream:"
+STREAM_SECONDS = 180
+STREAM_EVERY = 0.25
+
+
+def _stream_key(student: str, stream: str) -> str:
+	return f"{STREAM_KEY}{student}:{cstr(stream)[:40]}"
+
+
+def _writer(student: str, stream: str | None):
+	"""Keeps the answer so far in the cache while it is written, for `partial` to hand out.
+	At most four writes a second: the app asks about twice a second."""
+	if not stream:
+		return None
+	key = _stream_key(student, stream)
+	last = {"at": 0.0}
+
+	def write(text: str):
+		now = time.monotonic()
+		if now - last["at"] < STREAM_EVERY:
+			return
+		last["at"] = now
+		frappe.cache.set_value(key, text, expires_in_sec=STREAM_SECONDS)
+
+	return write
+
+
+@frappe.whitelist()
+@rate_limit(limit=300, seconds=60)
+def partial(stream: str) -> dict:
+	"""The answer Mwalimu is writing right now for this learner's question, so the app can show
+	it word by word while `ask` is still running."""
+	student = common.current_learner()
+	return {"text": frappe.cache.get_value(_stream_key(student, stream)) or ""}
 
 
 @frappe.whitelist()
