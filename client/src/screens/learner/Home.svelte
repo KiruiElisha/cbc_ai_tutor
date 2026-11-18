@@ -115,7 +115,7 @@
     {/if}
 
     <div class="quick">
-      <a class="quick-item" href="#/tutor" style="--c: #0f766e"><span class="chip">💬</span><b>Ask Mwalimu</b><small>Your tutor</small></a>
+      <a class="quick-item" href="#/tutor" style="--c: #0b7a3d"><span class="chip">💬</span><b>Ask Mwalimu</b><small>Your tutor</small></a>
       <a class="quick-item" href="#/drill" style="--c: #2563eb"><span class="chip">🧮</span><b>Maths drills</b><small>Works offline</small></a>
       <a class="quick-item" href="#/work" style="--c: #ea580c"><span class="chip">📝</span><b>Assignments</b><small>{due ? `${due} to do` : 'All done'}</small></a>
       <a class="quick-item" href="#/progress" style="--c: #ca8a04"><span class="chip">⭐</span><b>My progress</b><small>Scores and badges</small></a>

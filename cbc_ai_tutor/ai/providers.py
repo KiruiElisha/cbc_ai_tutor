@@ -6,6 +6,18 @@ model, key and limits come from CBC Settings, so switching provider is a setting
 change, not a code change. A backup provider, when set, answers whenever the main one
 is down, rejects the key or is out of quota, so learners still get a reply.
 
+More providers can be listed under "More AI providers", and CBC Settings' routing decides
+how they share the work:
+
+- Smart (default): the provider that has been answering fastest goes first; if it has not
+  answered within a few seconds, the next one is asked as well and the first reply wins.
+- Race: the two fastest are asked at once (fastest replies, about twice the cost).
+- In order: the main provider, then the backup, then the list, one after another.
+
+A provider that fails rests for a while (a minute when it is down, longer when it rejects
+its key), so learners are not kept waiting on it. Response times and rests live in the
+cache: nothing about them needs saving.
+
 "Cursor" runs a Cursor agent through the Cursor SDK (``cursor-sdk``) with the key from
 cursor.com/dashboard, billed to the Cursor plan. It is an agent runtime rather than a
 chat API: each answer is one short agent run with no tools and no files.
@@ -13,11 +25,15 @@ chat API: each answer is one short agent run with no tools and no files.
 
 from __future__ import annotations
 
+import contextvars
+import hashlib
 import json
 import os
+import queue
 import re
 import tempfile
 import threading
+import time
 
 import frappe
 import requests
@@ -48,7 +64,18 @@ class AIRefused(AIUnavailable):
 	"""The model declined on safety grounds: asking another provider would not be right."""
 
 
-def _config() -> frappe._dict:
+SMART, RACE, IN_ORDER = "Smart", "Race", "In order"
+# Until a provider has answered a few times, how many seconds to expect from it. Cursor runs an
+# agent for every answer, so it goes behind the chat APIs until it proves quicker.
+EXPECTED_SECONDS = {"Cursor": 15.0}
+DEFAULT_SECONDS = 5.0
+REST_SECONDS = {"down": 60, "busy": 120, "key": 600}
+STATS_KEY = "cbc_ai_provider_stats:"
+STATS_DAYS = 7
+
+
+def _config(require: bool = True) -> frappe._dict | None:
+	"""The main provider. With `require=False`, None when it is not set up (the list may be)."""
 	conf = frappe._dict(
 		enabled=cint(common.setting("ai_enabled", 1)),
 		provider=common.setting("ai_provider", "OpenAI"),
@@ -58,10 +85,16 @@ def _config() -> frappe._dict:
 		temperature=flt(common.setting("ai_temperature", 0.4)),
 		max_tokens=cint(common.setting("ai_max_output_tokens", 900)) or 900,
 		timeout=cint(common.setting("ai_timeout_seconds", 60)) or 60,
+		use_for="Everything",
 	)
 	if not conf.enabled:
 		raise AIUnavailable(_("The AI tutor is switched off."))
-	_check(conf)
+	try:
+		_check(conf)
+	except AIUnavailable:
+		if require:
+			raise
+		return None
 	return conf
 
 
@@ -83,6 +116,7 @@ def _fallback(conf: frappe._dict) -> frappe._dict | None:
 		model=(common.setting("ai_fallback_model") or "").strip(),
 		base_url=(common.setting("ai_fallback_base_url") or "").strip().rstrip("/"),
 		key=common.secret("ai_fallback_api_key"),
+		use_for="Everything",
 	)
 	try:
 		_check(backup)
@@ -91,21 +125,237 @@ def _fallback(conf: frappe._dict) -> frappe._dict | None:
 	return backup
 
 
+def _more_providers(base: frappe._dict) -> list[frappe._dict]:
+	"""The enabled rows of "More AI providers", with the main provider's limits."""
+	from frappe.utils.password import get_decrypted_password
+
+	rows = frappe.get_all(
+		"CBC AI Provider",
+		filters={"parenttype": common.SETTINGS, "parentfield": "ai_providers", "enabled": 1},
+		fields=["name", "provider", "model", "base_url", "use_for", "daily_limit"],
+		order_by="idx",
+	)
+	out = []
+	for row in rows:
+		conf = frappe._dict(
+			base,
+			provider=row.provider,
+			model=(row.model or "").strip(),
+			base_url=(row.base_url or "").strip().rstrip("/"),
+			key=get_decrypted_password("CBC AI Provider", row.name, "api_key", raise_exception=False) or "",
+			use_for=row.use_for or "Everything",
+			daily_limit=cint(row.daily_limit),
+		)
+		try:
+			_check(conf)
+		except AIUnavailable:
+			continue
+		out.append(conf)
+	return out
+
+
+def _pool(task: str) -> list[frappe._dict]:
+	"""Every provider set up for this task: the main one, the backup, then the list."""
+	main = _config(require=False)
+	base = main or frappe._dict(_base_limits())
+	pool = [main] if main else []
+	backup = _fallback(base)
+	if backup:
+		pool.append(backup)
+	pool += _more_providers(base)
+	unwanted = "Lessons and questions only" if task == "chat" else "Chat only"
+	pool = [conf for conf in pool if conf.get("use_for") != unwanted]
+	seen, unique = set(), []
+	for conf in pool:
+		if _id(conf) not in seen:
+			seen.add(_id(conf))
+			unique.append(conf)
+	if not unique:
+		_config()  # says what is missing
+		raise AIUnavailable(_("No AI provider is set up for this yet."))
+	return unique
+
+
+def _base_limits() -> dict:
+	return dict(
+		temperature=flt(common.setting("ai_temperature", 0.4)),
+		max_tokens=cint(common.setting("ai_max_output_tokens", 900)) or 900,
+		timeout=cint(common.setting("ai_timeout_seconds", 60)) or 60,
+	)
+
+
+# --- choosing who answers -------------------------------------------------------------------
+
+
+def _id(conf: frappe._dict) -> str:
+	raw = f"{conf.provider}|{conf.model}|{conf.get('base_url') or ''}"
+	return hashlib.sha1(raw.encode()).hexdigest()[:12]
+
+
+def _today() -> str:
+	return time.strftime("%Y-%m-%d")
+
+
+def _stats(conf: frappe._dict) -> dict:
+	return frappe.cache.get_value(STATS_KEY + _id(conf)) or {}
+
+
+def _save_stats(conf: frappe._dict, stats: dict) -> None:
+	frappe.cache.set_value(STATS_KEY + _id(conf), stats, expires_in_sec=STATS_DAYS * 86400)
+
+
+def _record(conf: frappe._dict, seconds: float | None = None, error: Exception | None = None) -> None:
+	"""Learn from an answer: its time, or a rest when it failed."""
+	stats = _stats(conf)
+	if stats.get("day") != _today():
+		stats.update(day=_today(), used=0)
+	if error is None:
+		# Recent answers count most: a provider that gets slow loses its place within a few replies.
+		avg = stats.get("avg")
+		stats["avg"] = seconds if avg is None else round(avg * 0.7 + seconds * 0.3, 3)
+		stats["n"] = stats.get("n", 0) + 1
+		stats["fails"] = 0
+		stats["used"] = stats.get("used", 0) + 1
+		stats.pop("rest_until", None)
+	elif not isinstance(error, AIRefused):
+		stats["fails"] = stats.get("fails", 0) + 1
+		text = str(error).lower()
+		kind = "key" if "api key" in text else "busy" if "busy" in text else "down"
+		# Each failure in a row rests it longer, up to ten times as long.
+		stats["rest_until"] = time.time() + REST_SECONDS[kind] * min(stats["fails"], 10)
+	_save_stats(conf, stats)
+
+
+def _expected(conf: frappe._dict, stats: dict) -> float:
+	expected = stats.get("avg") if stats.get("n") else None
+	if expected is None:
+		expected = EXPECTED_SECONDS.get(conf.provider, DEFAULT_SECONDS)
+	return expected * (1 + 0.5 * stats.get("fails", 0))
+
+
+def _ready(conf: frappe._dict, stats: dict) -> bool:
+	if stats.get("rest_until", 0) > time.time():
+		return False
+	limit = cint(conf.get("daily_limit"))
+	return not (limit and stats.get("day") == _today() and stats.get("used", 0) >= limit)
+
+
+def _order(pool: list[frappe._dict], routing: str) -> list[frappe._dict]:
+	"""Ready providers first (fastest first, unless routing is "In order"); resting ones last,
+	so they are still tried when nothing else answers."""
+	stats = {_id(conf): _stats(conf) for conf in pool}
+	ready = [conf for conf in pool if _ready(conf, stats[_id(conf)])]
+	resting = [conf for conf in pool if conf not in ready]
+	if routing != IN_ORDER:
+		ready.sort(key=lambda conf: _expected(conf, stats[_id(conf)]))
+	return ready + resting
+
+
 def complete(
 	system: str, messages: list[dict], *, json_mode: bool = False, max_tokens: int | None = None
 ) -> dict:
-	conf = _config()
+	"""The reply from whichever provider answers first, by CBC Settings' routing."""
+	task = "content" if json_mode else "chat"
+	pool = _pool(task)
 	if max_tokens:
-		conf.max_tokens = max_tokens
+		pool = [frappe._dict(conf, max_tokens=max_tokens) for conf in pool]
+	routing = common.setting("ai_routing", SMART) or SMART
+	order = _order(pool, routing)
+	if routing == IN_ORDER or len(order) == 1:
+		return _one_after_another(order, system, messages, json_mode)
+	wait = 0 if routing == RACE else max(flt(common.setting("ai_hedge_seconds", 6)), 1)
+	return _overlapping(order, system, messages, json_mode, wait)
+
+
+def _timed(conf, system, messages, json_mode) -> dict:
+	started = time.monotonic()
 	try:
-		return _ask(conf, system, messages, json_mode)
-	except AIRefused:
+		result = _ask(conf, system, messages, json_mode)
+	except Exception as e:
+		_record(conf, error=e)
 		raise
-	except AIUnavailable:
-		backup = _fallback(conf)
-		if not backup:
+	_record(conf, seconds=time.monotonic() - started)
+	return result
+
+
+def _one_after_another(order, system, messages, json_mode) -> dict:
+	error = None
+	for conf in order:
+		try:
+			return _timed(conf, system, messages, json_mode)
+		except AIRefused:
 			raise
-		return _ask(backup, system, messages, json_mode)
+		except AIUnavailable as e:
+			error = e
+	raise error
+
+
+_worker = threading.local()
+
+
+def _log_error(title: str, message: str) -> None:
+	"""Errors seen in a helper thread are kept for the request's own thread to save: two threads
+	must not write through the one database connection."""
+	logs = getattr(_worker, "logs", None)
+	if logs is not None:
+		logs.append((title, message))
+	else:
+		frappe.log_error(title=title, message=message)
+
+
+def _overlapping(order, system, messages, json_mode, wait: float) -> dict:
+	"""Ask the first provider; when it is slow (`wait` seconds) or fails, ask the next one too.
+	The first reply wins. With `wait` 0 the first two are asked together."""
+	results: queue.Queue = queue.Queue()
+	logs: list = []
+
+	def attempt(conf):
+		_worker.logs = logs
+		try:
+			results.put((conf, _timed(conf, system, messages, json_mode), None))
+		except Exception as e:
+			results.put((conf, None, e))
+
+	def launch(conf):
+		# The thread sees this request's site and language, but keeps its own log list.
+		context = contextvars.copy_context()
+		threading.Thread(target=context.run, args=(attempt, conf), daemon=True).start()
+
+	waiting, nxt, error = 0, 0, None
+	deadline = time.monotonic() + max(cint(conf.timeout) for conf in order) + 5
+	for _first in range(1 if wait else 2):
+		if nxt < len(order):
+			launch(order[nxt])
+			nxt, waiting = nxt + 1, waiting + 1
+	try:
+		while waiting:
+			left = deadline - time.monotonic()
+			if left <= 0:
+				break
+			try:
+				_conf, result, failure = results.get(
+					timeout=min(wait, left) if wait and nxt < len(order) else left
+				)
+			except queue.Empty:
+				if nxt < len(order):
+					launch(order[nxt])
+					nxt, waiting = nxt + 1, waiting + 1
+				continue
+			waiting -= 1
+			if failure is None:
+				return result
+			if isinstance(failure, AIRefused):
+				raise failure
+			error = failure if isinstance(failure, AIUnavailable) else error or failure
+			if nxt < len(order):
+				launch(order[nxt])
+				nxt, waiting = nxt + 1, waiting + 1
+	finally:
+		for title, message in list(logs):
+			frappe.log_error(title=title, message=message)
+	if error:
+		raise error
+	raise AIUnavailable(_("The tutor took too long to answer. Try again."))
 
 
 def _ask(conf: frappe._dict, system: str, messages: list[dict], json_mode: bool) -> dict:
@@ -123,7 +373,7 @@ def _ask(conf: frappe._dict, system: str, messages: list[dict], json_mode: bool)
 	except requests.Timeout:
 		raise AIUnavailable(_("The tutor took too long to answer. Try again."))
 	except requests.RequestException:
-		frappe.log_error(title=f"AI provider {conf.provider} unreachable", message=frappe.get_traceback())
+		_log_error(f"AI provider {conf.provider} unreachable", frappe.get_traceback())
 		raise AIUnavailable(_("The tutor can't be reached right now. Try again shortly."))
 	result.update(provider=conf.provider, model=conf.model)
 	if not (result.get("text") or "").strip():
@@ -133,21 +383,57 @@ def _ask(conf: frappe._dict, system: str, messages: list[dict], json_mode: bool)
 
 @frappe.whitelist()
 def check() -> dict:
-	"""CBC Settings' "Check AI" button: one tiny question through the configured providers."""
+	"""CBC Settings' "Check AI" button: the same tiny question to every provider at once, with
+	how long each took. Their times also seed the routing."""
 	frappe.only_for("System Manager")
-	reply = complete(
-		"You are checking that an AI tutor works. Reply with one short friendly sentence.",
-		[{"role": "user", "content": "Say hello to a Grade 4 learner."}],
-		max_tokens=60,
-	)
-	return {"provider": reply["provider"], "model": reply["model"], "text": reply["text"][:300]}
+	pool = []
+	for task in ("chat", "content"):
+		pool += [conf for conf in _pool(task) if _id(conf) not in {_id(c) for c in pool}]
+	system = "You are checking that an AI tutor works. Reply with one short friendly sentence."
+	turns = [{"role": "user", "content": "Say hello to a Grade 4 learner."}]
+	results: queue.Queue = queue.Queue()
+	logs: list = []
+
+	def attempt(conf):
+		_worker.logs = logs
+		started = time.monotonic()
+		try:
+			reply = _timed(frappe._dict(conf, max_tokens=60), system, turns, False)
+			results.put((conf, round(time.monotonic() - started, 1), reply["text"][:300], None))
+		except Exception as e:
+			results.put((conf, round(time.monotonic() - started, 1), "", str(e)[:300]))
+
+	for conf in pool:
+		threading.Thread(target=contextvars.copy_context().run, args=(attempt, conf), daemon=True).start()
+	answers = []
+	for _row in pool:
+		try:
+			conf, seconds, text, failure = results.get(timeout=max(cint(c.timeout) for c in pool) + 5)
+		except queue.Empty:
+			break
+		answers.append(
+			{
+				"provider": conf.provider,
+				"model": conf.model,
+				"seconds": seconds,
+				"text": text,
+				"error": failure,
+			}
+		)
+	for title, message in logs:
+		frappe.log_error(title=title, message=message)
+	answers.sort(key=lambda a: (bool(a["error"]), a["seconds"]))
+	first = next((a for a in answers if not a["error"]), None)
+	if not first:
+		raise AIUnavailable(answers[0]["error"] if answers else _("No AI provider answered."))
+	return {**first, "providers": answers}
 
 
 def _raise_for(response: requests.Response, provider: str):
 	if response.ok:
 		return
 	body = response.text[:2000]
-	frappe.log_error(title=f"AI provider {provider} returned {response.status_code}", message=body)
+	_log_error(f"AI provider {provider} returned {response.status_code}", body)
 	if response.status_code in (401, 403):
 		raise AIUnavailable(
 			_("The AI provider rejected the API key. An administrator needs to check CBC Settings.")
@@ -329,9 +615,9 @@ def _cursor(conf, system, messages, json_mode):
 				pass
 	result = outcome["result"]
 	if result.status != "finished":
-		frappe.log_error(
-			title=f"Cursor run {result.status}",
-			message=f"{result.error_code or ''} {result.error_message or ''}".strip() or result.status,
+		_log_error(
+			f"Cursor run {result.status}",
+			f"{result.error_code or ''} {result.error_message or ''}".strip() or result.status,
 		)
 		raise AIUnavailable(_("The tutor ran into a problem. Try again."))
 	usage = result.usage
@@ -346,7 +632,7 @@ def _cursor(conf, system, messages, json_mode):
 def _raise_for_cursor(error: Exception):
 	import cursor_sdk.errors as errors
 
-	frappe.log_error(title=f"Cursor: {type(error).__name__}", message=str(error)[:2000])
+	_log_error(f"Cursor: {type(error).__name__}", str(error)[:2000])
 	if isinstance(error, errors.AuthenticationError | errors.PermissionDeniedError):
 		raise AIUnavailable(_("Cursor rejected the API key. An administrator needs to check CBC Settings."))
 	if isinstance(error, errors.RateLimitError):

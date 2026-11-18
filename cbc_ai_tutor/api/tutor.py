@@ -16,6 +16,17 @@ from cbc_ai_tutor.api import common, sync
 MAX_MESSAGE = 2000
 HISTORY_TURNS = 8
 
+# How the learner asked Mwalimu to answer this time (the mode buttons under the chat).
+STYLES = {
+	"hint": "This time give only one small hint that moves the learner forward. Do not solve it.",
+	"steps": "This time walk through it step by step, one numbered step at a time, and check understanding at the end.",
+	"simple": "This time explain it more simply, with very short sentences and one everyday Kenyan example.",
+	"quiz": "This time ask the learner one question at a time to check they understand, and wait for the answer.",
+	"check": "The learner is sharing their own answer or working. Say what is right, point to the first mistake if any, and let them fix it.",
+	"kiswahili": "This time answer in simple Kiswahili.",
+	"voice": "The learner is listening, not reading: answer in short spoken sentences, with no tables, symbols or Markdown.",
+}
+
 TUTOR_RULES = """You are Mwalimu, a friendly AI tutor for learners in Kenya following the Competency-Based Curriculum (CBC) set by KICD.
 
 How you teach:
@@ -139,9 +150,11 @@ def ask(
 	lesson: str | None = None,
 	sub_strand: str | None = None,
 	learning_outcome: str | None = None,
+	style: str | None = None,
 ) -> dict:
 	student = common.current_learner()
 	message = cstr(message).strip()
+	styles = [s for s in cstr(style).split(",") if s in STYLES]
 	if not message:
 		frappe.throw(_("Type a question first."))
 	if len(message) > MAX_MESSAGE:
@@ -158,13 +171,17 @@ def ask(
 	history = _history(student, conversation)
 	# Only a first question is shared: a follow-up depends on the conversation before it.
 	scope = ctx.lesson or (ctx.sub_strand or {}).get("name")
-	key = None if history else reuse.question_key(ctx.grade, scope, message)
+	# A styled answer (a hint, Kiswahili, spoken) is not the shared answer to the plain question.
+	key = None if history or styles else reuse.question_key(ctx.grade, scope, message)
 	cached = reuse.cached_answer(key)
 	if cached:
 		reply = {"text": _html_to_markdownish(cached), "provider": "cache", "model": "", "input_tokens": 0, "output_tokens": 0}
 	else:
 		_require_quota(student)
-		reply = providers.complete(_system_prompt(ctx), [*history, {"role": "user", "content": message}])
+		system = _system_prompt(ctx)
+		if styles:
+			system += "\n\nHow to answer:\n" + "\n".join(f"- {STYLES[s]}" for s in styles)
+		reply = providers.complete(system, [*history, {"role": "user", "content": message}])
 
 	doc = frappe.get_doc(
 		{

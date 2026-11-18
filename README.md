@@ -39,7 +39,18 @@ Set the plan prices under **Subscription Plan** before going live; the seeded pr
     agent run with no tools, in a temporary folder removed afterwards. Each web worker starts one Cursor helper
     process on first use, and answers are a few seconds slower than a direct chat API.
   - **Backup provider** (optional): answers whenever the main one is down, rejects its key or is out of quota.
-    Safety refusals are not retried elsewhere. **Check AI** on CBC Settings asks one test question.
+    Safety refusals are not retried elsewhere.
+  - **More AI providers and routing** (optional): list as many providers as you like, each for everything, chat
+    only, or lessons and questions only, with an optional daily limit. **Routing** decides how they share the work:
+    - *Smart* (default): the provider that has been answering fastest goes first. If it has not answered after
+      a few seconds (*Ask the next provider after*), the next one is asked as well, and the first reply wins.
+    - *Race*: the two fastest are asked at once. Fastest replies, about twice the cost.
+    - *In order*: main, backup, then the list, one after another.
+
+    Response times are measured as learners use Mwalimu. A provider that fails rests for a minute (ten when it
+    rejects its key, longer each time in a row), so a learner never waits on one that is down. Cursor starts
+    behind the chat APIs, since each of its answers is an agent run, and moves up only if it proves quicker.
+    **Check AI** asks every provider one test question at once and shows how long each took.
 - **M-Pesa (IntaSend)**:
   1. Enter your publishable and secret keys.
   2. Use `https://sandbox.intasend.com` as the API base URL for testing. The default is live.

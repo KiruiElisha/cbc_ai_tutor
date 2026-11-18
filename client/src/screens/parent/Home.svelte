@@ -61,31 +61,37 @@
         <a class="btn" href="#/child/new">Add a child</a>
       </Empty>
     {:else}
-      {#each d.children as c}
-        <div class="card">
-          <div class="row">
-            <div class="avatar lg">{initials(c.name)}</div>
-            <div class="grow">
-              <h3 style="margin: 0">{c.name}</h3>
-              <div class="small muted">{c.grade || 'No grade'} · code <b>{c.learner_code}</b></div>
-              {#if !c.enabled}<span class="pill bad">Switched off</span>{/if}
+      <div class="section"><h2>Who's learning today?</h2></div>
+      <p class="small muted" style="margin: -4px 0 12px">Tap <b>Start learning</b> to hand this device to your child. Their lessons, quizzes and Mwalimu open straight away.</p>
+      <div class="who">
+        {#each d.children as c}
+          {@const first = c.first_name || c.name.split(' ')[0]}
+          <div class="kid">
+            <div class="kid-top">
+              <div class="avatar">{initials(c.name)}</div>
+              <div class="grow">
+                <h3 style="margin: 0">{c.name}</h3>
+                <div class="small muted">{c.grade || 'No grade'} · code <b>{c.learner_code}</b></div>
+                {#if !c.enabled}<span class="pill bad">Switched off</span>{/if}
+              </div>
             </div>
-          </div>
-          <div class="grid small" style="margin: 14px 0">
-            <div><div class="stat">{c.lessons_completed_this_week}</div><div class="small muted">lessons this week</div></div>
-            <div><div class="stat">{c.quiz_average_this_week != null ? Math.round(c.quiz_average_this_week) + '%' : '–'}</div><div class="small muted">quiz average</div></div>
-            <div><div class="small muted">Last active</div><b>{ago(c.last_active)}</b></div>
-          </div>
-          <div class="row wrap">
-            <a class="btn sm" href={'#/child/' + enc(c.student)}>Progress</a>
             {#if c.enabled}
-              <button class="btn sm soft" onclick={() => openLearner(c)} disabled={opening === c.student || res.cached}>
-                {opening === c.student ? 'Opening…' : `Let ${c.first_name || c.name.split(' ')[0]} learn here`}
+              <button class="kid-learn" onclick={() => openLearner(c)} disabled={opening === c.student || res.cached}>
+                <span class="play">▶</span>{opening === c.student ? 'Opening…' : `Start learning as ${first}`}
               </button>
             {/if}
+            <div class="kid-stats">
+              <div><b>{c.lessons_completed_this_week}</b><small>lessons this week</small></div>
+              <div><b>{c.quiz_average_this_week != null ? Math.round(c.quiz_average_this_week) + '%' : '–'}</b><small>quiz average</small></div>
+              <div><b style="font-size: 0.92rem; padding: 3px 0">{ago(c.last_active)}</b><small>last active</small></div>
+            </div>
+            <a class="btn sm ghost" href={'#/child/' + enc(c.student)}>See {first}'s progress</a>
           </div>
-        </div>
-      {/each}
+        {/each}
+        {#if d.children.filter((c) => c.enabled).length < d.subscription.max_learners}
+          <a class="kid-add" href="#/child/new"><span>＋</span>Add a child</a>
+        {/if}
+      </div>
       <p class="small muted center">Plan: {d.subscription.plan || d.subscription.status} · {d.children.filter((c) => c.enabled).length} of {d.subscription.max_learners} learner places used</p>
     {/if}
   {/if}

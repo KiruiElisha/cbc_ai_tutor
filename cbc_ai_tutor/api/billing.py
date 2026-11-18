@@ -51,6 +51,8 @@ def plans() -> dict:
 	return {
 		"plans": [_plan_card(r) for r in rows],
 		"gateways": {"mpesa": intasend.enabled(), "paypal": paypal.enabled()},
+		# For an approximate US dollar price beside each plan; payment stays in KES.
+		"kes_per_usd": flt(common.setting("kes_per_usd", 129)) or 129,
 	}
 
 
