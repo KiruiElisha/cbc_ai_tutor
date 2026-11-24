@@ -23,6 +23,17 @@ TX = "Payment Transaction"
 RECHECK_SECONDS = 8
 
 
+def paypal_price(plan) -> float:
+	"""What a plan costs through PayPal (or a card): its own PayPal price, else its KES price at the
+	KES-per-dollar rate in CBC Settings when PayPal charges in dollars, so no plan is left without one."""
+	if flt(plan.price_paypal) > 0:
+		return flt(plan.price_paypal)
+	if paypal.currency() != "USD" or flt(plan.price_kes) <= 0:
+		return 0.0
+	rate = flt(common.setting("kes_per_usd", 129)) or 129
+	return max(round(flt(plan.price_kes) / rate, 2), 1.0)
+
+
 def _plan_card(plan) -> dict:
 	return {
 		"name": plan.name,
@@ -30,7 +41,7 @@ def _plan_card(plan) -> dict:
 		"billing_period": plan.billing_period,
 		"duration_days": plan.duration_days,
 		"price_kes": flt(plan.price_kes),
-		"price_paypal": flt(plan.price_paypal),
+		"price_paypal": paypal_price(plan),
 		"paypal_currency": paypal.currency(),
 		"max_learners": cint(plan.max_learners),
 		"ai_messages_per_day": cint(plan.ai_messages_per_day),
@@ -181,17 +192,19 @@ def pay_mpesa(plan: str, phone: str) -> dict:
 
 @frappe.whitelist(methods=["POST"])
 @rate_limit(limit=6, seconds=10 * 60)
-def pay_paypal(plan: str) -> dict:
-	"""A PayPal order. The app opens ``approve_url`` in the browser."""
+def pay_paypal(plan: str, card: int | str = 0) -> dict:
+	"""A PayPal order. The app opens ``approve_url`` in the browser. With ``card``, PayPal opens on its
+	card form (guest checkout), so a parent without a PayPal account pays by debit or credit card."""
 	guardian = common.current_parent()
 	if not paypal.enabled():
 		frappe.throw(_("PayPal payments are not available right now."))
 	plan_doc = _enabled_plan(plan)
 	_check_capacity(guardian, plan_doc)
-	if flt(plan_doc.price_paypal) <= 0:
+	price = paypal_price(plan_doc)
+	if price <= 0:
 		frappe.throw(_("This plan has no PayPal price yet. Use M-Pesa."))
 
-	tx = _new_tx(guardian, plan_doc, "PayPal", flt(plan_doc.price_paypal), paypal.currency())
+	tx = _new_tx(guardian, plan_doc, "PayPal", price, paypal.currency())
 	frappe.db.commit()
 	base = get_url()
 	return_url = f"{base}/api/method/cbc_ai_tutor.api.payments.paypal_return?tx={tx.name}"
@@ -199,10 +212,11 @@ def pay_paypal(plan: str) -> dict:
 	try:
 		order = paypal.create_order(
 			tx.name,
-			flt(plan_doc.price_paypal),
+			price,
 			f"{common.setting('app_name') or 'CBC AI Tutor'} {plan_doc.plan_name}",
 			return_url,
 			cancel_url,
+			card=cint(card),
 		)
 	except paypal.PayPalError as e:
 		tx.db_set({"status": "Failed", "failure_reason": str(e)})

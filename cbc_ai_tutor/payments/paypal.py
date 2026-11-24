@@ -78,7 +78,9 @@ def _request(method: str, path: str, **kwargs) -> requests.Response:
 		raise PayPalError(_("PayPal could not be reached. Try again."))
 
 
-def create_order(reference: str, amount: float, description: str, return_url: str, cancel_url: str) -> dict:
+def create_order(
+	reference: str, amount: float, description: str, return_url: str, cancel_url: str, card: bool = False
+) -> dict:
 	body = {
 		"intent": "CAPTURE",
 		"purchase_units": [
@@ -96,6 +98,8 @@ def create_order(reference: str, amount: float, description: str, return_url: st
 					"brand_name": (common.setting("app_name") or "CBC AI Tutor")[:127],
 					"shipping_preference": "NO_SHIPPING",
 					"user_action": "PAY_NOW",
+					# Card: open on PayPal's guest checkout, the card form, rather than its login.
+					"landing_page": "GUEST_CHECKOUT" if card else "NO_PREFERENCE",
 					"return_url": return_url,
 					"cancel_url": cancel_url,
 				}

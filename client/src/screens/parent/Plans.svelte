@@ -49,10 +49,11 @@
     }
   }
 
-  async function paypal() {
+  /** PayPal, or with `card` PayPal's card form: no PayPal account needed. */
+  async function paypal(card = false) {
     busy = true
     try {
-      const r = await api('billing.pay_paypal', { plan: chosen.name })
+      const r = await api('billing.pay_paypal', { plan: chosen.name, card: card ? 1 : 0 })
       payOpen = false
       await openUrl(r.approve_url)
       go('/payment/' + enc(r.transaction))
@@ -162,9 +163,10 @@
     {/if}
     {#if catalog.gateways.paypal && chosen.price_paypal}
       {#if catalog.gateways.mpesa}<hr style="border: 0; border-top: 1px solid var(--line); margin: 16px 0" />{/if}
-      <h3 style="margin-top: 0">PayPal or card · {money(chosen.price_paypal, chosen.paypal_currency)}</h3>
-      <button class="btn block ghost" onclick={paypal} disabled={busy}>Continue to PayPal</button>
-      <p class="small muted">PayPal opens in your browser. Come back to the app when you're done.</p>
+      <h3 style="margin-top: 0">Card or PayPal · {money(chosen.price_paypal, chosen.paypal_currency)}</h3>
+      <button class="btn block" onclick={() => paypal(true)} disabled={busy}>💳 Pay with debit or credit card</button>
+      <button class="btn block ghost" style="margin-top: 8px" onclick={() => paypal(false)} disabled={busy}>Pay with PayPal</button>
+      <p class="small muted">A secure PayPal page opens in your browser: the card form needs no PayPal account. Come back to the app when you're done; it updates the moment the payment goes through.</p>
     {/if}
   {/if}
 </Modal>
