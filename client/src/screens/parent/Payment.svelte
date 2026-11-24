@@ -32,12 +32,25 @@
     return () => clearTimeout(timer)
   })
 
-  /** The parent says they paid: ask M-Pesa now rather than at the next check. */
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+  /** The parent says they paid: ask IntaSend now, and keep asking for a few seconds, rather than
+   *  wait for its callback or the next check. M-Pesa often confirms a few seconds after the PIN. */
   async function checkNow() {
     checking = true
     try {
-      tx = await api('billing.transaction', { name: params.tx, now: 1 })
-      if (tx.status === 'Pending') toast("M-Pesa hasn't confirmed it yet. It usually takes under a minute.", 'info')
+      for (let i = 0; i < 5; i++) {
+        tx = await api('billing.transaction', { name: params.tx, now: 1 })
+        if (tx.status !== 'Pending') break
+        if (i < 4) await sleep(4000)
+      }
+      if (tx.status === 'Pending') {
+        toast("M-Pesa hasn't confirmed it yet. We'll keep checking; you can tap again in a moment.", 'info')
+        // back to quick checks, in case the screen had slowed down to one every ten seconds
+        clearTimeout(timer)
+        tries = 0
+        timer = setTimeout(poll, 4000)
+      }
     } catch (e) {
       toast(errorText(e), 'error')
     } finally {
@@ -73,10 +86,13 @@
       {/if}
       {#if tx}<p class="small muted">{money(tx.amount, tx.currency)}</p>{/if}
       <div class="loading"><span class="spinner"></span></div>
-      <div class="row wrap" style="justify-content: center">
-        <button class="btn" onclick={checkNow} disabled={checking || !tx}>{checking ? 'Checking…' : "I've paid, check now"}</button>
-        <button class="btn ghost" onclick={cancel} disabled={busy || !tx}>I didn't pay, cancel</button>
-      </div>
+      <!-- When IntaSend's callback is slow, the parent who has paid confirms it here: it asks
+           IntaSend directly instead of waiting. -->
+      <button class="btn" style="width: 100%; max-width: 320px; margin: 4px auto 0; display: block" onclick={checkNow} disabled={checking || !tx}>
+        {checking ? 'Confirming payment…' : 'Confirm payment'}
+      </button>
+      <p class="small muted" style="margin-top: 6px">Paid but this screen hasn't changed? Tap Confirm payment.</p>
+      <button class="btn ghost small" onclick={cancel} disabled={busy || checking || !tx}>I didn't pay, cancel</button>
     {:else if tx.status === 'Completed'}
       <div style="font-size: 3rem">✅</div>
       <h2>Payment received</h2>
